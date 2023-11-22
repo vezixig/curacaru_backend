@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Curacaru.Backend.Core</RootNamespace>
+    <PackageId>Curacaru.Backend.Core</PackageId>
+  </PropertyGroup>
+
+</Project>
