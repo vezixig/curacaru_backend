@@ -3,6 +3,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using repositories;
 using repositories.implementation;
+using Services;
+using Services.Implementations;
 
 /// <summary>Dependency injection registration for the infrastructure layer.</summary>
 public static class ServiceRegistration
@@ -13,6 +15,9 @@ public static class ServiceRegistration
     {
         services.AddDbContext<DataContext>();
 
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+        services.AddScoped<IDatabaseService, DatabaseService>();
     }
 }

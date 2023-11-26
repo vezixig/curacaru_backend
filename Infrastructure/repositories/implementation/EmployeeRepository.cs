@@ -10,6 +10,13 @@ internal class EmployeeRepository : IEmployeeRepository
     public EmployeeRepository(DataContext dataContext)
         => _dataContext = dataContext;
 
+    public async Task<Employee> AddEmployee(Employee employee)
+    {
+        var dbEmployee = _dataContext.Employees.Add(employee);
+        await _dataContext.SaveChangesAsync();
+        return dbEmployee.Entity;
+    }
+
     public Task<Employee?> GetEmployeeByAuthId(string authId)
         => _dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
 }
