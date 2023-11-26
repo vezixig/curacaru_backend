@@ -19,4 +19,7 @@ internal class EmployeeRepository : IEmployeeRepository
 
     public Task<Employee?> GetEmployeeByAuthId(string authId)
         => _dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
+
+    public Task<List<Employee>> GetEmployees(Guid companyId)
+        => _dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
 }

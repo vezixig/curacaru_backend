@@ -11,4 +11,9 @@ public interface IEmployeeRepository
     /// <param name="authId">The auth id to check for.</param>
     /// <returns>True if an employee exists, otherwise false.</returns>
     public Task<Employee?> GetEmployeeByAuthId(string authId);
+
+    /// <summary>Gets all employees of a company.</summary>
+    /// <param name="companyId">The company id to get the employees for.</param>
+    /// <returns>A list of employees.</returns>
+    public Task<List<Employee>> GetEmployees(Guid companyId);
 }
