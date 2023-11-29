@@ -1,6 +1,7 @@
 namespace Curacaru.Backend.Controllers;
 
 using Application.CQRS.Employee;
+using Core.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,13 @@ public class EmployeeController : ControllerBase
 
     public EmployeeController(IMediator mediator)
         => _mediator = mediator;
+
+    [HttpPost("new")]
+    public async Task<IActionResult> AddEmployee(AddEmployeeDto employee)
+    {
+        var newEmployee = await _mediator.Send(new AddEmployeeRequest(AuthId, employee));
+        return CreatedAtAction(nameof(GetEmployeeByAuthId), new { AuthId }, newEmployee);
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetEmployeeByAuthId()

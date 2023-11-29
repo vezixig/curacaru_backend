@@ -7,6 +7,11 @@ public interface IEmployeeRepository
     /// <summary>Adds an employee to the database.</summary>
     public Task<Employee> AddEmployee(Employee employee);
 
+    /// <summary>Adds an employee to the database.</summary>
+    /// <param name="employee">The employee to add.</param>
+    /// <returns>The added employee.</returns>
+    public Task<Employee> AddEmployeeAsync(Employee employee);
+
     /// <summary>Checks if an employee with a given authId exists.</summary>
     /// <param name="authId">The auth id to check for.</param>
     /// <returns>True if an employee exists, otherwise false.</returns>

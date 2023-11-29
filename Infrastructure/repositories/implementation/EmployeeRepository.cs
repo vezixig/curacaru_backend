@@ -22,4 +22,11 @@ internal class EmployeeRepository : IEmployeeRepository
 
     public Task<List<Employee>> GetEmployees(Guid companyId)
         => _dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
+
+    public async Task<Employee> AddEmployeeAsync(Employee employee)
+    {
+        var dbEmployee = _dataContext.Employees.Add(employee);
+        await _dataContext.SaveChangesAsync();
+        return dbEmployee.Entity;
+    }
 }
