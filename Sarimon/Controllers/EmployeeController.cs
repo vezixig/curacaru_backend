@@ -23,6 +23,13 @@ public class EmployeeController : ControllerBase
         return CreatedAtAction(nameof(GetEmployeeByAuthId), new { AuthId }, newEmployee);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetEmployee([FromRoute] string id)
+    {
+        var employee = await _mediator.Send(new EmployeeByIdRequest(AuthId, id));
+        return employee == null ? NotFound() : Ok(employee);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetEmployeeByAuthId()
     {
@@ -35,5 +42,12 @@ public class EmployeeController : ControllerBase
     {
         var employees = await _mediator.Send(new EmployeeListQuery(AuthId));
         return Ok(employees);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateEmployee([FromBody] UpdateEmployeeDto employee)
+    {
+        var updatedEmployee = await _mediator.Send(new UpdateEmployeeRequest(AuthId, employee));
+        return Ok(updatedEmployee);
     }
 }

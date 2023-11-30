@@ -36,7 +36,7 @@ internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployee
 
     public async Task<GetEmployeeDto> Handle(SignUpCommand request, CancellationToken cancellationToken)
     {
-        if (await _employeeRepository.GetEmployeeByAuthId(request.AuthId) != null) throw new Exception("Employee already exists");
+        if (await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId) != null) throw new Exception("Employee already exists");
 
         var transaction = await _databaseService.GetTransactionAsync(cancellationToken);
 
@@ -59,7 +59,7 @@ internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployee
                 LastName = request.SignUpDto.LastName
             };
 
-            employee = await _employeeRepository.AddEmployee(employee);
+            employee = await _employeeRepository.AddEmployeeAsync(employee);
 
             await transaction.CommitAsync(cancellationToken);
 
@@ -69,7 +69,7 @@ internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployee
                 LastName = employee.LastName
             };
         }
-        catch (Exception e)
+        catch (Exception)
         {
             await transaction.RollbackAsync(CancellationToken.None);
             throw;

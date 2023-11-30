@@ -10,22 +10,25 @@ internal class EmployeeRepository : IEmployeeRepository
     public EmployeeRepository(DataContext dataContext)
         => _dataContext = dataContext;
 
-    public async Task<Employee> AddEmployee(Employee employee)
+    public async Task<Employee> AddEmployeeAsync(Employee employee)
     {
         var dbEmployee = _dataContext.Employees.Add(employee);
         await _dataContext.SaveChangesAsync();
         return dbEmployee.Entity;
     }
 
-    public Task<Employee?> GetEmployeeByAuthId(string authId)
+    public Task<Employee?> GetEmployeeByAuthIdAsync(string authId)
         => _dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
 
-    public Task<List<Employee>> GetEmployees(Guid companyId)
+    public Task<Employee?> GetEmployeeByIdAsync(Guid employeeId, Guid companyId)
+        => _dataContext.Employees.FirstOrDefaultAsync(e => e.Id == employeeId && e.CompanyId == companyId);
+
+    public Task<List<Employee>> GetEmployeesAsync(Guid companyId)
         => _dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
 
-    public async Task<Employee> AddEmployeeAsync(Employee employee)
+    public async Task<Employee> UpdateEmployeeAsync(Employee currentEmploye)
     {
-        var dbEmployee = _dataContext.Employees.Add(employee);
+        var dbEmployee = _dataContext.Employees.Update(currentEmploye);
         await _dataContext.SaveChangesAsync();
         return dbEmployee.Entity;
     }

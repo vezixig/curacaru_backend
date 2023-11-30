@@ -22,5 +22,5 @@ public class GetEmployeeByAuthIdQueryHandler : IRequestHandler<EmployeeExistsByA
         => _employeeRepository = employeeRepository;
 
     public Task<Employee?> Handle(EmployeeExistsByAuthIdQuery request, CancellationToken cancellationToken)
-        => _employeeRepository.GetEmployeeByAuthId(request.EmployeeId);
+        => _employeeRepository.GetEmployeeByAuthIdAsync(request.EmployeeId);
 }

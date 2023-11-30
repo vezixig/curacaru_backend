@@ -28,7 +28,7 @@ internal class AddEmployeeRequestHandler : IRequestHandler<AddEmployeeRequest, E
 
     public async Task<Employee> Handle(AddEmployeeRequest request, CancellationToken cancellationToken)
     {
-        var creator = await _employeeRepository.GetEmployeeByAuthId(request.AuthId);
+        var creator = await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (!creator!.IsManager) throw new ForbiddenException("Nur Manager dürfen neue Benutzer anlegen.");
 
         // todo: check if email exists
@@ -45,7 +45,7 @@ internal class AddEmployeeRequestHandler : IRequestHandler<AddEmployeeRequest, E
             CompanyId = creator.CompanyId
         };
 
-        employee = await _employeeRepository.AddEmployee(employee);
+        employee = await _employeeRepository.AddEmployeeAsync(employee);
         return employee;
     }
 }

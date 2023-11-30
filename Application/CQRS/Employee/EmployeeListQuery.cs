@@ -28,12 +28,12 @@ internal class EmployeeListQueryHandler : IRequestHandler<EmployeeListQuery, IEn
 
     public async Task<IEnumerable<Employee>> Handle(EmployeeListQuery request, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetEmployeeByAuthId(request.AuthId)
+        var employee = await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId)
                        ?? throw new BadRequestException("Employee not found");
 
         if (employee.CompanyId == null) throw new BadRequestException("Employee is not in a company");
 
-        var employees = await _employeeRepository.GetEmployees(employee.CompanyId.Value);
+        var employees = await _employeeRepository.GetEmployeesAsync(employee.CompanyId.Value);
 
         return employees;
     }
