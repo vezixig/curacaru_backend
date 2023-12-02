@@ -9,6 +9,11 @@ public interface IEmployeeRepository
     /// <returns>The added employee.</returns>
     public Task<Employee> AddEmployeeAsync(Employee employee);
 
+    /// <summary>Deletes an employee.</summary>
+    /// <param name="employee">The employee to delete.</param>
+    /// <returns>An awaitable task object.</returns>
+    public Task DeleteEmployeeAsync(Employee employee);
+
     /// <summary>Checks if an employee with a given authId exists.</summary>
     /// <param name="authId">The auth id to check for.</param>
     /// <returns>True if an employee exists, otherwise false.</returns>

@@ -17,6 +17,12 @@ internal class EmployeeRepository : IEmployeeRepository
         return dbEmployee.Entity;
     }
 
+    public async Task DeleteEmployeeAsync(Employee employee)
+    {
+        _dataContext.Employees.Remove(employee);
+        await _dataContext.SaveChangesAsync();
+    }
+
     public Task<Employee?> GetEmployeeByAuthIdAsync(string authId)
         => _dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
 
