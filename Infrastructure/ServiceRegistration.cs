@@ -18,6 +18,7 @@ public static class ServiceRegistration
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDatabaseService, DatabaseService>();
     }
 }

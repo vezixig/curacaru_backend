@@ -21,14 +21,21 @@ public class SignUpCommand : IRequest<GetEmployeeDto>
 
 internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployeeDto>
 {
+    private readonly IAuthService _authService;
+
     private readonly ICompanyRepository _companyRepository;
 
     private readonly IDatabaseService _databaseService;
 
     private readonly IEmployeeRepository _employeeRepository;
 
-    public SignUpCommandHandler(ICompanyRepository companyRepository, IDatabaseService databaseService, IEmployeeRepository employeeRepository)
+    public SignUpCommandHandler(
+        IAuthService authService,
+        ICompanyRepository companyRepository,
+        IDatabaseService databaseService,
+        IEmployeeRepository employeeRepository)
     {
+        _authService = authService;
         _companyRepository = companyRepository;
         _databaseService = databaseService;
         _employeeRepository = employeeRepository;
@@ -42,6 +49,9 @@ internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployee
 
         try
         {
+            // Get email from Auth0
+            var email = await _authService.GetMailAsync(request.AuthId);
+
             // Add the company
             var company = new Company
             {
@@ -55,7 +65,9 @@ internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployee
             {
                 AuthId = request.AuthId,
                 CompanyId = company.Id,
+                Email = email,
                 FirstName = request.SignUpDto.FirstName,
+                IsManager = true,
                 LastName = request.SignUpDto.LastName
             };
 

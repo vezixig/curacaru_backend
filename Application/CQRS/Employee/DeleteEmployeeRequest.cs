@@ -30,6 +30,8 @@ internal class DeleteEmployeeRequestHandler : IRequestHandler<DeleteEmployeeRequ
         if (user.IsManager == false) throw new ForbiddenException("Nur Manager dürfen Mitarbeiter löschen.");
         if (user.CompanyId == null) throw new NotFoundException("Benutzer gehört zu keinem Unternehmen.");
 
+        if (user.Id == request.EmployeeId) throw new ForbiddenException("Du kannst dich nicht selbst löschen.");
+
         var employee = await _employeeRepository.GetEmployeeByIdAsync(request.EmployeeId, user.CompanyId.Value)
                        ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
