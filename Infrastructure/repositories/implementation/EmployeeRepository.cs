@@ -23,6 +23,9 @@ internal class EmployeeRepository : IEmployeeRepository
         await _dataContext.SaveChangesAsync();
     }
 
+    public Task<bool> DoesEmailExistAsync(string email)
+        => _dataContext.Employees.AnyAsync(e => e.Email == email);
+
     public Task<Employee?> GetEmployeeByAuthIdAsync(string authId)
         => _dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
 

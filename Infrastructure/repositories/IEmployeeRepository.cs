@@ -14,6 +14,11 @@ public interface IEmployeeRepository
     /// <returns>An awaitable task object.</returns>
     public Task DeleteEmployeeAsync(Employee employee);
 
+    /// <summary>Checks if an email exists.</summary>
+    /// <param name="email">The email to check for.</param>
+    /// <returns>True if the email exists, otherwise false.</returns>
+    public Task<bool> DoesEmailExistAsync(string email);
+
     /// <summary>Checks if an employee with a given authId exists.</summary>
     /// <param name="authId">The auth id to check for.</param>
     /// <returns>True if an employee exists, otherwise false.</returns>

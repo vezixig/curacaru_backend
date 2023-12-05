@@ -4,6 +4,7 @@ using Core.DTO;
 using Core.Entities;
 using Core.Exceptions;
 using Infrastructure.repositories;
+using Infrastructure.Services;
 using MediatR;
 
 public class AddEmployeeRequest : IRequest<Employee>
@@ -21,22 +22,34 @@ public class AddEmployeeRequest : IRequest<Employee>
 
 internal class AddEmployeeRequestHandler : IRequestHandler<AddEmployeeRequest, Employee>
 {
+    private readonly IAuthService _authService;
+
+    private readonly IEmailService _emailService;
+
     private readonly IEmployeeRepository _employeeRepository;
 
-    public AddEmployeeRequestHandler(IEmployeeRepository employeeRepository)
-        => _employeeRepository = employeeRepository;
+    public AddEmployeeRequestHandler(IAuthService authService, IEmailService emailService, IEmployeeRepository employeeRepository)
+    {
+        _authService = authService;
+        _emailService = emailService;
+        _employeeRepository = employeeRepository;
+    }
 
     public async Task<Employee> Handle(AddEmployeeRequest request, CancellationToken cancellationToken)
     {
         var creator = await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (!creator!.IsManager) throw new ForbiddenException("Nur Manager dürfen neue Benutzer anlegen.");
 
-        // todo: check if email exists
+        if (await _employeeRepository.DoesEmailExistAsync(request.EmployeeData.Email))
+            throw new BadRequestException("Die angegebene E-Mail Adresse wird bereits verwendet.");
 
-        // todo: register with Auth0
+        var user = await _authService.CreateUserAsync(request.EmployeeData.Email);
+
+        _emailService.SendPasswordMail(request.EmployeeData.Email, user.Password);
 
         var employee = new Employee
         {
+            AuthId = user.AuthId,
             Email = request.EmployeeData.Email,
             FirstName = request.EmployeeData.FirstName,
             IsManager = request.EmployeeData.IsManager,
