@@ -45,6 +45,19 @@ internal class AuthService : IAuthService
         return new UserPassword(user.password, userId);
     }
 
+    public async Task DeleteUserAsync(string authId)
+    {
+        var token = await GetTokenAsync();
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUrl}users/{authId}");
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var client = new HttpClient();
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode) throw new Exception("Benutzer konnte nicht angelegt werden.");
+    }
+
     public async Task<string> GetMailAsync(string authId)
     {
         var token = await GetTokenAsync();
