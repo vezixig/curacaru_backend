@@ -40,7 +40,7 @@ public class EmployeeController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetEmployeeByAuthId()
     {
-        var employee = await _mediator.Send(new EmployeeExistsByAuthIdQuery(AuthId));
+        var employee = await _mediator.Send(new EmployeeByAuthIdQuery(AuthId));
         return employee == null ? NotFound() : Ok(employee);
     }
 

@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Infrastructure.repositories.implementation;
 
 using Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 internal class CompanyRepository : ICompanyRepository
 {
@@ -15,4 +16,7 @@ internal class CompanyRepository : ICompanyRepository
         await _dataContext.SaveChangesAsync();
         return dbCompany.Entity;
     }
+
+    public Task<Company?> GetCompanyById(Guid employeCompanyId)
+        => _dataContext.Companies.FirstOrDefaultAsync(c => c.Id == employeCompanyId);
 }

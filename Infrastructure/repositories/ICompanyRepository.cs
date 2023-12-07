@@ -5,4 +5,5 @@ using Core.Entities;
 public interface ICompanyRepository
 {
     public Task<Company> AddCompanyAsync(Company company);
+    public Task<Company?> GetCompanyById(Guid employeCompanyId);
 }
