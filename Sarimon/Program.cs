@@ -1,5 +1,6 @@
 using Curacaru.Backend.Application;
 using Curacaru.Backend.Infrastructure;
+using Curacaru.Backend.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<CompanyMiddleware>();
 
 builder.Services.AddCors(
     options =>
@@ -52,6 +54,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<CompanyMiddleware>();
 app.MapControllers();
 
 app.Run();

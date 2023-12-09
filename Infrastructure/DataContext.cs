@@ -10,8 +10,14 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of companies.</summary>
     public DbSet<Company> Companies { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of customers.</summary>
+    public DbSet<Customer> Customers { get; set; } = null!;
+
     /// <summary>Gets or sets the set of employees.</summary>
     public DbSet<Employee> Employees { get; set; } = null!;
+
+    /// <summary>Gets or sets the set of zip codes.</summary>
+    public DbSet<ZipCity> ZipCities { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -37,5 +43,20 @@ internal class DataContext : DbContext
             .HasOne<Company>()
             .WithMany()
             .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<Customer>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<Customer>()
+            .HasOne(o => o.AssociatedEmployee)
+            .WithMany()
+            .HasForeignKey(o => o.AssociatedEmployeeId);
+
+        modelBuilder.Entity<Customer>()
+            .HasOne(o => o.ZipCity)
+            .WithMany()
+            .HasForeignKey(o => o.ZipCode);
     }
 }

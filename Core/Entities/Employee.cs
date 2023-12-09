@@ -13,6 +13,8 @@ public class Employee
 
     public string FirstName { get; set; } = "";
 
+    public string FullName => $"{FirstName} {LastName}".Trim();
+
     [Key]
     public Guid Id { get; set; }
 

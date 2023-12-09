@@ -2,7 +2,9 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using repositories;
+using Repositories;
 using repositories.implementation;
+using Repositories.Implementation;
 using Services;
 using Services.Implementations;
 
@@ -17,6 +19,7 @@ public static class ServiceRegistration
 
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDatabaseService, DatabaseService>();
