@@ -10,6 +10,13 @@ internal class CustomerRepository : ICustomerRepository
     public CustomerRepository(DataContext dataContext)
         => _dataContext = dataContext;
 
+    public async Task<Customer> AddCustomerAsync(Customer customer)
+    {
+        var result = await _dataContext.Customers.AddAsync(customer);
+        await _dataContext.SaveChangesAsync();
+        return result.Entity;
+    }
+
     public Task<List<Customer>> GetCustomersAsync(Guid companyId)
         => _dataContext.Customers
             .Include(o => o.AssociatedEmployee)

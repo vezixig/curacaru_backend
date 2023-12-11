@@ -8,5 +8,5 @@ public class ControllerBase : Microsoft.AspNetCore.Mvc.ControllerBase
 
     public Guid? CompanyId => User.Claims.Any(o => o.Type == "CompanyId") ? Guid.Parse(User.Claims.First(o => o.Type == "CompanyId").Value) : null;
 
-    //Guid.Parse((User.Identity as ClaimsIdentity)?.Claims.FirstOrDefault(c => c.Type == "CompanyId")?.Value ?? "");
+    public bool IsManager => User.Claims.Any(o => o.Type == "Manager");
 }
