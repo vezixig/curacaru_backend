@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class CustomersController : ControllerBase
+public class CustomerController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public CustomersController(IMediator mediator)
+    public CustomerController(IMediator mediator)
         => _mediator = mediator;
 
     [HttpPost("new")]
@@ -30,9 +30,12 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> DeleteCustomer([FromRoute] Guid id)
         => Ok();
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetCustomer([FromRoute] Guid id)
-        => Ok();
+    [HttpGet("{customerId}")]
+    public async Task<IActionResult> GetCustomer([FromRoute] string customerId)
+    {
+        var customer = await _mediator.Send(new CustomerRequest(CompanyId.Value, customerId));
+        return Ok(customer);
+    }
 
     [HttpGet("list")]
     public async Task<IActionResult> GetCustomers()
@@ -45,5 +48,11 @@ public class CustomersController : ControllerBase
 
     [HttpPut]
     public async Task<IActionResult> UpdateCustomer([FromBody] UpdateCustomerDto customer)
-        => Ok();
+    {
+        if (CompanyId == null) return Forbid();
+        if (!IsManager) return Forbid("Nur Manager dürfen Kunden bearbeiten.");
+
+        var updatedCustomer = await _mediator.Send(new UpdateCustomerRequest(customer, CompanyId.Value, AuthId));
+        return Ok(updatedCustomer);
+    }
 }

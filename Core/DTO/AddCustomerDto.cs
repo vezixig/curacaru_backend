@@ -20,6 +20,8 @@ public class AddCustomerDto
 
     public InsuranceStatus? InsuranceStatus { get; set; }
 
+    public string InsuredPersonNumber { get; set; } = "";
+
     public bool IsCareContractAvailable { get; set; }
 
     public string LastName { get; set; } = "";
