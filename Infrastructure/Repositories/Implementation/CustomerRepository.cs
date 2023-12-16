@@ -21,12 +21,18 @@ internal class CustomerRepository : ICustomerRepository
         return result.Entity;
     }
 
-    public Task<Customer?> GetCustomerAsync(Guid requestCompanyId, Guid requestEmployeeId)
+    public async Task DeleteCustomerAsync(Customer customer)
+    {
+        _dataContext.Customers.Remove(customer);
+        await _dataContext.SaveChangesAsync();
+    }
+
+    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid employeeId)
         => _dataContext.Customers
             .Include(o => o.AssociatedEmployee)
             .Include(o => o.ZipCity)
             .Include(o => o.Insurance)
-            .FirstOrDefaultAsync(o => o.CompanyId == requestCompanyId && o.Id == requestEmployeeId);
+            .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == employeeId);
 
     public Task<List<Customer>> GetCustomersAsync(Guid companyId)
         => _dataContext.Customers

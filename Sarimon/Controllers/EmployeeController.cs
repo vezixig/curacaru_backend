@@ -23,14 +23,14 @@ public class EmployeeController : ControllerBase
         return CreatedAtAction(nameof(GetEmployeeByAuthId), new { AuthId }, newEmployee);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteEmployee([FromRoute] Guid id)
+    [HttpDelete("{employeeId}")]
+    public async Task<IActionResult> DeleteEmployee([FromRoute] Guid employeeId)
     {
-        await _mediator.Send(new DeleteEmployeeRequest(AuthId, id));
+        await _mediator.Send(new DeleteEmployeeRequest(AuthId, employeeId));
         return NoContent();
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{employeeId}")]
     public async Task<IActionResult> GetEmployee([FromRoute] string id)
     {
         var employee = await _mediator.Send(new EmployeeByIdRequest(AuthId, id));

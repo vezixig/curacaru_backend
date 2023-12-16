@@ -10,11 +10,16 @@ public interface ICustomerRepository
     /// <returns>The added customer.</returns>
     public Task<Customer> AddCustomerAsync(Customer customer);
 
+    /// <summary>Deletes a customer.</summary>
+    /// <param name="customer">The customer to delete.</param>
+    /// <returns>An awaitable task object.</returns>
+    public Task DeleteCustomerAsync(Customer customer);
+
     /// <summary>Gets a customer.</summary>
-    /// <param name="requestCompanyId">The company id.</param>
-    /// <param name="requestEmployeeId">The employee id.</param>
+    /// <param name="companyId">The company id.</param>
+    /// <param name="employeeId">The employee id.</param>
     /// <returns>A customer if found, otherwise null.</returns>
-    public Task<Customer?> GetCustomerAsync(Guid requestCompanyId, Guid requestEmployeeId);
+    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid employeeId);
 
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>

@@ -28,7 +28,10 @@ public class CustomerController : ControllerBase
 
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer([FromRoute] string customerId)
-        => Ok();
+    {
+        await _mediator.Send(new DeleteCustomerRequest(AuthId, Guid.Parse(customerId)));
+        return NoContent();
+    }
 
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer([FromRoute] string customerId)
