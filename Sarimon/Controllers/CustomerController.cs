@@ -23,11 +23,11 @@ public class CustomerController : ControllerBase
         if (!IsManager) return Forbid("Nur Manager dürfen neue Kunden anlegen.");
 
         var newCustomer = await _mediator.Send(new AddCustomerRequest(CompanyId.Value, customer));
-        return CreatedAtAction(nameof(GetCustomer), new { newCustomer.Id }, newCustomer);
+        return CreatedAtAction(nameof(GetCustomer), new { customerId = newCustomer.Id }, newCustomer);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCustomer([FromRoute] Guid id)
+    [HttpDelete("{customerId}")]
+    public async Task<IActionResult> DeleteCustomer([FromRoute] string customerId)
         => Ok();
 
     [HttpGet("{customerId}")]

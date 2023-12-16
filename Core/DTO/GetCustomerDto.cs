@@ -29,6 +29,8 @@ public class GetCustomerDto
 
     public Guid Id { get; set; }
 
+    public GetInsuranceDto? Insurance { get; set; }
+
     public Guid? InsuranceId { get; set; }
 
     public InsuranceStatus? InsuranceStatus { get; set; }

@@ -28,6 +28,8 @@ public class Customer
     [Key]
     public Guid Id { get; set; }
 
+    public Insurance? Insurance { get; set; }
+
     public Guid? InsuranceId { get; set; }
 
     public InsuranceStatus? InsuranceStatus { get; set; }

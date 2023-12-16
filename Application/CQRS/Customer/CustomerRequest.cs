@@ -31,7 +31,7 @@ internal class CustomerRequestHandler : IRequestHandler<CustomerRequest, GetCust
         _mapper = mapper;
     }
 
-    public async Task<GetCustomerDto> Handle(CustomerRequest request, CancellationToken cancellationToken)
+    public async Task<GetCustomerDto?> Handle(CustomerRequest request, CancellationToken cancellationToken)
     {
         var customer = await _customerRepository.GetCustomerAsync(request.CompanyId, request.EmployeeId)
                        ?? throw new NotFoundException("Kunde nicht gefunden.");

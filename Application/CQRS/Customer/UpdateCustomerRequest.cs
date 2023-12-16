@@ -58,6 +58,7 @@ public class UpdateCustomerRequestHandler : IRequestHandler<UpdateCustomerReques
         customer.EmergencyContactPhone = request.CustomerData.EmergencyContactPhone;
         customer.FirstName = request.CustomerData.FirstName;
         customer.InsuranceId = request.CustomerData.InsuranceId;
+        customer.Insurance = request.CustomerData.InsuranceId.HasValue ? new Insurance { Id = request.CustomerData.InsuranceId.Value } : null;
         customer.InsuranceStatus = request.CustomerData.InsuranceStatus;
         customer.InsuredPersonNumber = request.CustomerData.InsuredPersonNumber;
         customer.InsuranceStatus = request.CustomerData.InsuranceStatus;

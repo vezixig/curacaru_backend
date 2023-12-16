@@ -18,5 +18,7 @@ internal class MappingProfile : Profile
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.ZipCode : ""));
 
         CreateMap<AddCustomerDto, Customer>();
+
+        CreateMap<Insurance, GetInsuranceDto>();
     }
 }
