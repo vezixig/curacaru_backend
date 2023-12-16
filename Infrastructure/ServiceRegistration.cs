@@ -17,9 +17,11 @@ public static class ServiceRegistration
     {
         services.AddDbContext<DataContext>();
 
+        services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
-        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IInsuranceRepository, InsuranceRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDatabaseService, DatabaseService>();

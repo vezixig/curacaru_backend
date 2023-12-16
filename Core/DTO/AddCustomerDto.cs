@@ -18,7 +18,11 @@ public class AddCustomerDto
 
     public string FirstName { get; set; } = "";
 
+    public Guid? InsuranceId { get; set; }
+
     public InsuranceStatus? InsuranceStatus { get; set; }
+
+    public string InsuredPersonNumber { get; set; } = "";
 
     public bool IsCareContractAvailable { get; set; }
 

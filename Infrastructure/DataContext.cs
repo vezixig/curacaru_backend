@@ -16,6 +16,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of employees.</summary>
     public DbSet<Employee> Employees { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of insurances.</summary>
+    public DbSet<Insurance> Insurances { get; set; } = null!;
+
     /// <summary>Gets or sets the set of zip codes.</summary>
     public DbSet<ZipCity> ZipCities { get; set; } = null!;
 
@@ -50,6 +53,11 @@ internal class DataContext : DbContext
             .HasForeignKey(o => o.CompanyId);
 
         modelBuilder.Entity<Customer>()
+            .HasOne(o => o.Insurance)
+            .WithMany()
+            .HasForeignKey(o => o.InsuranceId);
+
+        modelBuilder.Entity<Customer>()
             .HasOne(o => o.AssociatedEmployee)
             .WithMany()
             .HasForeignKey(o => o.AssociatedEmployeeId);
@@ -58,5 +66,10 @@ internal class DataContext : DbContext
             .HasOne(o => o.ZipCity)
             .WithMany()
             .HasForeignKey(o => o.ZipCode);
+
+        modelBuilder.Entity<Insurance>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(o => o.CompanyId);
     }
 }

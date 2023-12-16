@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231213200024_customerinsured")]
+    partial class customerinsured
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,8 +109,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("InsuranceId");
-
                     b.HasIndex("ZipCode");
 
                     b.ToTable("Customers");
@@ -152,30 +153,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("Curacaru.Backend.Core.Entities.Insurance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("InstitutionCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("Insurances");
-                });
-
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.ZipCity", b =>
                 {
                     b.Property<string>("ZipCode")
@@ -202,10 +179,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Curacaru.Backend.Core.Entities.Insurance", null)
-                        .WithMany()
-                        .HasForeignKey("InsuranceId");
-
                     b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", "ZipCity")
                         .WithMany()
                         .HasForeignKey("ZipCode");
@@ -220,15 +193,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.HasOne("Curacaru.Backend.Core.Entities.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId");
-                });
-
-            modelBuilder.Entity("Curacaru.Backend.Core.Entities.Insurance", b =>
-                {
-                    b.HasOne("Curacaru.Backend.Core.Entities.Company", null)
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
