@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 /// <summary>Data context used to link users with their tenant schema.</summary>
 internal class DataContext : DbContext
 {
+    /// <summary>Gets or sets the set of appointments.</summary>
+    public DbSet<Appointment> Appointments { get; set; } = null!;
+
     /// <summary>Gets or sets the set of companies.</summary>
     public DbSet<Company> Companies { get; set; } = null!;
 
@@ -41,6 +44,26 @@ internal class DataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(o => o.Customer)
+            .WithMany()
+            .HasForeignKey(o => o.CustomerId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(o => o.Employee)
+            .WithMany()
+            .HasForeignKey(o => o.EmployeeId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(o => o.EmployeeReplacement)
+            .WithMany()
+            .HasForeignKey(o => o.EmployeeReplacementId);
 
         modelBuilder.Entity<Employee>()
             .HasOne<Company>()

@@ -5,29 +5,17 @@ using Core.DTO;
 using Infrastructure.Repositories;
 using MediatR;
 
-public class InsuranceSearchRequest : IRequest<List<GetInsuranceDto>>
+public class InsuranceSearchRequest(string search) : IRequest<List<GetInsuranceDto>>
 {
-    public InsuranceSearchRequest(string search)
-        => Search = search;
-
-    public string Search { get; }
+    public string Search { get; } = search;
 }
 
-public class InsuranceSearchRequestHandler : IRequestHandler<InsuranceSearchRequest, List<GetInsuranceDto>>
+public class InsuranceSearchRequestHandler(IInsuranceRepository insuranceRepository, IMapper mapper)
+    : IRequestHandler<InsuranceSearchRequest, List<GetInsuranceDto>>
 {
-    private readonly IInsuranceRepository _insuranceRepository;
-
-    private readonly IMapper _mapper;
-
-    public InsuranceSearchRequestHandler(IInsuranceRepository insuranceRepository, IMapper mapper)
-    {
-        _insuranceRepository = insuranceRepository;
-        _mapper = mapper;
-    }
-
     public async Task<List<GetInsuranceDto>> Handle(InsuranceSearchRequest request, CancellationToken cancellationToken)
     {
-        var insurances = await _insuranceRepository.SearchInsurancesByNameAsync(request.Search);
-        return _mapper.Map<List<GetInsuranceDto>>(insurances);
+        var insurances = await insuranceRepository.SearchInsurancesByNameAsync(request.Search);
+        return mapper.Map<List<GetInsuranceDto>>(insurances);
     }
 }

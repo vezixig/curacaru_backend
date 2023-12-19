@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<CompanyMiddleware>();
 
+// Add Cors
 builder.Services.AddCors(
     options =>
     {
@@ -25,6 +26,7 @@ builder.Services.AddCors(
             });
     });
 
+// Add Auth
 builder.Services.AddAuthentication(
         options =>
         {
@@ -37,6 +39,10 @@ builder.Services.AddAuthentication(
             options.Authority = Environment.GetEnvironmentVariable("IDENTITY_AUTHORITY");
             options.Audience = Environment.GetEnvironmentVariable("IDENTITY_AUDIENCE");
         });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Company", policy => { policy.RequireClaim("CompanyId"); })
+    .AddPolicy("Manager", policy => { policy.RequireClaim("Manager"); });
 
 // Add app layers
 builder.Services.AddApplication();
@@ -53,8 +59,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseAuthorization();
 app.UseMiddleware<CompanyMiddleware>();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

@@ -12,17 +12,21 @@ using Services.Implementations;
 public static class ServiceRegistration
 {
     /// <summary>Adds the infrastructure layer to the dependency injection container.</summary>
-    /// <param name="services">The services.</param>
+    /// <param name="services">The service collection.</param>
     public static void AddInfrastructure(this IServiceCollection services)
     {
+        // Add database context
         services.AddDbContext<DataContext>();
 
+        // Add repositories
         services.AddScoped<IAddressRepository, AddressRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IInsuranceRepository, InsuranceRepository>();
 
+        // Add services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDatabaseService, DatabaseService>();
         services.AddScoped<IEmailService, EmailService>();

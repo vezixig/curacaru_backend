@@ -5,8 +5,6 @@ using Infrastructure.repositories;
 
 public class CompanyMiddleware : IMiddleware
 {
-    private readonly RequestDelegate _next;
-
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var employeeRepository = context.RequestServices.GetService<IEmployeeRepository>() ?? throw new Exception("Employee repository is not set");
@@ -24,7 +22,7 @@ public class CompanyMiddleware : IMiddleware
                 var employee = await employeeRepository.GetEmployeeByAuthIdAsync(userIdClaim.Value);
                 if (employee != null)
                 {
-                    if (employee.CompanyId != null) identity.AddClaim(new Claim("CompanyId", employee.CompanyId.ToString()));
+                    if (employee.CompanyId != null) identity.AddClaim(new Claim("CompanyId", employee.CompanyId.ToString()!));
                     if (employee.IsManager) identity.AddClaim(new Claim("Manager", ""));
                 }
             }

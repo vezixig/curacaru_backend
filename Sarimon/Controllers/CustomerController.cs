@@ -2,60 +2,51 @@
 
 using Application.CQRS.Customer;
 using Core.DTO;
+using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+[Authorize(Policy = Policy.Company)]
 [ApiController]
 [Route("[controller]")]
-public class CustomerController : ControllerBase
+public class CustomerController(ISender mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public CustomerController(IMediator mediator)
-        => _mediator = mediator;
-
+    [Authorize(Policy = Policy.Manager)]
     [HttpPost("new")]
     public async Task<IActionResult> AddCustomer([FromBody] AddCustomerDto customer)
     {
-        if (CompanyId == null) return Forbid();
-        if (!IsManager) return Forbid("Nur Manager dürfen neue Kunden anlegen.");
-
-        var newCustomer = await _mediator.Send(new AddCustomerRequest(CompanyId.Value, customer));
+        var newCustomer = await mediator.Send(new AddCustomerRequest(CompanyId, customer));
         return CreatedAtAction(nameof(GetCustomer), new { customerId = newCustomer.Id }, newCustomer);
     }
 
+    [Authorize(Policy = Policy.Manager)]
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> DeleteCustomer([FromRoute] string customerId)
     {
-        await _mediator.Send(new DeleteCustomerRequest(AuthId, Guid.Parse(customerId)));
+        await mediator.Send(new DeleteCustomerRequest(AuthId, Guid.Parse(customerId)));
         return NoContent();
     }
 
     [HttpGet("{customerId}")]
     public async Task<IActionResult> GetCustomer([FromRoute] string customerId)
     {
-        var customer = await _mediator.Send(new CustomerRequest(CompanyId.Value, customerId));
+        var customer = await mediator.Send(new CustomerRequest(CompanyId, customerId));
         return Ok(customer);
     }
 
     [HttpGet("list")]
     public async Task<IActionResult> GetCustomers()
     {
-        if (CompanyId == null) return Forbid();
-
-        var customers = await _mediator.Send(new CustomerListRequest(CompanyId.Value));
+        var customers = await mediator.Send(new CustomerListRequest(CompanyId));
         return Ok(customers);
     }
 
+    [Authorize(Policy = Policy.Manager)]
     [HttpPut]
     public async Task<IActionResult> UpdateCustomer([FromBody] UpdateCustomerDto customer)
     {
-        if (CompanyId == null) return Forbid();
-        if (!IsManager) return Forbid("Nur Manager dürfen Kunden bearbeiten.");
-
-        var updatedCustomer = await _mediator.Send(new UpdateCustomerRequest(customer, CompanyId.Value, AuthId));
+        var updatedCustomer = await mediator.Send(new UpdateCustomerRequest(customer, CompanyId, AuthId));
         return Ok(updatedCustomer);
     }
 }

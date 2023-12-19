@@ -6,43 +6,27 @@ using Core.Exceptions;
 using Infrastructure.repositories;
 using MediatR;
 
-public class UpdateEmployeeRequest : IRequest<Employee>
+public class UpdateEmployeeRequest(Guid companyId, UpdateEmployeeDto employee) : IRequest<Employee>
 {
-    public UpdateEmployeeRequest(string authId, UpdateEmployeeDto employee)
-    {
-        AuthId = authId;
-        Employee = employee;
-    }
+    public Guid CompanyId { get; } = companyId;
 
-    public string AuthId { get; }
-
-    public UpdateEmployeeDto Employee { get; }
+    public UpdateEmployeeDto Employee { get; } = employee;
 }
 
-internal class UpdateEmployeeRequestHandler : IRequestHandler<UpdateEmployeeRequest, Employee>
+internal class UpdateEmployeeRequestHandler(IEmployeeRepository employeeRepository) : IRequestHandler<UpdateEmployeeRequest, Employee>
 {
-    private readonly IEmployeeRepository _employeeRepository;
-
-    public UpdateEmployeeRequestHandler(IEmployeeRepository employeeRepository)
-        => _employeeRepository = employeeRepository;
-
     public async Task<Employee> Handle(UpdateEmployeeRequest request, CancellationToken cancellationToken)
     {
-        var user = await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
+        var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.Employee.Id, request.CompanyId)
+                              ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
-        if (user!.CompanyId == null) throw new NotFoundException("Benutzer gehört zu keinem Unternehmen.");
-        if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen Benutzer bearbeiten.");
+        currentEmployee.Email = request.Employee.Email;
+        currentEmployee.FirstName = request.Employee.FirstName;
+        currentEmployee.LastName = request.Employee.LastName;
+        currentEmployee.PhoneNumber = request.Employee.PhoneNumber;
+        currentEmployee.IsManager = request.Employee.IsManager;
 
-        var currentEmploye = await _employeeRepository.GetEmployeeByIdAsync(request.Employee.Id, user.CompanyId.Value)
-                             ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
-
-        currentEmploye.Email = request.Employee.Email;
-        currentEmploye.FirstName = request.Employee.FirstName;
-        currentEmploye.LastName = request.Employee.LastName;
-        currentEmploye.PhoneNumber = request.Employee.PhoneNumber;
-        currentEmploye.IsManager = request.Employee.IsManager;
-
-        var employee = await _employeeRepository.UpdateEmployeeAsync(currentEmploye);
+        var employee = await employeeRepository.UpdateEmployeeAsync(currentEmployee);
         return employee;
     }
 }
