@@ -10,6 +10,12 @@ public interface IAppointmentRepository
     /// <returns>The added appointment.</returns>
     public Task<Appointment> AddAppointmentAsync(Appointment appointment);
 
+    /// <summary>Gets an appointment by id.</summary>
+    /// <param name="companyId">The company id.</param>
+    /// <param name="appointmentId">The appointment id.</param>
+    /// <returns>An appointment or null if none is found.</returns>
+    public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId);
+
     /// <summary>Gets appointments matching the provided filters.</summary>
     /// <param name="companyId">The id of the company.</param>
     /// <param name="from">The start date of the appointments.</param>
@@ -22,4 +28,9 @@ public interface IAppointmentRepository
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId);
+
+    /// <summary>Updates an appointment.</summary>
+    /// <param name="appointment">The modified appointment.</param>
+    /// <returns>The updated appointment.</returns>
+    public Task<Appointment> UpdateAppointmentAsync(Appointment appointment);
 }

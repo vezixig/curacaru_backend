@@ -18,7 +18,7 @@ internal class EmployeeByIdRequestHandler(IEmployeeRepository employeeRepository
 {
     public async Task<Employee?> Handle(EmployeeByIdRequest request, CancellationToken cancellationToken)
     {
-        var employee = await employeeRepository.GetEmployeeByIdAsync(request.EmployeeId, request.CompanyId);
+        var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.EmployeeId);
         return employee;
     }
 }

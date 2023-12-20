@@ -25,10 +25,10 @@ public interface IEmployeeRepository
     public Task<Employee?> GetEmployeeByAuthIdAsync(string authId);
 
     /// <summary>Gets an employee by id.</summary>
-    /// <param name="employeeId">The employee id.</param>
     /// <param name="companyId">The company id for auth.</param>
+    /// <param name="employeeId">The employee id.</param>
     /// <returns>The employee.</returns>
-    public Task<Employee?> GetEmployeeByIdAsync(Guid employeeId, Guid companyId);
+    public Task<Employee?> GetEmployeeByIdAsync(Guid companyId, Guid employeeId);
 
     /// <summary>Gets all employees of a company.</summary>
     /// <param name="companyId">The company id to get the employees for.</param>

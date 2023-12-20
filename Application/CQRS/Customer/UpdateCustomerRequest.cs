@@ -50,7 +50,7 @@ public class UpdateCustomerRequestHandler : IRequestHandler<UpdateCustomerReques
                 ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
 
         customer.AssociatedEmployeeId = request.CustomerData.AssociatedEmployeeId;
-        customer.AssociatedEmployee = new Employee { Id = request.CustomerData.AssociatedEmployeeId.Value };
+        customer.AssociatedEmployee = new Employee { Id = request.CustomerData.AssociatedEmployeeId!.Value };
         customer.BirthDate = request.CustomerData.BirthDate;
         customer.CareLevel = request.CustomerData.CareLevel;
         customer.DeclarationsOfAssignment = request.CustomerData.DeclarationsOfAssignment;
@@ -67,7 +67,7 @@ public class UpdateCustomerRequestHandler : IRequestHandler<UpdateCustomerReques
         customer.Phone = request.CustomerData.Phone;
         customer.Street = request.CustomerData.Street;
         customer.ZipCode = request.CustomerData.ZipCode;
-        customer.ZipCity = new ZipCity { ZipCode = request.CustomerData.ZipCode };
+        customer.ZipCity = new ZipCity { ZipCode = request.CustomerData.ZipCode! };
 
         var updatedCustomer = await _customerRepository.UpdateCustomerAsync(customer);
         return _mapper.Map<GetCustomerDto>(updatedCustomer);

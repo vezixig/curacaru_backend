@@ -16,6 +16,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return dbAppointment.Entity;
     }
 
+    public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId)
+        => dataContext.Appointments.FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
+
     public Task<List<Appointment>> GetAppointmentsAsync(
         Guid companyId,
         DateOnly? from,
@@ -37,5 +40,16 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         if (customerId.HasValue) query = query.Where(a => a.CustomerId == customerId.Value);
 
         return query.ToListAsync();
+    }
+
+    public Task<Appointment> UpdateAppointmentAsync(Appointment appointment)
+    {
+        dataContext.Attach(appointment.Employee);
+        dataContext.Attach(appointment.Customer);
+        if (appointment.EmployeeReplacement != null) dataContext.Attach(appointment.EmployeeReplacement);
+
+        var dbAppointment = dataContext.Appointments.Update(appointment);
+        dataContext.SaveChanges();
+        return Task.FromResult(dbAppointment.Entity);
     }
 }

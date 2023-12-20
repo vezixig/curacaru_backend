@@ -3,42 +3,37 @@
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-internal class EmployeeRepository : IEmployeeRepository
+internal class EmployeeRepository(DataContext dataContext) : IEmployeeRepository
 {
-    private readonly DataContext _dataContext;
-
-    public EmployeeRepository(DataContext dataContext)
-        => _dataContext = dataContext;
-
     public async Task<Employee> AddEmployeeAsync(Employee employee)
     {
-        var dbEmployee = _dataContext.Employees.Add(employee);
-        await _dataContext.SaveChangesAsync();
+        var dbEmployee = dataContext.Employees.Add(employee);
+        await dataContext.SaveChangesAsync();
         return dbEmployee.Entity;
     }
 
     public async Task DeleteEmployeeAsync(Employee employee)
     {
-        _dataContext.Employees.Remove(employee);
-        await _dataContext.SaveChangesAsync();
+        dataContext.Employees.Remove(employee);
+        await dataContext.SaveChangesAsync();
     }
 
     public Task<bool> DoesEmailExistAsync(string email)
-        => _dataContext.Employees.AnyAsync(e => e.Email == email);
+        => dataContext.Employees.AnyAsync(e => e.Email == email);
 
     public Task<Employee?> GetEmployeeByAuthIdAsync(string authId)
-        => _dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
+        => dataContext.Employees.FirstOrDefaultAsync(e => e.AuthId == authId);
 
-    public Task<Employee?> GetEmployeeByIdAsync(Guid employeeId, Guid companyId)
-        => _dataContext.Employees.FirstOrDefaultAsync(e => e.Id == employeeId && e.CompanyId == companyId);
+    public Task<Employee?> GetEmployeeByIdAsync(Guid companyId, Guid employeeId)
+        => dataContext.Employees.FirstOrDefaultAsync(e => e.Id == employeeId && e.CompanyId == companyId);
 
     public Task<List<Employee>> GetEmployeesAsync(Guid companyId)
-        => _dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
+        => dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
 
     public async Task<Employee> UpdateEmployeeAsync(Employee currentEmploye)
     {
-        var dbEmployee = _dataContext.Employees.Update(currentEmploye);
-        await _dataContext.SaveChangesAsync();
+        var dbEmployee = dataContext.Employees.Update(currentEmploye);
+        await dataContext.SaveChangesAsync();
         return dbEmployee.Entity;
     }
 }

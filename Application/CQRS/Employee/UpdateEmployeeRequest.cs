@@ -17,7 +17,7 @@ internal class UpdateEmployeeRequestHandler(IEmployeeRepository employeeReposito
 {
     public async Task<Employee> Handle(UpdateEmployeeRequest request, CancellationToken cancellationToken)
     {
-        var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.Employee.Id, request.CompanyId)
+        var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Employee.Id)
                               ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
         currentEmployee.Email = request.Employee.Email;

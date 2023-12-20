@@ -2,6 +2,7 @@
 
 using Application.CQRS.Appointments;
 using Core.DTO;
+using Core.DTO.Appointment;
 using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class AppointmentController(ISender mediator) : ControllerBase
 {
-    [Authorize(Policy = Policy.Manager)]
     [HttpPost("new")]
     public async Task<IActionResult> AddAppointment([FromBody] AddAppointmentDto appointment)
     {
-        var newAppointment = await mediator.Send(new AddAppointmentRequest(CompanyId, appointment));
+        var newAppointment = await mediator.Send(new AddAppointmentRequest(CompanyId, AuthId, appointment));
         return CreatedAtAction(nameof(GetAppointment), new { appointmentId = newAppointment.Id }, newAppointment);
     }
 
@@ -38,5 +38,12 @@ public class AppointmentController(ISender mediator) : ControllerBase
     {
         var appointments = await mediator.Send(new AppointmentsRequest(CompanyId, from, to, employeeId, customerId));
         return Ok(appointments);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateAppointment([FromBody] UpdateAppointmentDto appointment)
+    {
+        var updatedAppointment = await mediator.Send(new UpdateAppointmentRequest(CompanyId, AuthId, appointment));
+        return Ok(updatedAppointment);
     }
 }
