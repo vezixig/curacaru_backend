@@ -5,6 +5,11 @@ using Core.Entities;
 /// <summary>Repository for <see cref="Appointment" />.</summary>
 public interface IAppointmentRepository
 {
+    /// <summary>Adds an appointment.</summary>
+    /// <param name="appointment">The appointment to add.</param>
+    /// <returns>The added appointment.</returns>
+    public Task<Appointment> AddAppointmentAsync(Appointment appointment);
+
     /// <summary>Gets appointments matching the provided filters.</summary>
     /// <param name="companyId">The id of the company.</param>
     /// <param name="from">The start date of the appointments.</param>

@@ -35,6 +35,13 @@ public class EmployeeController(ISender mediator) : ControllerBase
         return employee == null ? NotFound() : Ok(employee);
     }
 
+    [HttpGet("baselist")]
+    public async Task<IActionResult> GetEmployeeBaseList()
+    {
+        var employees = await mediator.Send(new EmployeeBaseListRequest(CompanyId));
+        return Ok(employees);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetEmployeeByAuthId()
     {
@@ -45,7 +52,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
     [HttpGet("list")]
     public async Task<IActionResult> GetEmployees()
     {
-        var employees = await mediator.Send(new EmployeeListQuery(CompanyId));
+        var employees = await mediator.Send(new EmployeeListRequest(CompanyId));
         return Ok(employees);
     }
 

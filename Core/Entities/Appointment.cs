@@ -46,7 +46,7 @@ public class Appointment
     /// <summary>Gets or sets the notes.</summary>
     public string Notes { get; set; } = "";
 
-    /// <summary>Gets or sets the starting time..</summary>
+    /// <summary>Gets or sets the starting time.</summary>
     public TimeOnly TimeEnd { get; set; }
 
     /// <summary>Gets or sets the ending time.</summary>

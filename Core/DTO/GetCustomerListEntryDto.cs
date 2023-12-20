@@ -1,10 +1,14 @@
 ﻿namespace Curacaru.Backend.Core.DTO;
 
 using System.ComponentModel.DataAnnotations;
+using Entities;
 
 /// <summary>DTO to return a list of customers with only basic information.</summary>
 public class GetCustomerListEntryDto
 {
+    /// <inheritdoc cref="Customer.AssociatedEmployeeId" />
+    public Guid AssociatedEmployeeId { get; set; }
+
     public string AssociatedEmployeeName { get; set; } = "";
 
     public string City { get; set; } = "";
