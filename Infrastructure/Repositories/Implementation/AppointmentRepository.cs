@@ -38,12 +38,12 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
             .ThenInclude(o => o.ZipCity)
             .Include(o => o.Employee)
             .Include(o => o.EmployeeReplacement)
-            .Where(a => a.CompanyId == companyId);
+            .Where(o => o.CompanyId == companyId);
 
-        if (from.HasValue) query = query.Where(a => a.Date >= from.Value);
-        if (to.HasValue) query = query.Where(a => a.Date <= to.Value);
-        if (employeeId.HasValue) query = query.Where(a => a.EmployeeId == employeeId.Value || a.EmployeeReplacementId == employeeId.Value);
-        if (customerId.HasValue) query = query.Where(a => a.CustomerId == customerId.Value);
+        if (from.HasValue) query = query.Where(o => o.Date >= from.Value);
+        if (to.HasValue) query = query.Where(o => o.Date <= to.Value);
+        if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
 
         return query.ToListAsync();
     }

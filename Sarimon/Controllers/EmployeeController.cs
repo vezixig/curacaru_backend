@@ -28,6 +28,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = Policy.Manager)]
     [HttpGet("{employeeId}")]
     public async Task<IActionResult> GetEmployee([FromRoute] string employeeId)
     {
