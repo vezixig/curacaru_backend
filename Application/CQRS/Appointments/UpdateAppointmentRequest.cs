@@ -37,7 +37,7 @@ internal class UpdateAppointmentRequestHandler(
         appointment.Customer = new Customer { Id = request.Appointment.CustomerId };
         if (appointment.CustomerId != request.Appointment.CustomerId)
         {
-            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
+            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
 
             var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
                            ?? throw new BadRequestException("Kunde nicht gefunden.");

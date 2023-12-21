@@ -16,6 +16,12 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return dbAppointment.Entity;
     }
 
+    public Task DeleteAppointmentAsync(Appointment appointment)
+    {
+        dataContext.Appointments.Remove(appointment);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId)
         => dataContext.Appointments.FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
 
@@ -42,14 +48,14 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return query.ToListAsync();
     }
 
-    public Task<Appointment> UpdateAppointmentAsync(Appointment appointment)
+    public async Task<Appointment> UpdateAppointmentAsync(Appointment appointment)
     {
         dataContext.Attach(appointment.Employee);
         dataContext.Attach(appointment.Customer);
         if (appointment.EmployeeReplacement != null) dataContext.Attach(appointment.EmployeeReplacement);
 
         var dbAppointment = dataContext.Appointments.Update(appointment);
-        dataContext.SaveChanges();
-        return Task.FromResult(dbAppointment.Entity);
+        await dataContext.SaveChangesAsync();
+        return dbAppointment.Entity;
     }
 }

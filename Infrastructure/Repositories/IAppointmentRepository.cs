@@ -10,6 +10,11 @@ public interface IAppointmentRepository
     /// <returns>The added appointment.</returns>
     public Task<Appointment> AddAppointmentAsync(Appointment appointment);
 
+    /// <summary>Deletes an appointment.</summary>
+    /// <param name="appointment">The appointment to delete.</param>
+    /// <returns>An awaitable task.</returns>
+    public Task DeleteAppointmentAsync(Appointment appointment);
+
     /// <summary>Gets an appointment by id.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="appointmentId">The appointment id.</param>

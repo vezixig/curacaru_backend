@@ -31,17 +31,25 @@ internal class AddAppointmentRequestHandler(
         var appointment = mapper.Map<Appointment>(request.Appointment);
         appointment.CompanyId = request.CompanyId;
 
+        // Auth
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen für andere Mitarbeiter Termine anlegen.");
         if (appointment.EmployeeReplacementId.HasValue && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen Vertretungen einsetzen.");
 
+        // customer
         var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
                        ?? throw new BadRequestException("Kunde nicht gefunden.");
+
+        if (user.Id != customer.AssociatedEmployeeId && !user.IsManager)
+            throw new ForbiddenException("Nur Manager dürfen Termine für nicht selbst betreute Kunden anlegen.");
+
         appointment.Customer = new Customer { Id = appointment.CustomerId };
 
+        // employee
         var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
                        ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
         appointment.Employee = new Employee { Id = appointment.EmployeeId };
 
+        // employee replacement
         if (appointment.EmployeeReplacementId.HasValue)
         {
             var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId!.Value)

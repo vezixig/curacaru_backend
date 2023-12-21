@@ -20,6 +20,13 @@ public class AppointmentController(ISender mediator) : ControllerBase
         return CreatedAtAction(nameof(GetAppointment), new { appointmentId = newAppointment.Id }, newAppointment);
     }
 
+    [HttpDelete("{appointmentId}")]
+    public async Task<IActionResult> DeleteAppointment([FromRoute] Guid appointmentId)
+    {
+        await mediator.Send(new DeleteAppointmentRequest(CompanyId, AuthId, appointmentId));
+        return NoContent();
+    }
+
     [HttpGet("{appointmentId}")]
     public async Task<IActionResult> GetAppointment([FromRoute] string appointmentId)
     {
