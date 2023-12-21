@@ -24,6 +24,9 @@ public class GetAppointmentListEntryDto
     /// <inheritdoc cref="Appointment.Id" />
     public Guid Id { get; set; }
 
+    /// <inheritdoc cref="Appointment.IsDone" />
+    public bool IsDone { get; set; }
+
     /// <inheritdoc cref="Appointment.TimeEnd" />
     public TimeOnly TimeEnd { get; set; }
 

@@ -27,6 +27,13 @@ public class AppointmentController(ISender mediator) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{appointmentId}/finish")]
+    public async Task<IActionResult> FinishAppointment([FromRoute] Guid appointmentId)
+    {
+        await mediator.Send(new FinishAppointmentRequest(CompanyId, AuthId, appointmentId));
+        return NoContent();
+    }
+
     [HttpGet("{appointmentId}")]
     public async Task<IActionResult> GetAppointment([FromRoute] string appointmentId)
     {
