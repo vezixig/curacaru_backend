@@ -35,11 +35,9 @@ public class AppointmentController(ISender mediator) : ControllerBase
     }
 
     [HttpGet("{appointmentId}")]
-    public async Task<IActionResult> GetAppointment([FromRoute] string appointmentId)
+    public async Task<IActionResult> GetAppointment([FromRoute] Guid appointmentId)
     {
-        if (!Guid.TryParse(appointmentId, out var appointmentGuid)) return BadRequest("Appointment Id invalid.");
-
-        var appointment = await mediator.Send(new AppointmentByIdRequest(CompanyId, appointmentGuid));
+        var appointment = await mediator.Send(new AppointmentByIdRequest(CompanyId, appointmentId));
         return appointment == null ? NotFound() : Ok(appointment);
     }
 

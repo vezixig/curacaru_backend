@@ -32,7 +32,7 @@ public class CustomerController(ISender mediator) : ControllerBase
     public async Task<IActionResult> GetCustomer([FromRoute] string customerId)
     {
         var customer = await mediator.Send(new CustomerRequest(CompanyId, customerId));
-        return Ok(customer);
+        return customer == null ? NotFound() : Ok(customer);
     }
 
     [HttpGet("list")]

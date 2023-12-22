@@ -2,40 +2,21 @@
 
 using AutoMapper;
 using Core.DTO;
-using Core.Exceptions;
 using Infrastructure.Repositories;
 using MediatR;
 
-public class CustomerRequest : IRequest<GetCustomerDto?>
+public class CustomerRequest(Guid companyId, string employeeId) : IRequest<GetCustomerDto?>
 {
-    public CustomerRequest(Guid companyId, string employeeId)
-    {
-        CompanyId = companyId;
-        EmployeeId = Guid.Parse(employeeId);
-    }
+    public Guid CompanyId { get; } = companyId;
 
-    public Guid CompanyId { get; }
-
-    public Guid EmployeeId { get; }
+    public Guid EmployeeId { get; } = Guid.Parse(employeeId);
 }
 
-internal class CustomerRequestHandler : IRequestHandler<CustomerRequest, GetCustomerDto?>
+internal class CustomerRequestHandler(ICustomerRepository customerRepository, IMapper mapper) : IRequestHandler<CustomerRequest, GetCustomerDto?>
 {
-    private readonly ICustomerRepository _customerRepository;
-
-    private readonly IMapper _mapper;
-
-    public CustomerRequestHandler(ICustomerRepository customerRepository, IMapper mapper)
-    {
-        _customerRepository = customerRepository;
-        _mapper = mapper;
-    }
-
     public async Task<GetCustomerDto?> Handle(CustomerRequest request, CancellationToken cancellationToken)
     {
-        var customer = await _customerRepository.GetCustomerAsync(request.CompanyId, request.EmployeeId)
-                       ?? throw new NotFoundException("Kunde nicht gefunden.");
-
-        return _mapper.Map<GetCustomerDto>(customer);
+        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.EmployeeId);
+        return mapper.Map<GetCustomerDto>(customer);
     }
 }

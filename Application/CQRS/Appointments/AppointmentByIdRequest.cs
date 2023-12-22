@@ -2,7 +2,6 @@
 
 using AutoMapper;
 using Core.DTO;
-using Core.Exceptions;
 using Infrastructure.Repositories;
 using MediatR;
 
@@ -18,7 +17,7 @@ public class AppointmentByIdRequestHandler(IAppointmentRepository appointmentRep
 {
     public async Task<GetAppointmentDto?> Handle(AppointmentByIdRequest request, CancellationToken cancellationToken)
     {
-        var appointment = await appointmentRepository.GetAppointmentAsync(request.CompanyId, request.AppointmentId) ?? throw new NotFoundException("");
-        return mapper.Map<GetAppointmentDto>(appointment);
+        var appointment = await appointmentRepository.GetAppointmentAsync(request.CompanyId, request.AppointmentId);
+        return mapper.Map<GetAppointmentDto?>(appointment);
     }
 }
