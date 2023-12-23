@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize(Policy = Policy.Company)]
 [ApiController]
 [Route("[controller]")]
 public class EmployeeController(ISender mediator) : ControllerBase
@@ -36,6 +35,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
         return employee == null ? NotFound() : Ok(employee);
     }
 
+    [Authorize(Policy = Policy.Company)]
     [HttpGet("baselist")]
     public async Task<IActionResult> GetEmployeeBaseList()
     {
@@ -50,6 +50,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
         return employee == null ? NotFound() : Ok(employee);
     }
 
+    [Authorize(Policy = Policy.Company)]
     [HttpGet("list")]
     public async Task<IActionResult> GetEmployees()
     {

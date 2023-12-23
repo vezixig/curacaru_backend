@@ -46,7 +46,7 @@ public class UpdateCustomerRequestHandler : IRequestHandler<UpdateCustomerReques
         if (customer.CompanyId != request.CompanyId) throw new ForbiddenException("Sie dürfen diesen Kunden nicht bearbeiten.");
 
         if (request.CustomerData.AssociatedEmployeeId.HasValue)
-            _ = await _employeeRepository.GetEmployeeByIdAsync(request.CustomerData.AssociatedEmployeeId.Value, request.CompanyId)
+            _ = await _employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.CustomerData.AssociatedEmployeeId.Value)
                 ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
 
         customer.AssociatedEmployeeId = request.CustomerData.AssociatedEmployeeId;
