@@ -2,12 +2,14 @@
 
 using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Logging;
 
-internal class EmailService : IEmailService
+internal class EmailService(ILogger<EmailService> logger) : IEmailService
 {
     public void SendPasswordMail(string email, string password)
     {
-        using var client = new SmtpClient(Environment.GetEnvironmentVariable("EMAIL_SMTP"));
+        using var client = new SmtpClient(Environment.GetEnvironmentVariable("EMAIL_SMTP"), 587);
+        logger.LogInformation($"SMTP - Port: {client.Port}");
         client.UseDefaultCredentials = false;
         client.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("EMAIL_USER"), Environment.GetEnvironmentVariable("EMAIL_PASSWORD"));
         client.EnableSsl = true;

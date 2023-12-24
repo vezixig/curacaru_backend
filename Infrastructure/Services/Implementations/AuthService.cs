@@ -3,20 +3,14 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Core.Exceptions;
 using Core.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
-internal class AuthService : IAuthService
+internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IAuthService
 {
-    private readonly string _baseUrl;
-
-    private readonly IMemoryCache _cache;
-
-    public AuthService(IMemoryCache cache)
-    {
-        _cache = cache;
-        _baseUrl = Environment.GetEnvironmentVariable("IDENTITY_AUTHORITY") + "api/v2/";
-    }
+    private readonly string _baseUrl = Environment.GetEnvironmentVariable("IDENTITY_AUTHORITY") + "api/v2/";
 
     public async Task<UserPassword> CreateUserAsync(string email)
     {
@@ -38,7 +32,11 @@ internal class AuthService : IAuthService
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
 
-        if (!response.IsSuccessStatusCode) throw new Exception("Benutzer konnte nicht angelegt werden.");
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseText = await response.Content.ReadAsStringAsync();
+            throw new BadRequestException($"Benutzer konnte nicht angelegt werden: {responseText}");
+        }
 
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var userId = jsonDocument.RootElement.GetProperty("user_id").GetString();
@@ -94,7 +92,7 @@ internal class AuthService : IAuthService
 
     private async Task<string> GetTokenAsync()
     {
-        if (_cache.TryGetValue("token", out string? cacheToken) && !string.IsNullOrEmpty(cacheToken)) return cacheToken;
+        if (cache.TryGetValue("token", out string? cacheToken) && !string.IsNullOrEmpty(cacheToken)) return cacheToken;
 
         var request = new HttpRequestMessage(HttpMethod.Post, Environment.GetEnvironmentVariable("IDENTITY_AUTHORITY") + "oauth/token");
 
@@ -112,10 +110,12 @@ internal class AuthService : IAuthService
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
 
+        logger.LogInformation(await response.Content.ReadAsStringAsync());
+
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var token = jsonDocument.RootElement.GetProperty("access_token").GetString();
 
-        _cache.Set("token", token, TimeSpan.FromMinutes(60));
+        cache.Set("token", token, TimeSpan.FromMinutes(60));
         return token;
     }
 }
