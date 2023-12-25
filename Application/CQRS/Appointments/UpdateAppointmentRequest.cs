@@ -34,33 +34,39 @@ internal class UpdateAppointmentRequestHandler(
 
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine bearbeiten.");
 
-        appointment.Customer = new Customer { Id = request.Appointment.CustomerId };
+        // customer
         if (appointment.CustomerId != request.Appointment.CustomerId)
         {
             if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
 
             var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
                            ?? throw new BadRequestException("Kunde nicht gefunden.");
-            appointment.Customer = customer;
+            appointment.CustomerId = customer.Id;
         }
 
-        appointment.Employee = new Employee { Id = request.Appointment.EmployeeId };
+        // employee
+
         if (appointment.EmployeeId != request.Appointment.EmployeeId)
         {
             if (!user!.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
 
             var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
                            ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
+            appointment.EmployeeId = employee.Id;
         }
 
+        // employee replacement
         if (appointment.EmployeeReplacementId != request.Appointment.EmployeeReplacementId)
         {
-            appointment.EmployeeReplacement = new Employee { Id = request.Appointment.EmployeeReplacementId!.Value };
             if (!user!.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
 
-            var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId.Value)
-                                      ?? throw new NotFoundException("Vertretung nicht gefunden.");
-            appointment.EmployeeReplacement = employeeReplacement;
+            if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacement = null; }
+            else
+            {
+                var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId.Value)
+                                          ?? throw new NotFoundException("Vertretung nicht gefunden.");
+                appointment.EmployeeReplacementId = employeeReplacement.Id;
+            }
         }
 
         appointment.Date = request.Appointment.Date;
@@ -69,6 +75,12 @@ internal class UpdateAppointmentRequestHandler(
         appointment.IsSignedByCustomer = request.Appointment.IsSignedByCustomer;
         appointment.IsSignedByEmployee = request.Appointment.IsSignedByEmployee;
         appointment.Notes = request.Appointment.Notes;
+
+        appointment.Customer = new Customer { Id = appointment.CustomerId };
+        appointment.Employee = new Employee { Id = appointment.EmployeeId };
+        appointment.EmployeeReplacement = appointment.EmployeeReplacementId.HasValue
+            ? new Employee { Id = appointment.EmployeeReplacementId.Value }
+            : null;
 
         var updatedAppointment = await repository.UpdateAppointmentAsync(appointment);
         return mapper.Map<GetAppointmentDto>(updatedAppointment);
