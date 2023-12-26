@@ -45,6 +45,8 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
 
+        query = query.OrderBy(o => o.Date).ThenBy(o => o.TimeStart);
+
         return query.ToListAsync();
     }
 

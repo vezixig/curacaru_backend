@@ -60,7 +60,7 @@ internal class UpdateAppointmentRequestHandler(
         {
             if (!user!.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
 
-            if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacement = null; }
+            if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacementId = null; }
             else
             {
                 var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId.Value)
