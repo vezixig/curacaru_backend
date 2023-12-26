@@ -11,6 +11,14 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class InsuranceController(ISender mediator) : ControllerBase
 {
+    [Authorize(Policy = Policy.Manager)]
+    [HttpGet("list")]
+    public async Task<IActionResult> ListInsurances()
+    {
+        var result = await mediator.Send(new InsuranceListRequest(CompanyId));
+        return Ok(result);
+    }
+
     [HttpGet]
     public async Task<IActionResult> SearchInsurance([FromQuery] string search)
     {
