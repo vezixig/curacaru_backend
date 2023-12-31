@@ -26,8 +26,9 @@ internal class EmailService(ILogger<EmailService> logger) : IEmailService
         var mailMessage = new MailMessage();
         mailMessage.From = new MailAddress(mailUser);
         mailMessage.To.Add(email);
-        mailMessage.Subject = "Curacaru - Dein Passwort";
-        mailMessage.Body = $"Dein Passwort lautet: {password}";
+        mailMessage.Subject = "Curacaru - Deine Zugangsdaten";
+        mailMessage.Body =
+            $"Hallo,\r\n\r\nsoeben wurde ein Zugang für dich bei Curacaru registriert.\r\n\r\nDeine Zugangsdaten lauten wie folgt:\r\nBenutzername: Deine E-Mail-Adresse\r\nPasswort: {password}";
 
         client.Send(mailMessage);
     }
