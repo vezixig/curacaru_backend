@@ -3,8 +3,9 @@
 using System.ComponentModel.DataAnnotations;
 using Entities;
 using Enums;
+using Insurance;
 
-/// <summary>DTO for getting a customer</summary>
+/// <summary>DTO for getting a customer.</summary>
 /// <seealso cref="Customer" />
 public class GetCustomerDto
 {

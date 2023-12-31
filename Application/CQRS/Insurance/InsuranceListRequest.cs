@@ -1,7 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Insurance;
 
 using AutoMapper;
-using Core.DTO;
+using Core.DTO.Insurance;
 using Infrastructure.Repositories;
 using MediatR;
 

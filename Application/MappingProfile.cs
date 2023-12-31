@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Core.DTO;
+using Core.DTO.Insurance;
 using Core.Entities;
 
 internal class MappingProfile : Profile
