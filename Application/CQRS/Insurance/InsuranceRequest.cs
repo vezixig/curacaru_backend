@@ -19,7 +19,7 @@ internal class InsuranceRequestHandler(IInsuranceRepository insuranceRepository,
 {
     public async Task<GetInsuranceDto?> Handle(InsuranceRequest request, CancellationToken cancellationToken)
     {
-        var insurance = await insuranceRepository.GetInsurance(request.CompanyId, request.InsuranceId);
+        var insurance = await insuranceRepository.GetInsuranceAsync(request.CompanyId, request.InsuranceId);
         return insurance is null ? null : mapper.Map<GetInsuranceDto>(insurance);
     }
 }

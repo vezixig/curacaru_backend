@@ -15,7 +15,7 @@ internal class InsuranceListRequestHandler(IInsuranceRepository insuranceReposit
 {
     public async Task<List<GetInsuranceDto>> Handle(InsuranceListRequest request, CancellationToken cancellationToken)
     {
-        var insurances = await insuranceRepository.GetInsurances(request.CompanyId);
+        var insurances = await insuranceRepository.GetInsurancesAsync(request.CompanyId);
         return mapper.Map<List<GetInsuranceDto>>(insurances);
     }
 }

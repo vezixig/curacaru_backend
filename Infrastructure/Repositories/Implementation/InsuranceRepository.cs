@@ -12,11 +12,17 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
         return dbInsurance.Entity;
     }
 
-    public Task<Insurance?> GetInsurance(Guid companyId, Guid insuranceId)
+    public Task DeleteInsuranceAsync(Insurance insurance)
+    {
+        dataContext.Insurances.Remove(insurance);
+        return dataContext.SaveChangesAsync();
+    }
+
+    public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId)
         => dataContext.Insurances
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == insuranceId);
 
-    public Task<List<Insurance>> GetInsurances(Guid companyId)
+    public Task<List<Insurance>> GetInsurancesAsync(Guid companyId)
         => dataContext.Insurances
             .Where(o => o.CompanyId == companyId)
             .ToListAsync();
@@ -26,4 +32,11 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
             .Where(o => o.CompanyId == companyId && o.Name.ToLower().Contains(name.ToLower()))
             .Take(5)
             .ToListAsync();
+
+    public async Task<Insurance> UpdateInsuranceAsync(Insurance insurance)
+    {
+        var dbInsurance = dataContext.Insurances.Update(insurance);
+        await dataContext.SaveChangesAsync();
+        return dbInsurance.Entity;
+    }
 }

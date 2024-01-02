@@ -21,6 +21,14 @@ public class InsuranceController(ISender mediator) : ControllerBase
     }
 
     [Authorize(Policy = Policy.Manager)]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteInsurance([FromRoute] Guid id)
+    {
+        await mediator.Send(new DeleteInsuranceRequest(CompanyId, id));
+        return NoContent();
+    }
+
+    [Authorize(Policy = Policy.Manager)]
     [HttpGet("list")]
     public async Task<IActionResult> ListInsurances()
     {
@@ -40,6 +48,14 @@ public class InsuranceController(ISender mediator) : ControllerBase
     public async Task<IActionResult> SearchInsurance([FromRoute] Guid id)
     {
         var result = await mediator.Send(new InsuranceRequest(CompanyId, id));
+        return Ok(result);
+    }
+
+    [Authorize(Policy = Policy.Manager)]
+    [HttpPut]
+    public async Task<IActionResult> UpdateInsurance([FromBody] UpdateInsuranceDto insurance)
+    {
+        var result = await mediator.Send(new UpdateInsuranceRequest(CompanyId, insurance));
         return Ok(result);
     }
 }
