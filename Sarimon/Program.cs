@@ -9,6 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ExceptionHandlerMiddleware>();
 builder.Services.AddSingleton<CompanyMiddleware>();
 
 // Add Cors
@@ -59,6 +60,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<CompanyMiddleware>();
 app.UseAuthorization();
 app.MapControllers();

@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Services.Implementations;
 
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -34,6 +35,8 @@ internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IA
 
         if (!response.IsSuccessStatusCode)
         {
+            if (response.StatusCode == HttpStatusCode.Conflict) throw new BadRequestException("E-Mail Adresse wird bereits verwendet.");
+
             var responseText = await response.Content.ReadAsStringAsync();
             throw new BadRequestException($"Benutzer konnte nicht angelegt werden: {responseText}");
         }
@@ -53,7 +56,7 @@ internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IA
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
 
-        if (!response.IsSuccessStatusCode) throw new Exception("Benutzer konnte nicht angelegt werden.");
+        if (!response.IsSuccessStatusCode) throw new Exception("Benutzer konnte nicht gelöscht werden.");
     }
 
     public async Task<string> GetMailAsync(string authId)
@@ -109,8 +112,6 @@ internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IA
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
-
-        logger.LogInformation(await response.Content.ReadAsStringAsync());
 
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var token = jsonDocument.RootElement.GetProperty("access_token").GetString();
