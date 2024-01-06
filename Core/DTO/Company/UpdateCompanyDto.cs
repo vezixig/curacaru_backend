@@ -1,9 +1,8 @@
-﻿namespace Curacaru.Backend.Core.Entities;
+﻿namespace Curacaru.Backend.Core.DTO.Company;
 
-using System.ComponentModel.DataAnnotations;
 using Enums;
 
-public class Company
+public class UpdateCompanyDto
 {
     public string Bic { get; set; } = "";
 
@@ -11,12 +10,8 @@ public class Company
 
     public string Iban { get; set; } = "";
 
-    [Key]
-    public Guid Id { get; set; }
-
     public string InstitutionCode { get; set; } = "";
 
-    [Required]
     public string Name { get; set; } = "";
 
     public string OwnerName { get; set; } = "";
@@ -27,7 +22,7 @@ public class Company
 
     public decimal RideCosts { get; set; }
 
-    public RideCostsType RideCostsType { get; set; } = RideCostsType.Inclusive;
+    public RideCostsType RideCostsType { get; set; }
 
     public string ServiceId { get; set; } = "";
 

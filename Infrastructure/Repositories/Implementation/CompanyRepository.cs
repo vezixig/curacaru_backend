@@ -3,20 +3,22 @@
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-internal class CompanyRepository : ICompanyRepository
+internal class CompanyRepository(DataContext dataContext) : ICompanyRepository
 {
-    private readonly DataContext _dataContext;
-
-    public CompanyRepository(DataContext dataContext)
-        => _dataContext = dataContext;
-
     public async Task<Company> AddCompanyAsync(Company company)
     {
-        var dbCompany = _dataContext.Companies.Add(company);
-        await _dataContext.SaveChangesAsync();
+        var dbCompany = dataContext.Companies.Add(company);
+        await dataContext.SaveChangesAsync();
         return dbCompany.Entity;
     }
 
-    public Task<Company?> GetCompanyById(Guid employeCompanyId)
-        => _dataContext.Companies.FirstOrDefaultAsync(c => c.Id == employeCompanyId);
+    public Task<Company?> GetCompanyByIdAsync(Guid companyId)
+        => dataContext.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
+
+    public async Task<Company> UpdateCompanyAsync(Company company)
+    {
+        var dbCompany = dataContext.Companies.Update(company);
+        await dataContext.SaveChangesAsync();
+        return dbCompany.Entity;
+    }
 }

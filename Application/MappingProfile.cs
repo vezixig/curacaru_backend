@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Core.DTO;
+using Core.DTO.Company;
 using Core.DTO.Insurance;
 using Core.Entities;
 
@@ -11,6 +12,8 @@ internal class MappingProfile : Profile
     {
         CreateAppointmentMappings();
         CreateCustomerMappings();
+
+        CreateMap<Company, GetCompanyDto>();
 
         CreateMap<Insurance, GetInsuranceDto>();
 

@@ -19,7 +19,7 @@ public class EmployeeByAuthIdRequestHandler(ICompanyRepository companyRepository
         var employee = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (employee == null) return null;
 
-        var company = employee.CompanyId == null ? null : await companyRepository.GetCompanyById(employee.CompanyId.Value);
+        var company = employee.CompanyId == null ? null : await companyRepository.GetCompanyByIdAsync(employee.CompanyId.Value);
 
         return new GetUserEmployeeDto
         {
