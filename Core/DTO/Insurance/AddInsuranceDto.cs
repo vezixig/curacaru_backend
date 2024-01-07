@@ -11,4 +11,10 @@ public class AddInsuranceDto
     /// <inheritdoc cref="Entities.Insurance.Name" />
     [Required]
     public string Name { get; set; } = "";
+
+    /// <inheritdoc cref="Entities.Insurance.Street" />
+    public string Street { get; set; } = "";
+
+    /// <inheritdoc cref="Entities.Insurance.ZipCode" />
+    public string ZipCode { get; set; } = "";
 }

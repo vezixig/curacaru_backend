@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class UpdateInsuranceDto
 {
-    /// <inheritdoc cref="Insurance.Id" />
+    /// <inheritdoc cref="Entities.Insurance.Id" />
     public Guid Id { get; set; }
 
     /// <inheritdoc cref="Entities.Insurance.InstitutionCode" />
@@ -14,4 +14,10 @@ public class UpdateInsuranceDto
     /// <inheritdoc cref="Entities.Insurance.Name" />
     [Required]
     public string Name { get; set; } = "";
+
+    /// <inheritdoc cref="Entities.Insurance.Street" />
+    public string Street { get; set; } = "";
+
+    /// <inheritdoc cref="Entities.Insurance.ZipCode" />
+    public string ZipCode { get; set; } = "";
 }

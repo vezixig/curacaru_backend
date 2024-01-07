@@ -22,7 +22,9 @@ internal class AddInsuranceRequestHandler(IInsuranceRepository insuranceReposito
         {
             CompanyId = request.CompanyId,
             InstitutionCode = request.Insurance.InstitutionCode,
-            Name = request.Insurance.Name
+            Name = request.Insurance.Name,
+            Street = request.Insurance.Street,
+            ZipCode = request.Insurance.ZipCode
         };
         await insuranceRepository.AddInsuranceAsync(insurance);
         return mapper.Map<GetInsuranceDto>(insurance);

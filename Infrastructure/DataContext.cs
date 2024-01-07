@@ -94,5 +94,10 @@ internal class DataContext : DbContext
             .HasOne<Company>()
             .WithMany()
             .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<Insurance>()
+            .HasOne(o => o.ZipCity)
+            .WithMany()
+            .HasForeignKey(o => o.ZipCode);
     }
 }

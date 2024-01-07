@@ -15,7 +15,8 @@ internal class MappingProfile : Profile
 
         CreateMap<Company, GetCompanyDto>();
 
-        CreateMap<Insurance, GetInsuranceDto>();
+        CreateMap<Insurance, GetInsuranceDto>()
+            .ForMember(o => o.City, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.City : ""));
 
         CreateMap<Employee, GetEmployeeBase>()
             .ForMember(o => o.Name, src => src.MapFrom(o => (o.FirstName + " " + o.LastName).Trim()));

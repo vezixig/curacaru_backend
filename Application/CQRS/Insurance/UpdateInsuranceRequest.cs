@@ -22,6 +22,8 @@ internal class UpdateInsuranceRequestHandler(IInsuranceRepository insuranceRepos
 
         insurance.InstitutionCode = request.Insurance.InstitutionCode;
         insurance.Name = request.Insurance.Name;
+        insurance.Street = request.Insurance.Street;
+        insurance.ZipCode = request.Insurance.ZipCode;
 
         insurance = await insuranceRepository.UpdateInsuranceAsync(insurance);
         return mapper.Map<GetInsuranceDto>(insurance);

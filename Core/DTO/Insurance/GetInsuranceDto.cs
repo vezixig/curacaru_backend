@@ -6,6 +6,12 @@ using Entities;
 /// <see cref="Insurance" />
 public class GetInsuranceDto
 {
+    /// <summary>Gets or sets the city the insurance is located in.</summary>
+    public string City { get; set; } = "";
+
+    /// <inheritdoc cref="Entities.Insurance.CompanyId" />
+    public Guid? CompanyId { get; set; }
+
     /// <inheritdoc cref="Insurance.Id" />
     public Guid Id { get; set; }
 
@@ -14,4 +20,10 @@ public class GetInsuranceDto
 
     /// <inheritdoc cref="Insurance.Name" />
     public string Name { get; set; } = "";
+
+    /// <inheritdoc cref="Insurance.Street" />
+    public string Street { get; set; } = "";
+
+    /// <inheritdoc cref="Insurance.ZipCode" />
+    public string ZipCode { get; set; } = "";
 }
