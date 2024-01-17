@@ -17,9 +17,9 @@ public interface ICustomerRepository
 
     /// <summary>Gets a customer.</summary>
     /// <param name="companyId">The company id.</param>
-    /// <param name="employeeId">The employee id.</param>
+    /// <param name="customerId">The employee id.</param>
     /// <returns>A customer if found, otherwise null.</returns>
-    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid employeeId);
+    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId);
 
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>
