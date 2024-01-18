@@ -24,7 +24,7 @@ internal class AddInsuranceRequestHandler(IInsuranceRepository insuranceReposito
             InstitutionCode = request.Insurance.InstitutionCode,
             Name = request.Insurance.Name,
             Street = request.Insurance.Street,
-            ZipCode = request.Insurance.ZipCode
+            ZipCode = request.Insurance.ZipCode == "" ? null : request.Insurance.ZipCode
         };
         await insuranceRepository.AddInsuranceAsync(insurance);
         return mapper.Map<GetInsuranceDto>(insurance);

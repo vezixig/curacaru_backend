@@ -7,5 +7,7 @@ public enum RideCostsType
 
     FlatRate,
 
-    Kilometer
+    Kilometer,
+
+    None
 }
