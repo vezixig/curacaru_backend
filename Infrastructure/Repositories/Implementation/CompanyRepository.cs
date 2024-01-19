@@ -13,7 +13,9 @@ internal class CompanyRepository(DataContext dataContext) : ICompanyRepository
     }
 
     public Task<Company?> GetCompanyByIdAsync(Guid companyId)
-        => dataContext.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
+        => dataContext.Companies
+            .Include(o => o.ZipCity)
+            .FirstOrDefaultAsync(c => c.Id == companyId);
 
     public async Task<Company> UpdateCompanyAsync(Company company)
     {

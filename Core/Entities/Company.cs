@@ -35,5 +35,7 @@ public class Company
 
     public string TaxNumber { get; set; } = "";
 
-    public string ZipCode { get; set; } = "";
+    public ZipCity? ZipCity { get; set; } = new();
+
+    public string? ZipCode { get; set; }
 }

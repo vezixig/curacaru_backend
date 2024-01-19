@@ -70,6 +70,11 @@ internal class DataContext : DbContext
             .WithMany()
             .HasForeignKey(o => o.CompanyId);
 
+        modelBuilder.Entity<Company>()
+            .HasOne(o => o.ZipCity)
+            .WithMany()
+            .HasForeignKey(o => o.ZipCode);
+
         modelBuilder.Entity<Customer>()
             .HasOne<Company>()
             .WithMany()

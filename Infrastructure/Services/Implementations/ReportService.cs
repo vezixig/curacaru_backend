@@ -68,12 +68,12 @@ public class ReportService : IReportService
         rightColumn.Format.Alignment = ParagraphAlignment.Left;
 
         var row1 = headerTable.AddRow();
-        row1.Cells[0].AddParagraph().AddFormattedText("Anbieter: Catz Care", "Table");
-        row1.Cells[1].AddParagraph().AddFormattedText("Steuernummer: 12/3456/789", "Table");
+        row1.Cells[0].AddParagraph().AddFormattedText($"Anbieter: {(company.Name == "" ? company.OwnerName : company.Name)}", "Table");
+        row1.Cells[1].AddParagraph().AddFormattedText($"Steuernummer: {company.TaxNumber}", "Table");
 
         var row2 = headerTable.AddRow();
-        row2.Cells[0].AddParagraph().AddFormattedText("Adresse: Sample Street 42 · 56789 Köln", "Table");
-        row2.Cells[1].AddParagraph().AddFormattedText("IK-Nummer: 1234567899", "Table");
+        row2.Cells[0].AddParagraph().AddFormattedText($"Adresse: {company.Street} · {company.ZipCode} {company.ZipCity?.City}", "Table");
+        row2.Cells[1].AddParagraph().AddFormattedText($"IK-Nummer: {company.InstitutionCode}", "Table");
     }
 
     private static void AddServiceType(Document document)
