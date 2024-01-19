@@ -8,7 +8,6 @@ public class UpdateInsuranceDto
     public Guid Id { get; set; }
 
     /// <inheritdoc cref="Entities.Insurance.InstitutionCode" />
-    [Required]
     public string InstitutionCode { get; set; } = "";
 
     /// <inheritdoc cref="Entities.Insurance.Name" />

@@ -31,27 +31,10 @@ public class UpdateCustomerRequestHandler(ICustomerRepository customerRepository
             _ = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.CustomerData.AssociatedEmployeeId.Value)
                 ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
 
+        mapper.Map(request.CustomerData, customer);
         customer.AssociatedEmployee = new Employee { Id = request.CustomerData.AssociatedEmployeeId!.Value };
-        customer.AssociatedEmployeeId = request.CustomerData.AssociatedEmployeeId;
-        customer.BirthDate = request.CustomerData.BirthDate;
-        customer.CareLevel = request.CustomerData.CareLevel;
-        customer.DeclarationsOfAssignment = request.CustomerData.DeclarationsOfAssignment;
-        customer.DoClearanceCareBenefit = request.CustomerData.DoClearanceCareBenefit;
-        customer.DoClearanceReliefAmount = request.CustomerData.DoClearanceReliefAmount;
-        customer.EmergencyContactName = request.CustomerData.EmergencyContactName;
-        customer.EmergencyContactPhone = request.CustomerData.EmergencyContactPhone;
-        customer.FirstName = request.CustomerData.FirstName;
         customer.Insurance = request.CustomerData.InsuranceId.HasValue ? new Insurance { Id = request.CustomerData.InsuranceId.Value } : null;
-        customer.InsuranceId = request.CustomerData.InsuranceId;
-        customer.InsuranceStatus = request.CustomerData.InsuranceStatus;
-        customer.InsuranceStatus = request.CustomerData.InsuranceStatus;
-        customer.InsuredPersonNumber = request.CustomerData.InsuredPersonNumber;
-        customer.IsCareContractAvailable = request.CustomerData.IsCareContractAvailable;
-        customer.LastName = request.CustomerData.LastName;
-        customer.Phone = request.CustomerData.Phone;
-        customer.Street = request.CustomerData.Street;
         customer.ZipCity = new ZipCity { ZipCode = request.CustomerData.ZipCode! };
-        customer.ZipCode = request.CustomerData.ZipCode;
 
         var updatedCustomer = await customerRepository.UpdateCustomerAsync(customer);
         return mapper.Map<GetCustomerDto>(updatedCustomer);

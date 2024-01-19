@@ -39,6 +39,9 @@ public class UpdateCustomerDto
 
     public string Phone { get; set; } = "";
 
+    /// <inheritdoc cref="Customer.Salutation" />
+    public Gender Salutation { get; set; }
+
     public string Street { get; set; } = "";
 
     public string? ZipCode { get; set; } = "";

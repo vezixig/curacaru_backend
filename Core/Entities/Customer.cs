@@ -50,6 +50,9 @@ public class Customer
 
     public string Phone { get; set; } = "";
 
+    /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>
+    public Gender Salutation { get; set; }
+
     public string Street { get; set; } = "";
 
     public ZipCity? ZipCity { get; set; }

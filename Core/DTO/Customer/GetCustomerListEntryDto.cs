@@ -1,4 +1,4 @@
-﻿namespace Curacaru.Backend.Core.DTO;
+﻿namespace Curacaru.Backend.Core.DTO.Customer;
 
 using System.ComponentModel.DataAnnotations;
 using Entities;

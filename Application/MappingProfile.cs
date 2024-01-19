@@ -55,5 +55,6 @@ internal class MappingProfile : Profile
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 
         CreateMap<AddCustomerDto, Customer>();
+        CreateMap<UpdateCustomerDto, Customer>();
     }
 }
