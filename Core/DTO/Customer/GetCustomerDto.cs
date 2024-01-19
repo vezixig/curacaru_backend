@@ -1,4 +1,4 @@
-﻿namespace Curacaru.Backend.Core.DTO;
+﻿namespace Curacaru.Backend.Core.DTO.Customer;
 
 using System.ComponentModel.DataAnnotations;
 using Entities;
@@ -20,7 +20,13 @@ public class GetCustomerDto
     [Required]
     public Guid CompanyId { get; set; }
 
-    public List<int> DeclarationsOfAssignment { get; set; } = new();
+    public List<int> DeclarationsOfAssignment { get; set; } = [];
+
+    /// <inheritdoc cref="Customer.DoClearanceCareBenefit" />
+    public bool DoClearanceCareBenefit { get; set; }
+
+    /// <inheritdoc cref="Customer.DoClearanceReliefAmount" />
+    public bool DoClearanceReliefAmount { get; set; }
 
     public string EmergencyContactName { get; set; } = "";
 

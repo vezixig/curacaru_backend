@@ -2,6 +2,7 @@
 
 using Application.CQRS.Customer;
 using Core.DTO;
+using Core.DTO.Customer;
 using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

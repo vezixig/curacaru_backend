@@ -11,17 +11,15 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class DeploymentController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("{year:int}/{month:int}")]
-    public async Task<IActionResult> GetDeployments(int year, int month)
+    [HttpGet]
+    public async Task<IActionResult> GetDeployments()
     {
-        var deployments = await mediator.Send(new DeploymentsRequest(CompanyId, AuthId, year, month));
+        var deployments = await mediator.Send(new DeploymentsRequest(CompanyId, AuthId));
         return Ok(deployments);
     }
 
-    [HttpGet("report/{year:int}/{month:int}/{customerId:guid}/{insuranceStatusId:int}")]
+    [HttpGet("report/{customerId:guid}/{insuranceStatusId:int}")]
     public async Task<IActionResult> GetProofOfDeployment(
-        int year,
-        int month,
         Guid customerId,
         int insuranceStatusId)
     {
@@ -29,13 +27,7 @@ public class DeploymentController(IMediator mediator) : ControllerBase
 
         var insuranceStatus = (InsuranceStatus)insuranceStatusId;
 
-        var report = await mediator.Send(new DeploymentReportRequest(CompanyId, AuthId, year, month, customerId, insuranceStatus));
-
-        // var service = new ReportService();
-        //var document = service.CreateDeploymentReport(InsuranceStatus.Statutory);
-
-        //BlobContent blobContent = new BlobContent(byteArray, "application/octet-stream");
-        //Blob blob = new Blob(blobContent);
+        var report = await mediator.Send(new DeploymentReportRequest(CompanyId, AuthId, customerId, insuranceStatus));
 
         return File(report, "application/pdf");
     }

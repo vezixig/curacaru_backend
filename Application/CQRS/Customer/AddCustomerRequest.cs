@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Core.DTO;
+using Core.DTO.Customer;
 using Core.Entities;
 using Infrastructure.Repositories;
 using MediatR;

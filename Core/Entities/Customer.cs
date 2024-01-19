@@ -17,7 +17,15 @@ public class Customer
     [Required]
     public Guid CompanyId { get; set; }
 
-    public List<int> DeclarationsOfAssignment { get; set; } = new();
+    public List<int> DeclarationsOfAssignment { get; set; } = [];
+
+    /// <summary>Gets or sets a value indicating whether clearance can be done through care benefit in kind.</summary>
+    /// <see href="https://www.bundesgesundheitsministerium.de/pflegedienst-und-pflegesachleistungen" />
+    public bool DoClearanceCareBenefit { get; set; }
+
+    /// <summary>Gets or sets a value indicating whether clearance can be done through the relief amount.</summary>
+    /// <see href="https://www.bundesgesundheitsministerium.de/entlastungsbetrag" />
+    public bool DoClearanceReliefAmount { get; set; }
 
     public string EmergencyContactName { get; set; } = "";
 
