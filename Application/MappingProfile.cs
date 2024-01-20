@@ -4,7 +4,6 @@ using AutoMapper;
 using Core.DTO;
 using Core.DTO.Company;
 using Core.DTO.Customer;
-using Core.DTO.Deployment;
 using Core.DTO.Insurance;
 using Core.Entities;
 
@@ -50,7 +49,7 @@ internal class MappingProfile : Profile
             .ForMember(o => o.City, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.City : ""))
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.ZipCode : ""));
 
-        CreateMap<Customer, GetDeploymentDto>()
+        CreateMap<Customer, GetMinimalCustomerListEntryDto>()
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.FirstName} {o.LastName}"))
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 

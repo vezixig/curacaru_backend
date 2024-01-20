@@ -1,6 +1,6 @@
 ﻿namespace Curacaru.Backend.Controllers;
 
-using Application.CQRS.Deployment;
+using Application.CQRS.Documents;
 using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,16 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize(Policy = Policy.Company)]
 [ApiController]
 [Route("[controller]")]
-public class DeploymentController(IMediator mediator) : ControllerBase
+public class DocumentController(IMediator mediator) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetDeployments()
+    [HttpGet("assignment-declaration/{customerId:guid}/{year:int}")]
+    public async Task<IActionResult> GetDeclarationOfAssignment(Guid customerId, int year)
     {
-        var deployments = await mediator.Send(new DeploymentsRequest(CompanyId, AuthId));
-        return Ok(deployments);
+        var report = await mediator.Send(new AssignmentDeclarationRequest(CompanyId, AuthId, customerId, year));
+        return File(report, "application/pdf");
     }
 
-    [HttpGet("report/{customerId:guid}/{insuranceStatusId:int}")]
+    [HttpGet("deployment/{customerId:guid}/{insuranceStatusId:int}")]
     public async Task<IActionResult> GetProofOfDeployment(
         Guid customerId,
         int insuranceStatusId)
@@ -26,9 +26,7 @@ public class DeploymentController(IMediator mediator) : ControllerBase
         if (!Enum.IsDefined(typeof(InsuranceStatus), insuranceStatusId)) return BadRequest("Insurance status not defined");
 
         var insuranceStatus = (InsuranceStatus)insuranceStatusId;
-
         var report = await mediator.Send(new DeploymentReportRequest(CompanyId, AuthId, customerId, insuranceStatus));
-
         return File(report, "application/pdf");
     }
 }

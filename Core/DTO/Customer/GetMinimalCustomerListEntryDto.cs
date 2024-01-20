@@ -1,9 +1,9 @@
-﻿namespace Curacaru.Backend.Core.DTO.Deployment;
+﻿namespace Curacaru.Backend.Core.DTO.Customer;
 
 using Enums;
 
 /// <summary>A DTO to get a deployment.</summary>
-public class GetDeploymentDto
+public class GetMinimalCustomerListEntryDto
 {
     /// <summary>Gets or sets the id of the customer.</summary>
     public Guid CustomerId { get; init; }

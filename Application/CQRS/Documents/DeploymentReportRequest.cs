@@ -1,4 +1,4 @@
-﻿namespace Curacaru.Backend.Application.CQRS.Deployment;
+﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
 using Core.Enums;
 using Core.Exceptions;
@@ -36,16 +36,16 @@ internal class DeploymentReportRequestHandler(
 {
     public async Task<byte[]> Handle(DeploymentReportRequest request, CancellationToken cancellationToken)
     {
+        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId)
+                      ?? throw new BadRequestException("Firma existiert nicht.");
+
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId)
                    ?? throw new BadRequestException("Mitarbeiter existiert nicht.");
 
         var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerId)
                        ?? throw new BadRequestException("Kunde existiert nicht.");
 
-        if (customer.AssociatedEmployeeId != user.Id && !user.IsManager) throw new ForbiddenException("Sie dürfen diesen Kunden nicht bearbeiten.");
-
-        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId)
-                      ?? throw new BadRequestException("Firma existiert nicht.");
+        if (customer.AssociatedEmployeeId != user.Id && !user.IsManager) throw new ForbiddenException("Diesen Kunden darfst du nicht bearbeiten.");
 
         var report = reportService.CreateDeploymentReport(company, customer, request.InsuranceStatus);
         return report;

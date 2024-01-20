@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Controllers;
 
 using Application.CQRS.Customer;
-using Core.DTO;
 using Core.DTO.Customer;
 using Core.Enums;
 using MediatR;
@@ -40,6 +39,13 @@ public class CustomerController(ISender mediator) : ControllerBase
     public async Task<IActionResult> GetCustomers()
     {
         var customers = await mediator.Send(new CustomerListRequest(CompanyId, AuthId));
+        return Ok(customers);
+    }
+
+    [HttpGet("list/minimal")]
+    public async Task<IActionResult> GetDeployments()
+    {
+        var customers = await mediator.Send(new MinimalCustomerListRequest(CompanyId, AuthId));
         return Ok(customers);
     }
 
