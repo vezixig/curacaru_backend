@@ -1,7 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Appointments;
 
 using AutoMapper;
-using Core.DTO;
+using Core.DTO.Appointment;
 using Core.Entities;
 using Core.Exceptions;
 using Infrastructure.repositories;

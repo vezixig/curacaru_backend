@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Appointments;
 
 using AutoMapper;
-using Core.DTO;
 using Core.DTO.Appointment;
 using Core.Entities;
 using Core.Exceptions;
@@ -70,6 +69,7 @@ internal class UpdateAppointmentRequestHandler(
         }
 
         appointment.Date = request.Appointment.Date;
+        appointment.DistanceToCustomer = request.Appointment.DistanceToCustomer;
         appointment.TimeStart = request.Appointment.TimeStart;
         appointment.TimeEnd = request.Appointment.TimeEnd;
         appointment.IsSignedByCustomer = request.Appointment.IsSignedByCustomer;

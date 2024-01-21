@@ -18,6 +18,9 @@ public class Appointment
     /// <summary>Gets or sets the date of the appointment.</summary>
     public DateOnly Date { get; set; }
 
+    /// <summary>Gets or sets the distance in km to the customer.</summary>
+    public int DistanceToCustomer { get; set; }
+
     /// <summary>Gets or sets the employee associated with the appointment.</summary>
     public Employee Employee { get; set; } = null!;
 

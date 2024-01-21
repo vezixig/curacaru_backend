@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Core.DTO;
+using Core.DTO.Appointment;
 using Core.DTO.Company;
 using Core.DTO.Customer;
 using Core.DTO.Insurance;

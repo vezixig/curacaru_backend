@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Employee;
 
 using Core.DTO.Employee;
+using Core.Enums;
 using Infrastructure.repositories;
 using MediatR;
 
@@ -24,11 +25,12 @@ public class EmployeeByAuthIdRequestHandler(ICompanyRepository companyRepository
         return new GetUserEmployeeDto
         {
             CompanyId = employee.CompanyId,
+            CompanyName = company?.Name ?? "",
+            CompanyRideCostsType = company?.RideCostsType ?? RideCostsType.None,
             FirstName = employee.FirstName,
-            LastName = employee.LastName,
-            IsManager = employee.IsManager,
             Id = employee.Id,
-            CompanyName = company?.Name ?? ""
+            IsManager = employee.IsManager,
+            LastName = employee.LastName
         };
     }
 }

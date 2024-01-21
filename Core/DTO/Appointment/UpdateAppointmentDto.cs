@@ -1,37 +1,42 @@
 ﻿namespace Curacaru.Backend.Core.DTO.Appointment;
 
+using Entities;
+
 public class UpdateAppointmentDto
 {
-    /// <inheritdoc cref="Entities.Appointment.CustomerId" />
+    /// <inheritdoc cref="Appointment.CustomerId" />
     public Guid CustomerId { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.Date" />
+    /// <inheritdoc cref="Appointment.Date" />
     public DateOnly Date { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.EmployeeId" />
+    /// <inheritdoc cref="Appointment.DistanceToCustomer" />
+    public int DistanceToCustomer { get; set; }
+
+    /// <inheritdoc cref="Appointment.EmployeeId" />
     public Guid EmployeeId { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.EmployeeReplacementId" />
+    /// <inheritdoc cref="Appointment.EmployeeReplacementId" />
     public Guid? EmployeeReplacementId { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.Id" />
+    /// <inheritdoc cref="Appointment.Id" />
     public Guid Id { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.IsDone" />
+    /// <inheritdoc cref="Appointment.IsDone" />
     public bool IsDone { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.IsSignedByCustomer" />
+    /// <inheritdoc cref="Appointment.IsSignedByCustomer" />
     public bool IsSignedByCustomer { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.IsSignedByEmployee" />
+    /// <inheritdoc cref="Appointment.IsSignedByEmployee" />
     public bool IsSignedByEmployee { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.Notes" />
+    /// <inheritdoc cref="Appointment.Notes" />
     public string Notes { get; set; } = "";
 
-    /// <inheritdoc cref="Entities.Appointment.TimeEnd" />
+    /// <inheritdoc cref="Appointment.TimeEnd" />
     public TimeOnly TimeEnd { get; set; }
 
-    /// <inheritdoc cref="Entities.Appointment.TimeStart" />
+    /// <inheritdoc cref="Appointment.TimeStart" />
     public TimeOnly TimeStart { get; set; }
 }
