@@ -17,7 +17,7 @@ internal static class DeploymentReport
         CreatePage(document);
         AddHeader(document.Sections[0], company);
 
-        document.Sections[0].AddParagraph("Einsatznachweis Monat/Jahr: ___________________________", "H1");
+        document.Sections[0].AddParagraph("Einsatznachweis Monat/Jahr: ___________________________", "H1").Format.SpaceAfter = "0.5cm";
 
         if (insuranceStatus != InsuranceStatus.SelfPay) AddServiceType(document);
 
@@ -29,8 +29,10 @@ internal static class DeploymentReport
 
     private static void AddCustomerInfo(Document document, Customer customer, InsuranceStatus insuranceStatus)
     {
-        document.Sections[0].AddParagraph();
-        document.Sections[0].AddParagraph("Name des Kunden: ").AddText($"{customer.FirstName} {customer.LastName}");
+        var paragraph = document.Sections[0].AddParagraph();
+        paragraph.AddText($"Name des Kunden: {customer.FirstName} {customer.LastName}");
+        paragraph.Format.SpaceBefore = "0.3cm";
+
         if (insuranceStatus != InsuranceStatus.SelfPay)
         {
             document.Sections[0].AddParagraph("Leistunsgsträger: ").AddText(customer.Insurance?.Name ?? "");
@@ -38,7 +40,7 @@ internal static class DeploymentReport
             document.Sections[0].AddParagraph("Pflegegrad: ").AddText(customer.CareLevel.ToString());
         }
 
-        document.Sections[0].AddParagraph("Geburtsdatum:").AddText(customer.BirthDate.ToString("dd.MM.yyyy"));
+        document.Sections[0].AddParagraph("Geburtsdatum: ").AddText(customer.BirthDate.ToString("dd.MM.yyyy"));
         document.Sections[0].AddParagraph("Anschrift: ").AddText($"{customer.Street} · {customer.ZipCode} {customer.ZipCity?.City ?? ""}");
         document.Sections[0].AddParagraph();
     }
@@ -56,11 +58,15 @@ internal static class DeploymentReport
         rightColumn.Format.Alignment = ParagraphAlignment.Left;
 
         var row1 = headerTable.AddRow();
-        row1.Cells[0].AddParagraph().AddFormattedText($"Anbieter: {(company.Name == "" ? company.OwnerName : company.Name)}", "Table");
+        row1.Cells[0].AddParagraph().AddFormattedText($"Anbieter: {(string.IsNullOrEmpty(company.Name) ? company.OwnerName : company.Name)}", "Table");
         row1.Cells[1].AddParagraph().AddFormattedText($"Steuernummer: {company.TaxNumber}", "Table");
 
         var row2 = headerTable.AddRow();
-        row2.Cells[0].AddParagraph().AddFormattedText($"Adresse: {company.Street} · {company.ZipCode} {company.ZipCity?.City}", "Table");
+        row2.Cells[0]
+            .AddParagraph()
+            .AddFormattedText(
+                $"Adresse: {(!string.IsNullOrEmpty(company.OwnerName) ? $"{company.OwnerName} · " : "")} {company.Street} · {company.ZipCode} {company.ZipCity?.City}",
+                "Table");
         row2.Cells[1].AddParagraph().AddFormattedText($"IK-Nummer: {company.InstitutionCode}", "Table");
     }
 
@@ -187,6 +193,7 @@ internal static class DeploymentReport
     {
         var section = document.AddSection();
         section.PageSetup = document.DefaultPageSetup.Clone();
+        section.PageSetup.TopMargin = "2.7cm";
         section.PageSetup.PageFormat = PageFormat.A4;
         section.PageSetup.Orientation = Orientation.Landscape;
     }
