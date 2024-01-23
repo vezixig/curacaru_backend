@@ -27,6 +27,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .Include(o => o.AssociatedEmployee)
             .Include(o => o.ZipCity)
             .Include(o => o.Insurance)
+            .ThenInclude(o => o.ZipCity)
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId);
 
     public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null)

@@ -33,8 +33,9 @@ Ich habe eine Kopie dieser Abtretungserklärung erhalten.
 
         section.AddParagraph("", "PClose").AddFormattedText("Hinweis:", TextFormat.Bold);
         section.AddParagraph(
-            @"Ihnen steht bei Ihrer Pflegeversicherung nur ein begrenztes Budget zur Verfügung. Der Entlastungsbetrag beträgt 125 Euro pro Monat. Sollte dieses Budget für die vereinbarten und erbrachten Leistungen nicht ausreichen, so verpflichten Sie sich, die Rechnung oder etwaige Differenzbeträge (Zuzahlungen) privat zu begleichen. \r\nDie Abtretungserklärung entbindet Sie nicht von Ihrer Zahlungspflicht gegenüber dem o.g. Angebot zur Unterstützung im Alltag.
-                             Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich auf die Abrechnung der Leistungen nach §45b SGB XI.");
+            @"Ihnen steht bei Ihrer Pflegeversicherung nur ein begrenztes Budget zur Verfügung. Der Entlastungsbetrag beträgt 125 Euro pro Monat. Sollte dieses Budget für die vereinbarten und erbrachten Leistungen nicht ausreichen, so verpflichten Sie sich, die Rechnung oder etwaige Differenzbeträge (Zuzahlungen) privat zu begleichen. 
+Die Abtretungserklärung entbindet Sie nicht von Ihrer Zahlungspflicht gegenüber dem o.g. Angebot zur Unterstützung im Alltag.
+Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich auf die Abrechnung der Leistungen nach §45b SGB XI.");
 
         return document;
     }
@@ -44,7 +45,9 @@ Ich habe eine Kopie dieser Abtretungserklärung erhalten.
         var section = document.Sections[0];
 
         AddLine("Name", company.Name);
-        AddLine("Adresse", $"{company.OwnerName} {company.Street} {company.ZipCode} {company.ZipCity?.City}");
+        AddLine(
+            "Adresse",
+            $"{(!string.IsNullOrEmpty(company.OwnerName) ? $"{company.OwnerName} · " : "")}{company.Street} · {company.ZipCode} · {company.ZipCity?.City}");
         AddLine("Angebots-ID", company.ServiceId);
         AddLine("Datum der Anerkennung", company.RecognitionDate.ToString("dd.MM.yyyy"));
         AddLine("IK-Nummer", company.InstitutionCode);
