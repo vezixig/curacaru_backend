@@ -16,6 +16,9 @@ public class AddCustomerDto
     /// <inheritdoc cref="Customer.DoClearanceCareBenefit" />
     public bool DoClearanceCareBenefit { get; set; }
 
+    /// <inheritdoc cref="Customer.DoClearancePreventiveCare" />
+    public bool DoClearancePreventiveCare { get; set; }
+
     /// <inheritdoc cref="Customer.DoClearanceReliefAmount" />
     public bool DoClearanceReliefAmount { get; set; }
 

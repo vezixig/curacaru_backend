@@ -23,6 +23,10 @@ public class Customer
     /// <see href="https://www.bundesgesundheitsministerium.de/pflegedienst-und-pflegesachleistungen" />
     public bool DoClearanceCareBenefit { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether clearance can be done through preventive care.</summary>
+    /// <see href="https://www.gesetze-im-internet.de/sgb_11/__39.html" />
+    public bool DoClearancePreventiveCare { get; set; }
+
     /// <summary>Gets or sets a value indicating whether clearance can be done through the relief amount.</summary>
     /// <see href="https://www.bundesgesundheitsministerium.de/entlastungsbetrag" />
     public bool DoClearanceReliefAmount { get; set; }
