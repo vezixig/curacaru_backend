@@ -35,7 +35,7 @@ internal static class DeploymentReport
 
         if (insuranceStatus != InsuranceStatus.SelfPay)
         {
-            document.Sections[0].AddParagraph("Leistunsgsträger: ").AddText(customer.Insurance?.Name ?? "");
+            document.Sections[0].AddParagraph("Krankenkasse: ").AddText(customer.Insurance?.Name ?? "");
             document.Sections[0].AddParagraph("Versichertennummer: ").AddText(customer.InsuredPersonNumber);
             document.Sections[0].AddParagraph("Pflegegrad: ").AddText(customer.CareLevel.ToString());
         }
