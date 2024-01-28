@@ -28,6 +28,8 @@ internal class MappingProfile : Profile
     {
         CreateMap<Appointment, GetAppointmentListEntryDto>()
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => (o.Customer.FirstName + " " + o.Customer.LastName).Trim()))
+            .ForMember(o => o.Latitude, src => src.MapFrom(o => o.Customer.Latitude))
+            .ForMember(o => o.Longitude, src => src.MapFrom(o => o.Customer.Longitude))
             .ForMember(o => o.City, src => src.MapFrom(o => o.Customer.ZipCity != null ? o.Customer.ZipCity.City : ""))
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.Customer.ZipCode))
             .ForMember(o => o.Street, src => src.MapFrom(o => o.Customer.Street))

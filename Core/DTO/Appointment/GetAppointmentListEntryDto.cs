@@ -27,6 +27,13 @@ public class GetAppointmentListEntryDto
     /// <inheritdoc cref="Appointment.IsDone" />
     public bool IsDone { get; set; }
 
+    /// <inheritdoc cref="Customer.Latitude" />
+    public decimal Latitude { get; set; }
+
+    /// <inheritdoc cref="Customer.Longitude" />
+
+    public decimal Longitude { get; set; }
+
     /// <inheritdoc cref="Customer.Street" />
     public string Street { get; set; } = "";
 

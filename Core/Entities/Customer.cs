@@ -52,6 +52,12 @@ public class Customer
 
     public string LastName { get; set; } = "";
 
+    /// <summary>Gets or sets the latitude of the customer's address.</summary>
+    public decimal Latitude { get; set; }
+
+    /// <summary>Gets or sets the longitude of the customer's address.</summary>
+    public decimal Longitude { get; set; }
+
     public string Phone { get; set; } = "";
 
     /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>

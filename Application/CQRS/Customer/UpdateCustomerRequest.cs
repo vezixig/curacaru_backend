@@ -6,6 +6,7 @@ using Core.Entities;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
 
 public class UpdateCustomerRequest(UpdateCustomerDto customerData, Guid companyId, string authId) : IRequest<GetCustomerDto>
@@ -17,7 +18,11 @@ public class UpdateCustomerRequest(UpdateCustomerDto customerData, Guid companyI
     public UpdateCustomerDto CustomerData { get; } = customerData;
 }
 
-public class UpdateCustomerRequestHandler(ICustomerRepository customerRepository, IEmployeeRepository employeeRepository, IMapper mapper)
+public class UpdateCustomerRequestHandler(
+    ICustomerRepository customerRepository,
+    IEmployeeRepository employeeRepository,
+    IMapper mapper,
+    IMapService mapService)
     : IRequestHandler<UpdateCustomerRequest, GetCustomerDto>
 {
     public async Task<GetCustomerDto> Handle(UpdateCustomerRequest request, CancellationToken cancellationToken)
@@ -30,6 +35,14 @@ public class UpdateCustomerRequestHandler(ICustomerRepository customerRepository
         if (request.CustomerData.AssociatedEmployeeId.HasValue)
             _ = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.CustomerData.AssociatedEmployeeId.Value)
                 ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
+
+        // check if address has changed to update geolocation
+        if (customer.Street != request.CustomerData.Street || customer.ZipCode != request.CustomerData.ZipCode)
+        {
+            var geolocation = await mapService.GetGeolocationAsync(request.CustomerData.Street, request.CustomerData.ZipCode);
+            customer.Latitude = geolocation.Latitude;
+            customer.Longitude = geolocation.Longitude;
+        }
 
         mapper.Map(request.CustomerData, customer);
         customer.AssociatedEmployee = new Employee { Id = request.CustomerData.AssociatedEmployeeId!.Value };

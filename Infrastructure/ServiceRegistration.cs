@@ -30,6 +30,7 @@ public static class ServiceRegistration
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDatabaseService, DatabaseService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IMapService, MapService>();
         services.AddScoped<IReportService, ReportService>();
     }
 }
