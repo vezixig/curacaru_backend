@@ -29,6 +29,8 @@ internal class MappingProfile : Profile
         CreateMap<Appointment, GetAppointmentListEntryDto>()
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => (o.Customer.FirstName + " " + o.Customer.LastName).Trim()))
             .ForMember(o => o.City, src => src.MapFrom(o => o.Customer.ZipCity != null ? o.Customer.ZipCity.City : ""))
+            .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.Customer.ZipCode))
+            .ForMember(o => o.Street, src => src.MapFrom(o => o.Customer.Street))
             .ForMember(o => o.EmployeeName, src => src.MapFrom(o => (o.Employee.FirstName + " " + o.Employee.LastName).Trim()))
             .ForMember(
                 o => o.EmployeeReplacementName,

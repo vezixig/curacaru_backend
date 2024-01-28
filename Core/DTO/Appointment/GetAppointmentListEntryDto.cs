@@ -27,9 +27,15 @@ public class GetAppointmentListEntryDto
     /// <inheritdoc cref="Appointment.IsDone" />
     public bool IsDone { get; set; }
 
+    /// <inheritdoc cref="Customer.Street" />
+    public string Street { get; set; } = "";
+
     /// <inheritdoc cref="Appointment.TimeEnd" />
     public TimeOnly TimeEnd { get; set; }
 
     /// <inheritdoc cref="Appointment.TimeStart" />
     public TimeOnly TimeStart { get; set; }
+
+    /// <inheritdoc cref="Customer.ZipCode" />
+    public string ZipCode { get; set; } = "";
 }
