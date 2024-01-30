@@ -34,6 +34,9 @@ public class GetAppointmentListEntryDto
 
     public decimal Longitude { get; set; }
 
+    /// <inheritdoc cref="Customer.Phone" />
+    public string Phone { get; set; } = "";
+
     /// <inheritdoc cref="Customer.Street" />
     public string Street { get; set; } = "";
 
