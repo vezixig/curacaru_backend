@@ -98,7 +98,7 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Name der Krankenkasse", TextFormat.Bold);
-        row.Cells[0].AddParagraph(customer.Insurance.Name);
+        row.Cells[0].AddParagraph(customer.Insurance?.Name ?? "");
         row.Cells[1].MergeRight = 1;
         row.Cells[1]
             .AddParagraph()
@@ -107,11 +107,11 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Straße, Hausnr.", TextFormat.Bold);
-        row.Cells[0].AddParagraph(customer.Insurance.Street);
+        row.Cells[0].AddParagraph(customer.Insurance?.Street ?? "");
         row.Cells[1].AddParagraph().AddFormattedText("PLZ", TextFormat.Bold);
-        row.Cells[1].AddParagraph(customer.Insurance.ZipCode ?? "");
+        row.Cells[1].AddParagraph(customer.Insurance?.ZipCode ?? "");
         row.Cells[2].AddParagraph().AddFormattedText("Ort", TextFormat.Bold);
-        row.Cells[2].AddParagraph(customer.Insurance.ZipCity?.City ?? "");
+        row.Cells[2].AddParagraph(customer.Insurance?.ZipCity?.City ?? "");
     }
 
     private static void AddSignatureArea(Document document)

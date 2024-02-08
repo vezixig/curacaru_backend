@@ -37,7 +37,7 @@ public class UpdateCustomerRequestHandler(
                 ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
 
         // check if address has changed to update geolocation
-        if (customer.Street != request.CustomerData.Street || customer.ZipCode != request.CustomerData.ZipCode)
+        if (request.CustomerData.ZipCode != null && (customer.Street != request.CustomerData.Street || customer.ZipCode != request.CustomerData.ZipCode))
         {
             var geolocation = await mapService.GetGeolocationAsync(request.CustomerData.Street, request.CustomerData.ZipCode);
             customer.Latitude = geolocation.Latitude;
