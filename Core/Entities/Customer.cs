@@ -31,38 +31,45 @@ public class Customer
     /// <see href="https://www.bundesgesundheitsministerium.de/entlastungsbetrag" />
     public bool DoClearanceReliefAmount { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether clearance can be done through self-payment.</summary>
+    public bool DoClearanceSelfPayment { get; set; }
+
+    /// <summary>Gets or sets the emergency contact name.</summary>
     public string EmergencyContactName { get; set; } = "";
 
+    /// <summary>Gets or sets the emergency contact phone number.</summary>
     public string EmergencyContactPhone { get; set; } = "";
 
+    /// <summary>Gets or sets the first name.</summary>
     public string FirstName { get; set; } = "";
 
     [Key]
     public Guid Id { get; set; }
 
+    /// <summary>Gets or sets the insurance the customer is insured at.</summary>
     public Insurance? Insurance { get; set; }
 
+    /// <summary>Gets or sets the id of insurance the customer is insured at.</summary>
     public Guid? InsuranceId { get; set; }
 
+    /// <summary>Gets or sets the insurance status.</summary>
     public InsuranceStatus? InsuranceStatus { get; set; }
 
+    /// <summary>Gets or sets the insured person number of the customer.</summary>
     public string InsuredPersonNumber { get; set; } = "";
 
     public bool IsCareContractAvailable { get; set; }
 
+    /// <summary>Gets or sets the last name.</summary>
     public string LastName { get; set; } = "";
 
-    /// <summary>Gets or sets the latitude of the customer's address.</summary>
-    public decimal Latitude { get; set; }
-
-    /// <summary>Gets or sets the longitude of the customer's address.</summary>
-    public decimal Longitude { get; set; }
-
+    /// <summary>Gets or sets the phone number of the customer.</summary>
     public string Phone { get; set; } = "";
 
     /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>
     public Gender Salutation { get; set; }
 
+    /// <summary>Gets or sets the street of the customer's address.</summary>
     public string Street { get; set; } = "";
 
     public ZipCity? ZipCity { get; set; }

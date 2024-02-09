@@ -31,6 +31,9 @@ public class GetCustomerDto
     /// <inheritdoc cref="Customer.DoClearanceReliefAmount" />
     public bool DoClearanceReliefAmount { get; set; }
 
+    /// <inheritdoc cref="Customer.DoClearanceSelfPayment" />
+    public bool DoClearanceSelfPayment { get; set; }
+
     public string EmergencyContactName { get; set; } = "";
 
     public string EmergencyContactPhone { get; set; } = "";

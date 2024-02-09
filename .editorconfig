@@ -1,0 +1,16 @@
+
+[*.{appxmanifest,axml,build,config,csproj,dbml,discomap,dtd,jsproj,lsproj,njsproj,nuspec,proj,props,proto,resw,resx,StyleCop,targets,tasks,vbproj,xml,xsd}]
+indent_style=tab
+indent_size=tab
+tab_width=4
+
+[*.{asax,ascx,aspx,cs,cshtml,css,htm,html,js,json,jsx,master,razor,resjson,skin,ts,tsx,vb,xaml,xamlx,xoml}]
+indent_style=space
+indent_size=4
+tab_width=4
+
+[*]
+
+[**/Migrations/*.cs]
+# CS8981: The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+dotnet_diagnostic.CS8981.severity = none
