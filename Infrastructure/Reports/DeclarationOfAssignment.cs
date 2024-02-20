@@ -146,7 +146,7 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
         // Get the predefined style Normal.
         var style = document.Styles["Normal"];
 
-        style.Font.Name = "Arial";
+        style!.Font.Name = "Arial";
         style.ParagraphFormat.SpaceAfter = "0.5cm";
 
         style = document.Styles.AddStyle("Table", "Normal");

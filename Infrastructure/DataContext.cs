@@ -10,6 +10,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of appointments.</summary>
     public DbSet<Appointment> Appointments { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of budgets.</summary>
+    public DbSet<Budget> Budgets { get; set; } = null!;
+
     /// <summary>Gets or sets the set of companies.</summary>
     public DbSet<Company> Companies { get; set; } = null!;
 
@@ -64,6 +67,16 @@ internal class DataContext : DbContext
             .HasOne(o => o.EmployeeReplacement)
             .WithMany()
             .HasForeignKey(o => o.EmployeeReplacementId);
+
+        modelBuilder.Entity<Budget>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<Budget>()
+            .HasOne(o => o.Customer)
+            .WithMany()
+            .HasForeignKey(o => o.CustomerId);
 
         modelBuilder.Entity<Employee>()
             .HasOne<Company>()
