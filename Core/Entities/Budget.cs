@@ -42,6 +42,12 @@ public class Budget
     /// </remarks>
     public decimal ReliefAmount { get; set; }
 
+    /// <summary>Gets or sets the current self payment amount.</summary>
+    public decimal SelfPayAmount { get; set; }
+
+    /// <summary>Gets or sets the monthly self payment raise.</summary>
+    public decimal SelfPayRaise { get; set; }
+
     /// <summary>Gets or sets the year the budget is valid for.</summary>
     public int Year { get; set; }
 }

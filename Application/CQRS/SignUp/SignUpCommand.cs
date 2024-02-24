@@ -45,7 +45,7 @@ internal class SignUpCommandHandler : IRequestHandler<SignUpCommand, GetEmployee
     {
         if (await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId) != null) throw new Exception("Employee already exists");
 
-        var transaction = await _databaseService.GetTransactionAsync(cancellationToken);
+        var transaction = await _databaseService.BeginTransactionAsync(cancellationToken);
 
         try
         {

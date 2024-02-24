@@ -46,10 +46,13 @@ public class GetBudgetRequestHandler(IBudgetRepository budgetRepository, ICompan
             Id = budget.Id,
             PreventiveCareAmount = budget.PreventiveCareAmount,
             PricePerHour = company!.PricePerHour,
-            ReliefAmount = budget.ReliefAmount,
-            ReliefAmountCurrentYear = budget.ReliefAmount - (budgetLastYear?.ReliefAmount ?? 0),
+            ReliefAmount = budget.ReliefAmount + (budgetLastYear?.ReliefAmount ?? 0),
+            ReliefAmountCurrentYear = budget.ReliefAmount,
             ReliefAmountPreviousYear = budgetLastYear?.ReliefAmount,
-            ReliefAmountRaise = BudgetService.MonthlyReliefAmountRaise
+            ReliefAmountRaise = BudgetService.MonthlyReliefAmountRaise,
+            PreventiveCareRaise = BudgetService.YearlyPreventiveCareRaise,
+            SelfPayAmount = budget.SelfPayAmount,
+            SelfPayRaise = budget.SelfPayRaise
         };
 
         return result;

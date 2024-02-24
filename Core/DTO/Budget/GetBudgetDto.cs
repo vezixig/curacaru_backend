@@ -35,6 +35,9 @@ public class GetBudgetDto
     /// <inheritdoc cref="Budget.PreventiveCareAmount" />
     public decimal PreventiveCareAmount { get; set; }
 
+    /// <summary>Gets or sets the value the preventive care amount is reset to every year.</summary>
+    public decimal? PreventiveCareRaise { get; set; }
+
     /// <inheritdoc cref="Company.PricePerHour" />
     public decimal PricePerHour { get; set; }
 
@@ -49,4 +52,10 @@ public class GetBudgetDto
 
     /// <summary>Gets or sets the value the  relief amount is raised every month.</summary>
     public decimal? ReliefAmountRaise { get; set; }
+
+    /// <inheritdoc cref="Budget.SelfPayAmount" />
+    public decimal SelfPayAmount { get; set; }
+
+    /// <inheritdoc cref="Budget.SelfPayRaise" />
+    public decimal? SelfPayRaise { get; set; }
 }

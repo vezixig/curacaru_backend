@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Controllers;
 
 using Application.CQRS.Budgets;
+using Core.DTO.Budget;
 using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 public class BudgetsController(IMediator mediator) : ControllerBase
 
 {
-    /// <summary>Get the list of budgets for the company</summary>
+    /// <summary>Gets the list of budgets for the company</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetBudgets()
     {
@@ -22,11 +23,19 @@ public class BudgetsController(IMediator mediator) : ControllerBase
         return Ok(budgetList);
     }
 
-    /// <summary>Get the current budget for a customer.</summary>
+    /// <summary>Gets the current budget for a customer.</summary>
     [HttpGet("{customerId:guid}")]
     public async Task<IActionResult> GetCurrentBudget(Guid customerId)
     {
         var budget = await mediator.Send(new GetBudgetRequest(CompanyId, customerId));
         return Ok(budget);
+    }
+
+    /// <summary>Replaces the current budget for a customer.</summary>
+    [HttpPut("{customerId:guid}")]
+    public async Task<IActionResult> PutBudget([FromRoute] Guid customerId, [FromBody] PutBudgetDto budget)
+    {
+        await mediator.Send(new ReplaceBudgetRequest(CompanyId, customerId, budget));
+        return Ok();
     }
 }

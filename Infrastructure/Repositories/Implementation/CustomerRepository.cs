@@ -7,9 +7,9 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 {
     public async Task<Customer> AddCustomerAsync(Customer customer)
     {
-        if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee);
-        if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance);
-        dataContext.Attach(customer.ZipCity);
+        if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee!);
+        if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance!);
+        if (customer.ZipCity != null) dataContext.Attach(customer.ZipCity);
 
         var result = await dataContext.Customers.AddAsync(customer);
         await dataContext.SaveChangesAsync();
@@ -46,9 +46,9 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 
     public Task<Customer> UpdateCustomerAsync(Customer customer)
     {
-        if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee);
-        if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance);
-        dataContext.Attach(customer.ZipCity);
+        if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee!);
+        if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance!);
+        if (customer.ZipCity != null) dataContext.Attach(customer.ZipCity);
 
         var result = dataContext.Customers.Update(customer);
         return dataContext.SaveChangesAsync().ContinueWith(_ => result.Entity);

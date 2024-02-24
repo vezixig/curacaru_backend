@@ -7,9 +7,8 @@ using System.Text.Json;
 using Core.Exceptions;
 using Core.Models;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
-internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IAuthService
+internal class AuthService(IMemoryCache cache) : IAuthService
 {
     private readonly string _baseUrl = Environment.GetEnvironmentVariable("IDENTITY_AUTHORITY") + "api/v2/";
 
@@ -43,7 +42,7 @@ internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IA
 
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var userId = jsonDocument.RootElement.GetProperty("user_id").GetString();
-        return new UserPassword(user.password, userId);
+        return new UserPassword(user.password, userId!);
     }
 
     public async Task DeleteUserAsync(string authId)
@@ -71,7 +70,7 @@ internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IA
 
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var mail = jsonDocument.RootElement.GetProperty("email").GetString();
-        return mail;
+        return mail!;
     }
 
     private static string GeneratePassword()
@@ -117,6 +116,6 @@ internal class AuthService(ILogger<AuthService> logger, IMemoryCache cache) : IA
         var token = jsonDocument.RootElement.GetProperty("access_token").GetString();
 
         cache.Set("token", token, TimeSpan.FromMinutes(60));
-        return token;
+        return token!;
     }
 }
