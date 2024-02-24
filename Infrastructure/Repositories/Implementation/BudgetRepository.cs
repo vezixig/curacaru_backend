@@ -12,13 +12,6 @@ internal class BudgetRepository(DataContext dataContext) : IBudgetRepository
         return dataContext.SaveChangesAsync();
     }
 
-    public Task<Budget?> GetBudgetAsync(
-        Guid companyId,
-        Guid customerId,
-        int year,
-        int month)
-        => dataContext.Budgets.FirstOrDefaultAsync(o => o.CustomerId == customerId && o.CompanyId == companyId && o.Year == year && o.Month == month);
-
     public Task<List<Budget>> GetBudgetListAsync(Guid companyId)
         => dataContext.Budgets
             .Include(c => c.Customer)
@@ -28,10 +21,6 @@ internal class BudgetRepository(DataContext dataContext) : IBudgetRepository
     public Task<Budget?> GetCurrentBudgetAsync(Guid companyId, Guid customerId)
         => dataContext.Budgets.FirstOrDefaultAsync(
             o => o.CustomerId == customerId && o.CompanyId == companyId && o.Year == DateTime.Today.Year && o.Month == DateTime.Today.Month);
-
-    public Task<Budget?> GetLastYearBudgetAsync(Guid companyId, Guid customerId)
-        => dataContext.Budgets.FirstOrDefaultAsync(
-            o => o.CustomerId == customerId && o.CompanyId == companyId && o.Year == DateTime.Today.Year - 1 && o.Month == 12);
 
     public Task UpdateBudgetAsync(Budget budget)
     {

@@ -17,7 +17,9 @@ internal class MappingProfile : Profile
         CreateCustomerMappings();
 
         CreateMap<Budget, GetBudgetListEntryDto>()
-            .ForMember(o => o.TotalAmount, src => src.MapFrom(o => o.CareBenefitAmount + o.PreventiveCareAmount + o.ReliefAmount + o.SelfPayAmount))
+            .ForMember(
+                o => o.TotalAmount,
+                src => src.MapFrom(o => o.CareBenefitAmount + o.PreventiveCareAmount + o.ReliefAmount + o.ReliefAmountLastYear + o.SelfPayAmount))
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.FirstName} {o.Customer.LastName}".Trim()));
 
         CreateMap<Company, GetCompanyDto>();

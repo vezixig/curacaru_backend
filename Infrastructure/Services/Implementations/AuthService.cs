@@ -101,8 +101,8 @@ internal class AuthService(IMemoryCache cache) : IAuthService
         var formData = new Dictionary<string, string>
         {
             { "grant_type", "client_credentials" },
-            { "client_id", Environment.GetEnvironmentVariable("IDENTITY_CLIENTID") },
-            { "client_secret", Environment.GetEnvironmentVariable("IDENTITY_SECRET") },
+            { "client_id", Environment.GetEnvironmentVariable("IDENTITY_CLIENTID")! },
+            { "client_secret", Environment.GetEnvironmentVariable("IDENTITY_SECRET")! },
             { "audience", _baseUrl }
         };
 

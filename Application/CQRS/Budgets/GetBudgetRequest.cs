@@ -30,9 +30,6 @@ public class GetBudgetRequestHandler(IBudgetRepository budgetRepository, ICompan
 
         var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.CustomerId) ?? new Budget { Customer = new Customer() };
 
-        Budget? budgetLastYear = null;
-        if (DateTime.Now.Month <= 6) budgetLastYear = await budgetRepository.GetBudgetAsync(request.CompanyId, request.CustomerId, DateTime.Now.Year - 1, 12);
-
         GetBudgetDto result = new()
         {
             CareBenefitAmount = budget.CareBenefitAmount,
@@ -46,9 +43,9 @@ public class GetBudgetRequestHandler(IBudgetRepository budgetRepository, ICompan
             Id = budget.Id,
             PreventiveCareAmount = budget.PreventiveCareAmount,
             PricePerHour = company!.PricePerHour,
-            ReliefAmount = budget.ReliefAmount + (budgetLastYear?.ReliefAmount ?? 0),
+            ReliefAmount = budget.ReliefAmount + budget.ReliefAmountLastYear,
             ReliefAmountCurrentYear = budget.ReliefAmount,
-            ReliefAmountPreviousYear = budgetLastYear?.ReliefAmount,
+            ReliefAmountPreviousYear = budget.ReliefAmountLastYear,
             ReliefAmountRaise = BudgetService.MonthlyReliefAmountRaise,
             PreventiveCareRaise = BudgetService.YearlyPreventiveCareRaise,
             SelfPayAmount = budget.SelfPayAmount,
