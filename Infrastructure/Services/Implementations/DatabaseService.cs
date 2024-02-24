@@ -9,6 +9,6 @@ internal class DatabaseService : IDatabaseService
     public DatabaseService(DataContext dataContext)
         => _dataContext = dataContext;
 
-    public Task<IDbContextTransaction> GetTransactionAsync(CancellationToken cancellationToken)
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
         => _dataContext.Database.BeginTransactionAsync(cancellationToken);
 }

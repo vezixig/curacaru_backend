@@ -3,6 +3,7 @@
 using AutoMapper;
 using Core.DTO;
 using Core.DTO.Appointment;
+using Core.DTO.Budget;
 using Core.DTO.Company;
 using Core.DTO.Customer;
 using Core.DTO.Insurance;
@@ -14,6 +15,10 @@ internal class MappingProfile : Profile
     {
         CreateAppointmentMappings();
         CreateCustomerMappings();
+
+        CreateMap<Budget, GetBudgetListEntryDto>()
+            .ForMember(o => o.TotalAmount, src => src.MapFrom(o => o.CareBenefitAmount + o.PreventiveCareAmount + o.ReliefAmount + o.SelfPayAmount))
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.FirstName} {o.Customer.LastName}".Trim()));
 
         CreateMap<Company, GetCompanyDto>();
 
@@ -28,8 +33,8 @@ internal class MappingProfile : Profile
     {
         CreateMap<Appointment, GetAppointmentListEntryDto>()
             .ForMember(o => o.City, src => src.MapFrom(o => o.Customer.ZipCity != null ? o.Customer.ZipCity.City : ""))
-            .ForMember(o => o.CustomerName, src => src.MapFrom(o => (o.Customer.FirstName + " " + o.Customer.LastName).Trim()))
-            .ForMember(o => o.EmployeeName, src => src.MapFrom(o => (o.Employee.FirstName + " " + o.Employee.LastName).Trim()))
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.FirstName} {o.Customer.LastName}".Trim()))
+            .ForMember(o => o.EmployeeName, src => src.MapFrom(o => $"{o.Employee.FirstName} {o.Employee.LastName}".Trim()))
             .ForMember(o => o.Phone, src => src.MapFrom(o => o.Customer.Phone))
             .ForMember(o => o.Street, src => src.MapFrom(o => o.Customer.Street))
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.Customer.ZipCode))

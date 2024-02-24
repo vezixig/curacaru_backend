@@ -203,7 +203,7 @@ internal static class DeploymentReport
         // Get the predefined style Normal.
         var style = document.Styles["Normal"];
 
-        style.Font.Name = "Arial";
+        style!.Font.Name = "Arial";
         style.ParagraphFormat.SpaceAfter = "0.08cm";
 
         style = document.Styles.AddStyle("Table", "Normal");

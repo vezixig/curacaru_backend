@@ -4,5 +4,5 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 public interface IDatabaseService
 {
-    public Task<IDbContextTransaction> GetTransactionAsync(CancellationToken cancellationToken);
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
 }

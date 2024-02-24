@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240212172752_Budgets")]
+    partial class Budgets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,12 +104,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("ReliefAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("SelfPayAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("SelfPayRaise")
                         .HasColumnType("numeric");
 
                     b.Property<int>("Year")
@@ -399,13 +396,11 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Curacaru.Backend.Core.Entities.Customer", "Customer")
+                    b.HasOne("Curacaru.Backend.Core.Entities.Customer", null)
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Company", b =>
