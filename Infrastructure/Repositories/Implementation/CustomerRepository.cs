@@ -22,12 +22,15 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         await dataContext.SaveChangesAsync();
     }
 
+    public Task<List<Customer>> GetAllCustomersAsync()
+        => dataContext.Customers.ToListAsync();
+
     public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId)
         => dataContext.Customers
             .Include(o => o.AssociatedEmployee)
             .Include(o => o.ZipCity)
             .Include(o => o.Insurance)
-            .ThenInclude(o => o.ZipCity)
+            .ThenInclude(o => o!.ZipCity)
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId);
 
     public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null)

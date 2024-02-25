@@ -8,6 +8,9 @@ public interface IBudgetRepository
     /// <summary>Adds a budget to a customer.</summary>
     Task AddBudgetAsync(Budget budget);
 
+    /// <summary>Gets all budgets.</summary>
+    Task<List<Budget>> GetAllBudgetsAsync();
+
     /// <summary>Gets the list of current budgets for a company.</summary>
     Task<List<Budget>> GetBudgetListAsync(Guid companyId);
 

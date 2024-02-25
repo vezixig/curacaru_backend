@@ -15,6 +15,10 @@ public interface ICustomerRepository
     /// <returns>An awaitable task object.</returns>
     public Task DeleteCustomerAsync(Customer customer);
 
+    /// <summary>Gets all customers.</summary>
+    /// <returns>A list of customers.</returns>
+    public Task<List<Customer>> GetAllCustomersAsync();
+
     /// <summary>Gets a customer.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="customerId">The employee id.</param>

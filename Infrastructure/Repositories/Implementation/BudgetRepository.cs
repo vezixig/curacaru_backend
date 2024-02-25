@@ -12,6 +12,9 @@ internal class BudgetRepository(DataContext dataContext) : IBudgetRepository
         return dataContext.SaveChangesAsync();
     }
 
+    public Task<List<Budget>> GetAllBudgetsAsync()
+        => dataContext.Budgets.ToListAsync();
+
     public Task<List<Budget>> GetBudgetListAsync(Guid companyId)
         => dataContext.Budgets
             .Include(c => c.Customer)
