@@ -22,12 +22,13 @@ public interface ICustomerRepository
     /// <summary>Gets a customer.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="customerId">The employee id.</param>
+    /// <param name="employeeId">An optional employee id to check access.</param>
     /// <returns>A customer if found, otherwise null.</returns>
-    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId);
+    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId, Guid? employeeId = null);
 
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>
-    /// <param name="employeeId">An optional employee id.</param>
+    /// <param name="employeeId">An optional employee id to check access.</param>
     /// <returns>A list of customers.</returns>
     public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null);
 

@@ -25,13 +25,13 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
     public Task<List<Customer>> GetAllCustomersAsync()
         => dataContext.Customers.ToListAsync();
 
-    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId)
+    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId, Guid? employeeId = null)
         => dataContext.Customers
             .Include(o => o.AssociatedEmployee)
             .Include(o => o.ZipCity)
             .Include(o => o.Insurance)
             .ThenInclude(o => o!.ZipCity)
-            .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId);
+            .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
 
     public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null)
     {

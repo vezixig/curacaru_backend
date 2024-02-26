@@ -1,13 +1,20 @@
 ﻿namespace Curacaru.Backend.Core.Entities;
 
 using System.ComponentModel.DataAnnotations;
+using Enums;
 
 /// <summary>An appointment of a customer with an employee.</summary>
 public class Appointment
 {
+    /// <summary>Gets or sets the type of the clearance.</summary>
+    public ClearanceType ClearanceType { get; set; }
+
     /// <summary>Gets or sets the id of the company.</summary>
     [Required]
     public Guid CompanyId { get; set; }
+
+    /// <summary>Gets or sets the costs of the appointment.</summary>
+    public decimal Costs { get; set; }
 
     /// <summary>Gets or sets the customer.</summary>
     public Customer Customer { get; set; } = null!;

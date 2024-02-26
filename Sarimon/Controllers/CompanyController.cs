@@ -22,6 +22,14 @@ public class CompanyController(IMediator mediator) : ControllerBase
         return company == null ? NotFound() : Ok(company);
     }
 
+    /// <summary>Gets the prices of the company.</summary>
+    [HttpGet("prices")]
+    public async Task<IActionResult> GetPrices()
+    {
+        var prices = await mediator.Send(new CompanyPricesRequest(CompanyId));
+        return Ok(prices);
+    }
+
     /// <summary>Updates the data of the company for the current user.</summary>
     [HttpPut]
     public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyDto companyData)

@@ -21,15 +21,15 @@ public class CustomerController(ISender mediator) : ControllerBase
     }
 
     [Authorize(Policy = Policy.Manager)]
-    [HttpDelete("{customerId}")]
-    public async Task<IActionResult> DeleteCustomer([FromRoute] string customerId)
+    [HttpDelete("{customerId:guid}")]
+    public async Task<IActionResult> DeleteCustomer([FromRoute] Guid customerId)
     {
-        await mediator.Send(new DeleteCustomerRequest(AuthId, Guid.Parse(customerId)));
+        await mediator.Send(new DeleteCustomerRequest(AuthId, customerId));
         return NoContent();
     }
 
-    [HttpGet("{customerId}")]
-    public async Task<IActionResult> GetCustomer([FromRoute] string customerId)
+    [HttpGet("{customerId:guid}")]
+    public async Task<IActionResult> GetCustomer([FromRoute] Guid customerId)
     {
         var customer = await mediator.Send(new CustomerRequest(CompanyId, customerId));
         return customer == null ? NotFound() : Ok(customer);
@@ -40,6 +40,13 @@ public class CustomerController(ISender mediator) : ControllerBase
     {
         var customers = await mediator.Send(new CustomerListRequest(CompanyId, AuthId));
         return Ok(customers);
+    }
+
+    [HttpGet("{customerId:guid}/budget")]
+    public async Task<IActionResult> GetCustomerWithBudget([FromRoute] Guid customerId)
+    {
+        var customer = await mediator.Send(new CustomerWithBudgetRequest(CompanyId, AuthId, customerId));
+        return Ok(customer);
     }
 
     [HttpGet("list/minimal")]

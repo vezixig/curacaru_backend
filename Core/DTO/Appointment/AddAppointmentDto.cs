@@ -1,11 +1,15 @@
 ﻿namespace Curacaru.Backend.Core.DTO.Appointment;
 
 using Entities;
+using Enums;
 
 /// <summary>A DTO to add an appointment.</summary>
 /// <seealso cref="Appointment" />
 public class AddAppointmentDto
 {
+    /// <inheritdoc cref="Appointment.ClearanceType" />
+    public ClearanceType ClearanceType { get; set; }
+
     /// <inheritdoc cref="Appointment.CustomerId" />
     public Guid CustomerId { get; set; }
 
