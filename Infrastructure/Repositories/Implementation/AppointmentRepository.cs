@@ -8,8 +8,8 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
     public async Task<Appointment> AddAppointmentAsync(Appointment appointment)
     {
         dataContext.Attach(appointment.Employee);
-        dataContext.Attach(appointment.Customer);
         if (appointment.EmployeeReplacement != null) dataContext.Attach(appointment.EmployeeReplacement);
+        dataContext.Attach(appointment.Customer);
 
         var dbAppointment = dataContext.Appointments.Add(appointment);
         await dataContext.SaveChangesAsync();
@@ -49,6 +49,13 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
 
         return query.ToListAsync();
     }
+
+    public Task<Appointment?> GetNearestAppointmentAsync(Guid companyId, DateOnly date)
+        => dataContext.Appointments
+            .Where(o => o.CompanyId == companyId && o.Date >= date)
+            .OrderBy(o => o.Date)
+            .ThenBy(o => o.TimeStart)
+            .FirstOrDefaultAsync();
 
     public async Task<Appointment> UpdateAppointmentAsync(Appointment appointment)
     {

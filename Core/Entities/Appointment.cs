@@ -13,8 +13,11 @@ public class Appointment
     [Required]
     public Guid CompanyId { get; set; }
 
-    /// <summary>Gets or sets the costs of the appointment.</summary>
+    /// <summary>Gets or sets the costs of the appointment subtracted from the current budget.</summary>
     public decimal Costs { get; set; }
+
+    /// <summary>Gets or sets the costs of the appointment subtracted from last year's budget.</summary>
+    public decimal CostsLastYearBudget { get; set; }
 
     /// <summary>Gets or sets the customer.</summary>
     public Customer Customer { get; set; } = null!;

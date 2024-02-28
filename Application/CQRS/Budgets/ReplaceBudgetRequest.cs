@@ -1,11 +1,10 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Budgets;
 
 using Core.DTO.Budget;
-using Core.Entities;
 using Core.Exceptions;
 using Infrastructure.Repositories;
 using MediatR;
-using Services;
+using Services.Implementations;
 
 /// <summary>Request to replace the current budget of a customer.</summary>
 public class ReplaceBudgetRequest(Guid companyId, Guid customerId, PutBudgetDto budget) : IRequest
@@ -30,7 +29,7 @@ internal class ReplaceBudgetRequestHandler(IBudgetRepository budgetRepository, I
                        ?? throw new BadRequestException("Kunde wurde nicht gefunden");
 
         if (budget == null || budget.Year != DateTime.Now.Year || budget.Month != DateTime.Now.Month)
-            budget = new Budget
+            budget = new()
             {
                 CompanyId = request.CompanyId,
                 Customer = customer,

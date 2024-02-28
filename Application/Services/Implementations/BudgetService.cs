@@ -1,4 +1,4 @@
-﻿namespace Curacaru.Backend.Application.Services;
+﻿namespace Curacaru.Backend.Application.Services.Implementations;
 
 public class BudgetService
 {

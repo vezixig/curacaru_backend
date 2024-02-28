@@ -3,9 +3,11 @@
 using AutoMapper;
 using Core.DTO.Appointment;
 using Core.Entities;
+using Core.Enums;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
 
 public class AddAppointmentRequest(Guid companyId, string authId, AddAppointmentDto appointment) : IRequest<GetAppointmentDto>
@@ -19,7 +21,10 @@ public class AddAppointmentRequest(Guid companyId, string authId, AddAppointment
 
 internal class AddAppointmentRequestHandler(
     IAppointmentRepository appointmentRepository,
+    IBudgetRepository budgetRepository,
+    ICompanyRepository companyRepository,
     ICustomerRepository customerRepository,
+    IDatabaseService databaseService,
     IEmployeeRepository employeeRepository,
     IMapper mapper)
     : IRequestHandler<AddAppointmentRequest, GetAppointmentDto>
@@ -41,23 +46,88 @@ internal class AddAppointmentRequestHandler(
 
         if (user.Id != customer.AssociatedEmployeeId && !user.IsManager)
             throw new ForbiddenException("Nur Manager dürfen Termine für nicht selbst betreute Kunden anlegen.");
-
-        appointment.Customer = new Customer { Id = appointment.CustomerId };
+        appointment.Customer = new() { Id = customer.Id };
 
         // employee
         var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
                        ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
-        appointment.Employee = new Employee { Id = appointment.EmployeeId };
+        appointment.Employee = new() { Id = employee.Id };
 
         // employee replacement
         if (appointment.EmployeeReplacementId.HasValue)
         {
             var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId!.Value)
                                       ?? throw new NotFoundException("Vertretung nicht gefunden.");
-            appointment.EmployeeReplacement = new Employee { Id = appointment.EmployeeReplacementId!.Value };
+            appointment.EmployeeReplacement = new() { Id = employeeReplacement.Id };
         }
 
-        appointment = await appointmentRepository.AddAppointmentAsync(appointment);
-        return mapper.Map<GetAppointmentDto>(appointment);
+        var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await ProcessBudget(request, customer, appointment);
+
+            appointment = await appointmentRepository.AddAppointmentAsync(appointment);
+            await transaction.CommitAsync(cancellationToken);
+            return mapper.Map<GetAppointmentDto>(appointment);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
+    }
+
+    private async Task<decimal> CalculateAppointmentPrice(AddAppointmentRequest request)
+    {
+        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
+        var ridePrice = company!.RideCostsType switch
+        {
+            RideCostsType.FlatRate => company.RideCosts,
+            RideCostsType.Kilometer => company.RideCosts * request.Appointment.DistanceToCustomer,
+            _ => 0
+        };
+        var appointmentTime = request.Appointment.TimeEnd - request.Appointment.TimeStart;
+        return company.PricePerHour * appointmentTime.Hours + ridePrice;
+    }
+
+    private async Task ProcessBudget(AddAppointmentRequest request, Customer customer, Appointment appointment)
+    {
+        var price = await CalculateAppointmentPrice(request);
+        var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.Appointment.CustomerId)
+                     ?? new Budget { Customer = customer };
+        switch (request.Appointment.ClearanceType)
+        {
+            case ClearanceType.CareBenefit:
+                if (price > budget.CareBenefitAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.CareBenefitAmount -= price;
+                appointment.Costs = price;
+                break;
+            case ClearanceType.PreventiveCare:
+                if (price > budget.PreventiveCareAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.PreventiveCareAmount -= price;
+                appointment.Costs = price;
+                break;
+            case ClearanceType.ReliefAmount:
+                if (price > budget.ReliefAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.ReliefAmountLastYear -= price;
+                appointment.CostsLastYearBudget = price;
+                if (budget.ReliefAmountLastYear < 0)
+                {
+                    budget.ReliefAmount += budget.ReliefAmountLastYear;
+                    appointment.CostsLastYearBudget += budget.ReliefAmountLastYear;
+                    appointment.Costs = budget.ReliefAmountLastYear * -1;
+                    budget.ReliefAmountLastYear = 0;
+                }
+
+                break;
+            case ClearanceType.SelfPayment:
+                if (price > budget.SelfPayAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.SelfPayAmount -= price;
+                appointment.Costs = price;
+                break;
+        }
+
+        appointment.ClearanceType = request.Appointment.ClearanceType;
+        await budgetRepository.UpdateBudgetAsync(budget);
     }
 }
