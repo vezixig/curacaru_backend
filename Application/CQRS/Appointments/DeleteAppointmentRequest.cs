@@ -77,12 +77,15 @@ internal class DeleteAppointmentRequestHandler(
                 if (appointment.Date.Year < dateTimeService.Now.Year - 1 || (appointment.Date.Year < dateTimeService.Now.Year && dateTimeService.Now.Month > 6))
                     return;
 
-                // Budget from two years ago is expired - switch to process
+                // If appointment is from previous year switch budget to process
                 if (appointment.Date.Year < dateTimeService.Now.Year)
                 {
                     appointment.CostsLastYearBudget = appointment.Costs;
                     appointment.Costs = 0;
                 }
+
+                // If current month is after july last year budget is expired
+                if (dateTimeService.Now.Month > 6) appointment.CostsLastYearBudget = 0;
 
                 var customerAppointments = await appointmentRepository.GetAppointmentsAsync(
                     appointment.CompanyId,
