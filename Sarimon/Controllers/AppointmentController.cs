@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Controllers;
 
 using Application.CQRS.Appointments;
-using Core.DTO;
 using Core.DTO.Appointment;
 using Core.Enums;
 using MediatR;
@@ -23,7 +22,7 @@ public class AppointmentController(ISender mediator) : ControllerBase
     [HttpDelete("{appointmentId}")]
     public async Task<IActionResult> DeleteAppointment([FromRoute] Guid appointmentId)
     {
-        await mediator.Send(new DeleteAppointmentRequest(CompanyId, AuthId, appointmentId));
+        await mediator.Send(new BudgetService(CompanyId, AuthId, appointmentId));
         return NoContent();
     }
 

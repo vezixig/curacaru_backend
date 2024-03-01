@@ -3,13 +3,15 @@
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
+using Services;
 
 /// <summary>Request to delete an appointment.</summary>
 /// <param name="companyId">The company id.</param>
 /// <param name="authId">The auth id of the user.</param>
 /// <param name="appointmentId">The appointment id.</param>
-public class DeleteAppointmentRequest(Guid companyId, string authId, Guid appointmentId) : IRequest
+public class BudgetService(Guid companyId, string authId, Guid appointmentId) : IRequest
 {
     public Guid AppointmentId { get; } = appointmentId;
 
@@ -20,10 +22,12 @@ public class DeleteAppointmentRequest(Guid companyId, string authId, Guid appoin
 
 internal class DeleteAppointmentRequestHandler(
     IAppointmentRepository appointmentRepository,
+    IBudgetService budgetService,
+    IDatabaseService databaseService,
     IEmployeeRepository employeeRepository)
-    : IRequestHandler<DeleteAppointmentRequest>
+    : IRequestHandler<BudgetService>
 {
-    public async Task Handle(DeleteAppointmentRequest request, CancellationToken cancellationToken)
+    public async Task Handle(BudgetService request, CancellationToken cancellationToken)
     {
         var appointment = await appointmentRepository.GetAppointmentAsync(request.CompanyId, request.AppointmentId)
                           ?? throw new NotFoundException("Termin nicht gefunden.");
@@ -31,6 +35,18 @@ internal class DeleteAppointmentRequestHandler(
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
 
-        await appointmentRepository.DeleteAppointmentAsync(appointment);
+        var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await budgetService.RefundBudget(appointment);
+
+            await appointmentRepository.DeleteAppointmentAsync(appointment);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
     }
 }

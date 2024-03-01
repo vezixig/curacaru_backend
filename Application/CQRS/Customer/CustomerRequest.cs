@@ -5,11 +5,11 @@ using Core.DTO.Customer;
 using Infrastructure.Repositories;
 using MediatR;
 
-public class CustomerRequest(Guid companyId, string employeeId) : IRequest<GetCustomerDto?>
+public class CustomerRequest(Guid companyId, Guid employeeId) : IRequest<GetCustomerDto?>
 {
     public Guid CompanyId { get; } = companyId;
 
-    public Guid EmployeeId { get; } = Guid.Parse(employeeId);
+    public Guid EmployeeId { get; } = employeeId;
 }
 
 internal class CustomerRequestHandler(ICustomerRepository customerRepository, IMapper mapper) : IRequestHandler<CustomerRequest, GetCustomerDto?>

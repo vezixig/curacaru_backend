@@ -23,6 +23,7 @@ internal class MappingProfile : Profile
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.FirstName} {o.Customer.LastName}".Trim()));
 
         CreateMap<Company, GetCompanyDto>();
+        CreateMap<Company, GetCompanyPricesDto>();
 
         CreateMap<Insurance, GetInsuranceDto>()
             .ForMember(o => o.City, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.City : ""));
@@ -61,6 +62,10 @@ internal class MappingProfile : Profile
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.ZipCode : ""));
 
         CreateMap<Customer, GetMinimalCustomerListEntryDto>()
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.FirstName} {o.LastName}"))
+            .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
+
+        CreateMap<Customer, GetCustomerBudgetDto>()
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.FirstName} {o.LastName}"))
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 

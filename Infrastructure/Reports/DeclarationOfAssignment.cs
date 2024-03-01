@@ -52,7 +52,9 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
         AddLine("Datum der Anerkennung", company.RecognitionDate.ToString("dd.MM.yyyy"));
         AddLine("IK-Nummer", company.InstitutionCode);
         section.AddParagraph("", "PClose");
+#pragma warning disable S3626
         return;
+#pragma warning restore S3626
 
         void AddLine(string title, string text)
         {

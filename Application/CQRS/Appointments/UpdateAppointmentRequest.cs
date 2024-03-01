@@ -3,10 +3,12 @@
 using AutoMapper;
 using Core.DTO.Appointment;
 using Core.Entities;
+using Core.Enums;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
+using Services;
 
 public class UpdateAppointmentRequest(Guid companyId, string authId, UpdateAppointmentDto appointment) : IRequest<GetAppointmentDto>
 {
@@ -19,6 +21,8 @@ public class UpdateAppointmentRequest(Guid companyId, string authId, UpdateAppoi
 
 internal class UpdateAppointmentRequestHandler(
     IAppointmentRepository repository,
+    IBudgetRepository budgetRepository,
+    IBudgetService budgetService,
     ICustomerRepository customerRepository,
     IEmployeeRepository employeeRepository,
     IMapper mapper)
@@ -68,6 +72,38 @@ internal class UpdateAppointmentRequestHandler(
             }
         }
 
+        // calculate new price
+        var price = await budgetService.CalculateAppointmentPriceAsync(appointment);
+        if (request.Appointment.ClearanceType != appointment.ClearanceType)
+        {
+            // clearance type changed - refund to old clearance type
+            await budgetService.RefundBudget(appointment);
+        }
+        else if (price < appointment.Costs + appointment.CostsLastYearBudget)
+        {
+            // appointment got cheaper - refund difference
+            var refundAppointment = mapper.Map<Appointment>(appointment);
+            refundAppointment.Costs -= price;
+            if (refundAppointment.Costs < 0)
+            {
+                refundAppointment.CostsLastYearBudget -= refundAppointment.Costs;
+                refundAppointment.Costs = 0;
+            }
+
+            await budgetService.RefundBudget(appointment);
+            appointment.Costs -= refundAppointment.Costs;
+            appointment.CostsLastYearBudget -= refundAppointment.CostsLastYearBudget;
+        }
+        else if (price > appointment.Costs + appointment.CostsLastYearBudget)
+        {
+            // appointment got more expensive - charge difference
+            price -= appointment.Costs + appointment.CostsLastYearBudget;
+            await ProcessBudget(price, appointment);
+        }
+
+        // refund budget if necessary
+
+        appointment.ClearanceType = request.Appointment.ClearanceType;
         appointment.Date = request.Appointment.Date;
         appointment.DistanceToCustomer = request.Appointment.DistanceToCustomer;
         appointment.TimeStart = request.Appointment.TimeStart;
@@ -76,13 +112,53 @@ internal class UpdateAppointmentRequestHandler(
         appointment.IsSignedByEmployee = request.Appointment.IsSignedByEmployee;
         appointment.Notes = request.Appointment.Notes;
 
-        appointment.Customer = new Customer { Id = appointment.CustomerId };
-        appointment.Employee = new Employee { Id = appointment.EmployeeId };
+        appointment.Customer = new() { Id = appointment.CustomerId };
+        appointment.Employee = new() { Id = appointment.EmployeeId };
         appointment.EmployeeReplacement = appointment.EmployeeReplacementId.HasValue
             ? new Employee { Id = appointment.EmployeeReplacementId.Value }
             : null;
 
         var updatedAppointment = await repository.UpdateAppointmentAsync(appointment);
         return mapper.Map<GetAppointmentDto>(updatedAppointment);
+    }
+
+    private async Task ProcessBudget(decimal priceRaise, Appointment appointment)
+    {
+        var budget = await budgetRepository.GetCurrentBudgetAsync(appointment.CompanyId, appointment.CustomerId)
+                     ?? new Budget { Customer = appointment.Customer };
+
+        switch (appointment.ClearanceType)
+        {
+            case ClearanceType.CareBenefit:
+                if (priceRaise > budget.CareBenefitAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.CareBenefitAmount -= priceRaise;
+                appointment.Costs += priceRaise;
+                break;
+            case ClearanceType.PreventiveCare:
+                if (priceRaise > budget.PreventiveCareAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.PreventiveCareAmount -= priceRaise;
+                appointment.Costs += priceRaise;
+                break;
+            case ClearanceType.ReliefAmount:
+                if (priceRaise > budget.ReliefAmount + budget.ReliefAmountLastYear) throw new BadRequestException("Budget ist überschritten.");
+                budget.ReliefAmountLastYear -= priceRaise;
+                appointment.CostsLastYearBudget += priceRaise;
+                if (budget.ReliefAmountLastYear < 0)
+                {
+                    budget.ReliefAmount += budget.ReliefAmountLastYear;
+                    appointment.CostsLastYearBudget += budget.ReliefAmountLastYear;
+                    appointment.Costs += budget.ReliefAmountLastYear * -1;
+                    budget.ReliefAmountLastYear = 0;
+                }
+
+                break;
+            case ClearanceType.SelfPayment:
+                if (priceRaise > budget.SelfPayAmount) throw new BadRequestException("Budget ist überschritten.");
+                budget.SelfPayAmount -= priceRaise;
+                appointment.Costs = priceRaise;
+                break;
+        }
+
+        await budgetRepository.UpdateBudgetAsync(budget);
     }
 }

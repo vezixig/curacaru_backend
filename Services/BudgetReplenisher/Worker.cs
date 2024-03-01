@@ -1,6 +1,6 @@
 ﻿namespace BudgetReplenisher;
 
-using Curacaru.Backend.Application.Services;
+using Curacaru.Backend.Application.Services.Implementations;
 using Curacaru.Backend.Core.Entities;
 using Curacaru.Backend.Infrastructure.Repositories;
 

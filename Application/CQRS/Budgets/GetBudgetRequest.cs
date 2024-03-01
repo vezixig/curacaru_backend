@@ -6,7 +6,7 @@ using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
-using Services;
+using Services.Implementations;
 
 /// <summary>Request to get the current budget for a customer.</summary>
 /// <param name="companyId">The company id.</param>
@@ -28,7 +28,7 @@ public class GetBudgetRequestHandler(IBudgetRepository budgetRepository, ICompan
 
         var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
 
-        var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.CustomerId) ?? new Budget { Customer = new Customer() };
+        var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.CustomerId) ?? new Budget { Customer = new() };
 
         GetBudgetDto result = new()
         {
