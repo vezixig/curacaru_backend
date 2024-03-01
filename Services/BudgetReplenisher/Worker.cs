@@ -1,9 +1,8 @@
 ﻿namespace BudgetReplenisher;
 
+using Curacaru.Backend.Application.Services.Implementations;
 using Curacaru.Backend.Core.Entities;
 using Curacaru.Backend.Infrastructure.Repositories;
-
-epositories;
 
 public class Worker(ICustomerRepository customerRepository, IBudgetRepository budgetRepository)
 {
@@ -61,7 +60,6 @@ public class Worker(ICustomerRepository customerRepository, IBudgetRepository bu
             }
 
             await budgetRepository.UpdateBudgetAsync(customerBudget);
-
-      }
+        }
     }
 }

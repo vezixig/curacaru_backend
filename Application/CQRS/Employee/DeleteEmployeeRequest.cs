@@ -5,43 +5,26 @@ using Infrastructure.repositories;
 using Infrastructure.Services;
 using MediatR;
 
-public class DeleteEmployeeRequest : IRequest
+public class DeleteEmployeeRequest(string authId, Guid employeeId) : IRequest
 {
-    public DeleteEmployeeRequest(string authId, Guid employeeId)
-    {
-        AuthId = authId;
-        EmployeeId = employeeId;
-    }
+    public string AuthId { get; } = authId;
 
-    public string AuthId { get; }
-
-    public Guid EmployeeId { get; }
+    public Guid EmployeeId { get; } = employeeId;
 }
 
-internal class DeleteEmployeeRequestHandler : IRequestHandler<DeleteEmployeeRequest>
+internal class DeleteEmployeeRequestHandler(IAuthService authService, IEmployeeRepository employeeRepository) : IRequestHandler<DeleteEmployeeRequest>
 {
-    private readonly IAuthService _authService;
-
-    private readonly IEmployeeRepository _employeeRepository;
-
-    public DeleteEmployeeRequestHandler(IAuthService authService, IEmployeeRepository employeeRepository)
-    {
-        _authService = authService;
-        _employeeRepository = employeeRepository;
-    }
-
     public async Task Handle(DeleteEmployeeRequest request, CancellationToken cancellationToken)
     {
-        var user = await _employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.IsManager == false) throw new ForbiddenException("Nur Manager dürfen Mitarbeiter löschen.");
-        if (user.CompanyId == null) throw new NotFoundException("Benutzer gehört zu keinem Unternehmen.");
+        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
+        if (user!.CompanyId == null) throw new NotFoundException("Benutzer gehört zu keinem Unternehmen.");
 
         if (user.Id == request.EmployeeId) throw new ForbiddenException("Du kannst dich nicht selbst löschen.");
 
-        var employee = await _employeeRepository.GetEmployeeByIdAsync(user.CompanyId.Value, request.EmployeeId)
+        var employee = await employeeRepository.GetEmployeeByIdAsync(user.CompanyId.Value, request.EmployeeId)
                        ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
-        await _authService.DeleteUserAsync(employee.AuthId);
-        await _employeeRepository.DeleteEmployeeAsync(employee);
+        await authService.DeleteUserAsync(employee.AuthId);
+        await employeeRepository.DeleteEmployeeAsync(employee);
     }
 }

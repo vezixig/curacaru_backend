@@ -8,6 +8,12 @@ public class GetAppointmentDto
     /// <inheritdoc cref="Appointment.ClearanceType" />
     public ClearanceType ClearanceType { get; set; }
 
+    /// <inheritdoc cref="Appointment.Costs" />
+    public decimal Costs { get; set; }
+
+    /// <inheritdoc cref="Appointment.CostsLastYearBudget" />
+    public decimal CostsLastYearBudget { get; set; }
+
     /// <inheritdoc cref="Appointment.CustomerId" />
     public Guid CustomerId { get; set; }
 

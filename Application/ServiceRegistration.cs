@@ -12,6 +12,7 @@ public static class ServiceRegistration
     public static void AddApplication(this IServiceCollection services)
     {
         services.AddSingleton<IDateTimeService, DateTimeService>();
+        services.AddScoped<IBudgetService, BudgetService>();
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceRegistration).Assembly));
         services.AddAutoMapper(typeof(MappingProfile));

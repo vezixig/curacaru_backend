@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Services.Implementations;
 
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Core.Exceptions;
@@ -25,9 +24,9 @@ internal class AuthService(IMemoryCache cache) : IAuthService
 
         var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}users");
         request.Content = new StringContent(JsonSerializer.Serialize(user));
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Content.Headers.ContentType = new("application/json");
+        request.Headers.Accept.Add(new("application/json"));
+        request.Headers.Authorization = new("Bearer", token);
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
@@ -42,28 +41,28 @@ internal class AuthService(IMemoryCache cache) : IAuthService
 
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var userId = jsonDocument.RootElement.GetProperty("user_id").GetString();
-        return new UserPassword(user.password, userId!);
+        return new(user.password, userId!);
     }
 
     public async Task DeleteUserAsync(string authId)
     {
         var token = await GetTokenAsync();
         var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUrl}users/{authId}");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Headers.Accept.Add(new("application/json"));
+        request.Headers.Authorization = new("Bearer", token);
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
 
-        if (!response.IsSuccessStatusCode) throw new Exception("Benutzer konnte nicht gelöscht werden.");
+        if (!response.IsSuccessStatusCode) throw new BadRequestException("Benutzer konnte nicht gelöscht werden.");
     }
 
     public async Task<string> GetMailAsync(string authId)
     {
         var token = await GetTokenAsync();
         var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}users/{authId}");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Headers.Accept.Add(new("application/json"));
+        request.Headers.Authorization = new("Bearer", token);
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
@@ -107,7 +106,7 @@ internal class AuthService(IMemoryCache cache) : IAuthService
         };
 
         request.Content = new FormUrlEncodedContent(formData);
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+        request.Content.Headers.ContentType = new("application/x-www-form-urlencoded");
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);

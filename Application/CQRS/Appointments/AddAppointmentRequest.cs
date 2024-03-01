@@ -9,6 +9,7 @@ using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
+using Services;
 
 public class AddAppointmentRequest(Guid companyId, string authId, AddAppointmentDto appointment) : IRequest<GetAppointmentDto>
 {
@@ -22,7 +23,7 @@ public class AddAppointmentRequest(Guid companyId, string authId, AddAppointment
 internal class AddAppointmentRequestHandler(
     IAppointmentRepository appointmentRepository,
     IBudgetRepository budgetRepository,
-    ICompanyRepository companyRepository,
+    IBudgetService budgetService,
     ICustomerRepository customerRepository,
     IDatabaseService databaseService,
     IEmployeeRepository employeeRepository,
@@ -64,7 +65,7 @@ internal class AddAppointmentRequestHandler(
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try
         {
-            await ProcessBudget(request, customer, appointment);
+            await ProcessBudget(customer, appointment);
 
             appointment = await appointmentRepository.AddAppointmentAsync(appointment);
             await transaction.CommitAsync(cancellationToken);
@@ -77,25 +78,12 @@ internal class AddAppointmentRequestHandler(
         }
     }
 
-    private async Task<decimal> CalculateAppointmentPrice(AddAppointmentRequest request)
+    private async Task ProcessBudget(Customer customer, Appointment appointment)
     {
-        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
-        var ridePrice = company!.RideCostsType switch
-        {
-            RideCostsType.FlatRate => company.RideCosts,
-            RideCostsType.Kilometer => company.RideCosts * request.Appointment.DistanceToCustomer,
-            _ => 0
-        };
-        var appointmentTime = request.Appointment.TimeEnd - request.Appointment.TimeStart;
-        return company.PricePerHour * appointmentTime.Hours + ridePrice;
-    }
-
-    private async Task ProcessBudget(AddAppointmentRequest request, Customer customer, Appointment appointment)
-    {
-        var price = await CalculateAppointmentPrice(request);
-        var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.Appointment.CustomerId)
+        var price = await budgetService.CalculateAppointmentPriceAsync(appointment);
+        var budget = await budgetRepository.GetCurrentBudgetAsync(appointment.CompanyId, appointment.CustomerId)
                      ?? new Budget { Customer = customer };
-        switch (request.Appointment.ClearanceType)
+        switch (appointment.ClearanceType)
         {
             case ClearanceType.CareBenefit:
                 if (price > budget.CareBenefitAmount) throw new BadRequestException("Budget ist überschritten.");
@@ -108,14 +96,14 @@ internal class AddAppointmentRequestHandler(
                 appointment.Costs = price;
                 break;
             case ClearanceType.ReliefAmount:
-                if (price > budget.ReliefAmount) throw new BadRequestException("Budget ist überschritten.");
+                if (price > budget.ReliefAmount + budget.ReliefAmountLastYear) throw new BadRequestException("Budget ist überschritten.");
                 budget.ReliefAmountLastYear -= price;
-                appointment.CostsLastYearBudget = price;
+                appointment.CostsLastYearBudget += price;
                 if (budget.ReliefAmountLastYear < 0)
                 {
                     budget.ReliefAmount += budget.ReliefAmountLastYear;
                     appointment.CostsLastYearBudget += budget.ReliefAmountLastYear;
-                    appointment.Costs = budget.ReliefAmountLastYear * -1;
+                    appointment.Costs += budget.ReliefAmountLastYear * -1;
                     budget.ReliefAmountLastYear = 0;
                 }
 
@@ -123,11 +111,10 @@ internal class AddAppointmentRequestHandler(
             case ClearanceType.SelfPayment:
                 if (price > budget.SelfPayAmount) throw new BadRequestException("Budget ist überschritten.");
                 budget.SelfPayAmount -= price;
-                appointment.Costs = price;
+                appointment.Costs += price;
                 break;
         }
 
-        appointment.ClearanceType = request.Appointment.ClearanceType;
         await budgetRepository.UpdateBudgetAsync(budget);
     }
 }

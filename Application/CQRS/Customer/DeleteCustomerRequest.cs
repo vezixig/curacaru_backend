@@ -17,8 +17,7 @@ internal class DeleteCustomerRequestHandler(ICustomerRepository customerReposito
     public async Task Handle(DeleteCustomerRequest request, CancellationToken cancellationToken)
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.IsManager == false) throw new ForbiddenException("Nur Manager dürfen Mitarbeiter löschen.");
-        if (user.CompanyId == null) throw new ForbiddenException("Benutzer gehört zu keinem Unternehmen.");
+        if (user!.CompanyId == null) throw new ForbiddenException("Benutzer gehört zu keinem Unternehmen.");
 
         var customer = await customerRepository.GetCustomerAsync(user.CompanyId.Value, request.CustomerId)
                        ?? throw new NotFoundException("Kunde nicht gefunden.");
