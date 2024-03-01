@@ -26,6 +26,7 @@ internal class AddAppointmentRequestHandler(
     IBudgetService budgetService,
     ICustomerRepository customerRepository,
     IDatabaseService databaseService,
+    IDateTimeService dateTimeService,
     IEmployeeRepository employeeRepository,
     IMapper mapper)
     : IRequestHandler<AddAppointmentRequest, GetAppointmentDto>
@@ -40,6 +41,10 @@ internal class AddAppointmentRequestHandler(
         // Auth
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen für andere Mitarbeiter Termine anlegen.");
         if (appointment.EmployeeReplacementId.HasValue && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen Vertretungen einsetzen.");
+
+        // Date
+        if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Now.Month, 1))
+            throw new BadRequestException("Termine können nicht vor dem aktuellen Monat liegen.");
 
         // customer
         var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
