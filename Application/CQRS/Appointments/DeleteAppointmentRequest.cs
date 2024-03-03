@@ -38,7 +38,7 @@ internal class DeleteAppointmentRequestHandler(
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try
         {
-            await budgetService.RefundBudget(appointment);
+            if (appointment is { IsPlanned: false, HasBudgetError: false }) await budgetService.RefundBudget(appointment);
 
             await appointmentRepository.DeleteAppointmentAsync(appointment);
             await transaction.CommitAsync(cancellationToken);
