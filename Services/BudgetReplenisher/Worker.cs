@@ -1,12 +1,104 @@
 ﻿namespace BudgetReplenisher;
 
+using Curacaru.Backend.Application.Services;
 using Curacaru.Backend.Application.Services.Implementations;
 using Curacaru.Backend.Core.Entities;
+using Curacaru.Backend.Core.Enums;
 using Curacaru.Backend.Infrastructure.Repositories;
+using Curacaru.Backend.Infrastructure.Services;
 
-public class Worker(ICustomerRepository customerRepository, IBudgetRepository budgetRepository)
+public class Worker(
+    IAppointmentRepository appointmentRepository,
+    IBudgetRepository budgetRepository,
+    IBudgetService budgetService,
+    ICustomerRepository customerRepository,
+    IDatabaseService databaseService)
 {
     public async Task DoWorkAsync()
+    {
+        await ProcessBudgets();
+        await ProcessAppointments();
+    }
+
+    private async Task ProcessAppointments()
+    {
+        var appointments = await appointmentRepository.GetPlannedAppointmentsOfCurrentMonthAsync();
+
+        foreach (var appointment in appointments)
+        {
+            appointment.Costs = await budgetService.CalculateAppointmentPriceAsync(appointment);
+            appointment.IsPlanned = false;
+
+            var budget = await budgetRepository.GetCurrentBudgetAsync(appointment.CompanyId, appointment.CustomerId);
+            if (budget == null)
+            {
+                appointment.HasBudgetError = true;
+                continue;
+            }
+
+            switch (appointment.ClearanceType)
+            {
+                case ClearanceType.SelfPayment:
+                    if (budget.SelfPayAmount < appointment.Costs)
+                        appointment.HasBudgetError = true;
+                    else
+                        budget.SelfPayAmount -= appointment.Costs;
+                    break;
+                case ClearanceType.CareBenefit:
+                    if (budget.CareBenefitAmount < appointment.Costs)
+                        appointment.HasBudgetError = true;
+                    else
+                        budget.CareBenefitAmount -= appointment.Costs;
+                    break;
+                case ClearanceType.PreventiveCare:
+                    if (budget.PreventiveCareAmount < appointment.Costs)
+                        appointment.HasBudgetError = true;
+                    else
+                        budget.PreventiveCareAmount -= appointment.Costs;
+                    break;
+                case ClearanceType.ReliefAmount:
+                    if (budget.ReliefAmount + budget.ReliefAmountLastYear < appointment.Costs)
+                    {
+                        appointment.HasBudgetError = true;
+                        break;
+                    }
+
+                    budget.ReliefAmountLastYear -= appointment.Costs;
+                    appointment.CostsLastYearBudget = appointment.Costs;
+
+                    if (budget.ReliefAmountLastYear < 0)
+                    {
+                        budget.ReliefAmount += budget.ReliefAmountLastYear;
+                        appointment.CostsLastYearBudget += budget.ReliefAmountLastYear;
+                        appointment.Costs += budget.ReliefAmountLastYear * -1;
+                        budget.ReliefAmountLastYear = 0;
+                    }
+
+                    break;
+            }
+
+            var transaction = await databaseService.BeginTransactionAsync(CancellationToken.None);
+            try
+            {
+                if (appointment.HasBudgetError)
+                {
+                    appointment.Costs = 0;
+                    appointment.CostsLastYearBudget = 0;
+                }
+
+                await appointmentRepository.UpdateAppointmentAsync(appointment);
+                await budgetRepository.UpdateBudgetAsync(budget);
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+    }
+
+    private async Task ProcessBudgets()
     {
         var customers = await customerRepository.GetAllCustomersAsync();
         var budgets = await budgetRepository.GetAllBudgetsAsync();

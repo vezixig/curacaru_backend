@@ -1,19 +1,17 @@
 ﻿using BudgetReplenisher;
+using Curacaru.Backend.Application;
 using Curacaru.Backend.Infrastructure;
-using Curacaru.Backend.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 var serviceCollection = new ServiceCollection();
 serviceCollection.AddInfrastructure();
+serviceCollection.AddApplication();
+
+serviceCollection.AddSingleton<Worker>();
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-var budgetRepository = serviceProvider.GetService<IBudgetRepository>()
-                       ?? throw new InvalidOperationException("The budget repository is not registered.");
-var customerRepository = serviceProvider.GetService<ICustomerRepository>()
-                         ?? throw new InvalidOperationException("The customer repository is not registered.");
-
-var worker = new Worker(customerRepository, budgetRepository);
+var worker = serviceProvider.GetRequiredService<Worker>();
 await worker.DoWorkAsync();
 
 Console.WriteLine("-------------");

@@ -25,9 +25,10 @@ internal class BudgetRepository(DataContext dataContext) : IBudgetRepository
         => dataContext.Budgets.FirstOrDefaultAsync(
             o => o.CustomerId == customerId && o.CompanyId == companyId && o.Year == DateTime.Today.Year && o.Month == DateTime.Today.Month);
 
-    public Task UpdateBudgetAsync(Budget budget)
+    public async Task UpdateBudgetAsync(Budget budget)
     {
         dataContext.Budgets.Update(budget);
-        return dataContext.SaveChangesAsync();
+        await dataContext.SaveChangesAsync();
+        dataContext.Entry(budget).State = EntityState.Detached;
     }
 }

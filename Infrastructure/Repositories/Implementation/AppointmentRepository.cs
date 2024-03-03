@@ -50,18 +50,19 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return query.ToListAsync();
     }
 
-    public Task<Appointment?> GetNearestAppointmentAsync(Guid companyId, DateOnly date)
+    public Task<List<Appointment>> GetPlannedAppointmentsOfCurrentMonthAsync()
         => dataContext.Appointments
-            .Where(o => o.CompanyId == companyId && o.Date >= date)
-            .OrderBy(o => o.Date)
-            .ThenBy(o => o.TimeStart)
-            .FirstOrDefaultAsync();
+            .Where(
+                o => o.IsPlanned
+                     && o.Date > new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1)
+                     && o.Date < new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+            .ToListAsync();
 
     public async Task<Appointment> UpdateAppointmentAsync(Appointment appointment)
     {
-        dataContext.Attach(appointment.Employee);
-        dataContext.Attach(appointment.Customer);
-        if (appointment.EmployeeReplacement != null) dataContext.Attach(appointment.EmployeeReplacement);
+        if (appointment.Employee is not null) dataContext.Attach(appointment.Employee);
+        if (appointment.Customer is not null) dataContext.Attach(appointment.Customer);
+        if (appointment.EmployeeReplacement is not null) dataContext.Attach(appointment.EmployeeReplacement);
 
         var dbAppointment = dataContext.Appointments.Update(appointment);
         await dataContext.SaveChangesAsync();

@@ -29,11 +29,17 @@ public class GetAppointmentDto
     /// <inheritdoc cref="Appointment.EmployeeReplacementId" />
     public Guid? EmployeeReplacementId { get; set; }
 
+    /// <inheritdoc cref="Appointment.HasBudgetError" />
+    public bool HasBudgetError { get; set; }
+
     /// <inheritdoc cref="Appointment.Id" />
     public Guid Id { get; set; }
 
     /// <inheritdoc cref="Appointment.IsDone" />
     public bool IsDone { get; set; }
+
+    /// <inheritdoc cref="Appointment.IsPlanned" />
+    public bool IsPlanned { get; set; }
 
     /// <inheritdoc cref="Appointment.IsSignedByCustomer" />
     public bool IsSignedByCustomer { get; set; }

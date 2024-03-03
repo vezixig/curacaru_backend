@@ -34,6 +34,10 @@ public interface IAppointmentRepository
         Guid? employeeId,
         Guid? customerId);
 
+    /// <summary>Gets all planned appointments of the current month.</summary>
+    /// <returns>A list of appointments.</returns>
+    Task<List<Appointment>> GetPlannedAppointmentsOfCurrentMonthAsync();
+
     /// <summary>Updates an appointment.</summary>
     /// <param name="appointment">The modified appointment.</param>
     /// <returns>The updated appointment.</returns>

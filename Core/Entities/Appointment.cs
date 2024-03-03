@@ -43,12 +43,19 @@ public class Appointment
     /// <summary>Gets or sets the id of the employee that can replace the original employee.</summary>
     public Guid? EmployeeReplacementId { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether the appointment has a budget error.</summary>
+    /// <remarks>This is set by the budget replenisher if the budget the appointment is set to, is used up.</remarks>
+    public bool HasBudgetError { get; set; }
+
     /// <summary>Gets or sets the id of the appointment.</summary>
     [Key]
     public Guid Id { get; set; }
 
     /// <summary>Gets or sets a value indicating whether the appointment is done.</summary>
     public bool IsDone { get; set; }
+
+    /// <summary>Gets or sets a value indicating whether the appointment is planned after the current month.</summary>
+    public bool IsPlanned { get; set; }
 
     /// <summary>Gets or sets a value indicating whether the appointment is signed by the customer.</summary>
     public bool IsSignedByCustomer { get; set; }

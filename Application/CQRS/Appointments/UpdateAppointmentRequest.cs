@@ -24,6 +24,7 @@ internal class UpdateAppointmentRequestHandler(
     IBudgetRepository budgetRepository,
     IBudgetService budgetService,
     ICustomerRepository customerRepository,
+    IDateTimeService dateTimeService,
     IEmployeeRepository employeeRepository,
     IMapper mapper)
     : IRequestHandler<UpdateAppointmentRequest, GetAppointmentDto>
@@ -33,53 +34,42 @@ internal class UpdateAppointmentRequestHandler(
         var appointment = await repository.GetAppointmentAsync(request.CompanyId, request.Appointment.Id)
                           ?? throw new NotFoundException("Termin nicht gefunden.");
 
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
+        await Validate(request, appointment);
+        await HandleClearanceBudget(request, appointment);
 
-        if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine bearbeiten.");
+        appointment.HasBudgetError = false;
+        appointment.Date = request.Appointment.Date;
+        appointment.Notes = request.Appointment.Notes;
+        appointment.TimeEnd = request.Appointment.TimeEnd;
+        appointment.TimeStart = request.Appointment.TimeStart;
+        appointment.ClearanceType = request.Appointment.ClearanceType;
+        appointment.DistanceToCustomer = request.Appointment.DistanceToCustomer;
+        appointment.IsSignedByCustomer = request.Appointment.IsSignedByCustomer;
+        appointment.IsSignedByEmployee = request.Appointment.IsSignedByEmployee;
+        appointment.IsPlanned = request.Appointment.Date > dateTimeService.EndOfMonth;
 
-        // customer
-        if (appointment.CustomerId != request.Appointment.CustomerId)
-        {
-            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
+        appointment.Customer = new() { Id = appointment.CustomerId };
+        appointment.Employee = new() { Id = appointment.EmployeeId };
+        appointment.EmployeeReplacement = appointment.EmployeeReplacementId.HasValue
+            ? new Employee { Id = appointment.EmployeeReplacementId.Value }
+            : null;
 
-            var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
-                           ?? throw new BadRequestException("Kunde nicht gefunden.");
-            appointment.CustomerId = customer.Id;
-        }
+        var updatedAppointment = await repository.UpdateAppointmentAsync(appointment);
+        return mapper.Map<GetAppointmentDto>(updatedAppointment);
+    }
 
-        // employee
-
-        if (appointment.EmployeeId != request.Appointment.EmployeeId)
-        {
-            if (!user!.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
-
-            var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
-                           ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
-            appointment.EmployeeId = employee.Id;
-        }
-
-        // employee replacement
-        if (appointment.EmployeeReplacementId != request.Appointment.EmployeeReplacementId)
-        {
-            if (!user!.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
-
-            if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacementId = null; }
-            else
-            {
-                var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId.Value)
-                                          ?? throw new NotFoundException("Vertretung nicht gefunden.");
-                appointment.EmployeeReplacementId = employeeReplacement.Id;
-            }
-        }
-
-        // calculate new price
+    private async Task HandleClearanceBudget(UpdateAppointmentRequest request, Appointment appointment)
+    {
+        var isPlanned = request.Appointment.Date > dateTimeService.EndOfMonth;
         var price = await budgetService.CalculateAppointmentPriceAsync(appointment);
-        if (request.Appointment.ClearanceType != appointment.ClearanceType)
+        if (request.Appointment.ClearanceType != appointment.ClearanceType || (!appointment.IsPlanned && isPlanned) || appointment.HasBudgetError)
         {
-            // clearance type changed - refund to old clearance type
+            // clearance type changed - refund to old budget and charge new budget
             await budgetService.RefundBudget(appointment);
+            appointment.ClearanceType = request.Appointment.ClearanceType;
+            if (!isPlanned) await ProcessBudget(price, appointment);
         }
-        else if (price < appointment.Costs + appointment.CostsLastYearBudget)
+        else if (!isPlanned && price < appointment.Costs + appointment.CostsLastYearBudget)
         {
             // appointment got cheaper - refund difference
             var refundAppointment = mapper.Map<Appointment>(appointment);
@@ -94,32 +84,19 @@ internal class UpdateAppointmentRequestHandler(
             appointment.Costs -= refundAppointment.Costs;
             appointment.CostsLastYearBudget -= refundAppointment.CostsLastYearBudget;
         }
-        else if (price > appointment.Costs + appointment.CostsLastYearBudget)
+        else if (!isPlanned && price > appointment.Costs + appointment.CostsLastYearBudget)
         {
             // appointment got more expensive - charge difference
             price -= appointment.Costs + appointment.CostsLastYearBudget;
             await ProcessBudget(price, appointment);
         }
 
-        // refund budget if necessary
-
-        appointment.ClearanceType = request.Appointment.ClearanceType;
-        appointment.Date = request.Appointment.Date;
-        appointment.DistanceToCustomer = request.Appointment.DistanceToCustomer;
-        appointment.TimeStart = request.Appointment.TimeStart;
-        appointment.TimeEnd = request.Appointment.TimeEnd;
-        appointment.IsSignedByCustomer = request.Appointment.IsSignedByCustomer;
-        appointment.IsSignedByEmployee = request.Appointment.IsSignedByEmployee;
-        appointment.Notes = request.Appointment.Notes;
-
-        appointment.Customer = new() { Id = appointment.CustomerId };
-        appointment.Employee = new() { Id = appointment.EmployeeId };
-        appointment.EmployeeReplacement = appointment.EmployeeReplacementId.HasValue
-            ? new Employee { Id = appointment.EmployeeReplacementId.Value }
-            : null;
-
-        var updatedAppointment = await repository.UpdateAppointmentAsync(appointment);
-        return mapper.Map<GetAppointmentDto>(updatedAppointment);
+        if (isPlanned)
+        {
+            // on planning no costs are calculated
+            appointment.Costs = 0;
+            appointment.CostsLastYearBudget = 0;
+        }
     }
 
     private async Task ProcessBudget(decimal priceRaise, Appointment appointment)
@@ -160,5 +137,51 @@ internal class UpdateAppointmentRequestHandler(
         }
 
         await budgetRepository.UpdateBudgetAsync(budget);
+    }
+
+    private async Task Validate(UpdateAppointmentRequest request, Appointment appointment)
+    {
+        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
+
+        if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine bearbeiten.");
+
+        // Date
+        if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Now.Month, 1))
+            throw new BadRequestException("Termine können nicht vor dem aktuellen Monat liegen.");
+
+        // customer
+        if (appointment.CustomerId != request.Appointment.CustomerId)
+        {
+            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
+
+            var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
+                           ?? throw new BadRequestException("Kunde nicht gefunden.");
+            appointment.CustomerId = customer.Id;
+        }
+
+        // employee
+
+        if (appointment.EmployeeId != request.Appointment.EmployeeId)
+        {
+            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
+
+            var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
+                           ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
+            appointment.EmployeeId = employee.Id;
+        }
+
+        // employee replacement
+        if (appointment.EmployeeReplacementId != request.Appointment.EmployeeReplacementId)
+        {
+            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
+
+            if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacementId = null; }
+            else
+            {
+                var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId.Value)
+                                          ?? throw new NotFoundException("Vertretung nicht gefunden.");
+                appointment.EmployeeReplacementId = employeeReplacement.Id;
+            }
+        }
     }
 }

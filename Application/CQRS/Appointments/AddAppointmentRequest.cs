@@ -45,6 +45,7 @@ internal class AddAppointmentRequestHandler(
         // Date
         if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Now.Month, 1))
             throw new BadRequestException("Termine können nicht vor dem aktuellen Monat liegen.");
+        appointment.IsPlanned = appointment.Date > dateTimeService.EndOfMonth;
 
         // customer
         var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
@@ -70,7 +71,7 @@ internal class AddAppointmentRequestHandler(
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try
         {
-            await ProcessBudget(customer, appointment);
+            if (!appointment.IsPlanned) await ProcessBudget(customer, appointment);
 
             appointment = await appointmentRepository.AddAppointmentAsync(appointment);
             await transaction.CommitAsync(cancellationToken);
