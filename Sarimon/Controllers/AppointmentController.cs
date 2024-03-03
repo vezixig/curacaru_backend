@@ -29,7 +29,7 @@ public class AppointmentController(ISender mediator) : ControllerBase
     [HttpPost("{appointmentId}/finish")]
     public async Task<IActionResult> FinishAppointment([FromRoute] Guid appointmentId)
     {
-        await mediator.Send(new FinishAppointmentRequest(CompanyId, AuthId, appointmentId));
+        await mediator.Send(new ChangeAppointmentStatusRequest(CompanyId, AuthId, appointmentId, true));
         return NoContent();
     }
 
@@ -49,6 +49,13 @@ public class AppointmentController(ISender mediator) : ControllerBase
     {
         var appointments = await mediator.Send(new AppointmentsRequest(CompanyId, from, to, employeeId, customerId));
         return Ok(appointments);
+    }
+
+    [HttpPost("{appointmentId}/reopen")]
+    public async Task<IActionResult> ReopenAppointment([FromRoute] Guid appointmentId)
+    {
+        await mediator.Send(new ChangeAppointmentStatusRequest(CompanyId, AuthId, appointmentId, false));
+        return NoContent();
     }
 
     [HttpPut]

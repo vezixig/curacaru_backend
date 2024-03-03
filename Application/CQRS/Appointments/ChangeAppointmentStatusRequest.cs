@@ -9,13 +9,19 @@ using Infrastructure.Repositories;
 using MediatR;
 using Services;
 
-public class FinishAppointmentRequest(Guid companyId, string authId, Guid appointmentId) : IRequest<GetAppointmentListEntryDto>
+public class ChangeAppointmentStatusRequest(
+    Guid companyId,
+    string authId,
+    Guid appointmentId,
+    bool isDone) : IRequest<GetAppointmentListEntryDto>
 {
     public Guid AppointmentId { get; } = appointmentId;
 
     public string AuthId { get; } = authId;
 
     public Guid CompanyId { get; } = companyId;
+
+    public bool IsDone { get; } = isDone;
 }
 
 internal class FinishAppointmentRequestHandler(
@@ -23,19 +29,19 @@ internal class FinishAppointmentRequestHandler(
     IDateTimeService dateTimeService,
     IEmployeeRepository employeeRepository,
     IMapper mapper)
-    : IRequestHandler<FinishAppointmentRequest, GetAppointmentListEntryDto>
+    : IRequestHandler<ChangeAppointmentStatusRequest, GetAppointmentListEntryDto>
 {
-    public async Task<GetAppointmentListEntryDto> Handle(FinishAppointmentRequest request, CancellationToken cancellationToken)
+    public async Task<GetAppointmentListEntryDto> Handle(ChangeAppointmentStatusRequest request, CancellationToken cancellationToken)
     {
         var appointment = await appointmentRepository.GetAppointmentAsync(request.CompanyId, request.AppointmentId)
                           ?? throw new NotFoundException("Termin nicht gefunden.");
 
-        if (appointment.Date > dateTimeService.Today) throw new BadRequestException("Termine in der Zukunft können nicht abgeschlossen werden.");
+        if (appointment.Date > dateTimeService.Today && request.IsDone) throw new BadRequestException("Termine in der Zukunft können nicht abgeschlossen werden.");
 
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
 
-        appointment.IsDone = true;
+        appointment.IsDone = request.IsDone;
         appointment.Employee = new() { Id = appointment.EmployeeId };
         appointment.EmployeeReplacement = appointment.EmployeeReplacementId.HasValue ? new Employee { Id = appointment.EmployeeReplacementId!.Value } : null;
         appointment.Customer = new() { Id = appointment.CustomerId };
