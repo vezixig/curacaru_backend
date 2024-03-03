@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 
 /// <summary>Controller for the company data.</summary>
 /// <param name="mediator">The mediator.</param>
-[Authorize(Policy = Policy.Manager)]
 [ApiController]
 [Route("[controller]")]
 public class CompanyController(IMediator mediator) : ControllerBase
 {
     /// <summary>Gets the company data for the current user.</summary>
+    [Authorize(Policy = Policy.Manager)]
     [HttpGet]
     public async Task<IActionResult> GetCompany()
     {
@@ -23,6 +23,7 @@ public class CompanyController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>Gets the prices of the company.</summary>
+    [Authorize(Policy = Policy.Company)]
     [HttpGet("prices")]
     public async Task<IActionResult> GetPrices()
     {
@@ -31,6 +32,7 @@ public class CompanyController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>Updates the data of the company for the current user.</summary>
+    [Authorize(Policy = Policy.Manager)]
     [HttpPut]
     public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyDto companyData)
     {
