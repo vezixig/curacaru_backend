@@ -51,6 +51,7 @@ public class AppointmentController(ISender mediator) : ControllerBase
         return Ok(appointments);
     }
 
+    [Authorize(Policy = Policy.Manager)]
     [HttpPost("{appointmentId}/reopen")]
     public async Task<IActionResult> ReopenAppointment([FromRoute] Guid appointmentId)
     {

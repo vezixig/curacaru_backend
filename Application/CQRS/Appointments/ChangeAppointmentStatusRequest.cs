@@ -38,6 +38,9 @@ internal class FinishAppointmentRequestHandler(
 
         if (appointment.Date > dateTimeService.Today && request.IsDone) throw new BadRequestException("Termine in der Zukunft können nicht abgeschlossen werden.");
 
+        if (appointment.Date < dateTimeService.BeginOfCurrentMonth && !request.IsDone)
+            throw new BadRequestException("Termine vor dem aktuellen Monat können nicht wieder geöffnet werden.");
+
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
 

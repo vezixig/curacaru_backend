@@ -2,6 +2,9 @@
 
 public interface IDateTimeService
 {
+    /// <summary>Gets the beginning of the current month.</summary>
+    DateOnly BeginOfCurrentMonth { get; }
+
     /// <summary>Gets the end of the current month.</summary>
     DateOnly EndOfMonth { get; }
 
