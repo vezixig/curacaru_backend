@@ -23,7 +23,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
     }
 
     public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId)
-        => dataContext.Appointments.FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
+        => dataContext.Appointments.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
 
     public Task<List<Appointment>> GetAppointmentsAsync(
         Guid companyId,
@@ -68,4 +68,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         await dataContext.SaveChangesAsync();
         return dbAppointment.Entity;
     }
+
+    public Task<bool> IsAppointmentReplacement(Guid customerId, Guid employeeId)
+        => dataContext.Appointments.AnyAsync(o => o.CustomerId == customerId && o.EmployeeReplacementId != employeeId);
 }

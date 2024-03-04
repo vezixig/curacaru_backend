@@ -19,6 +19,7 @@ public class CustomerWithBudgetRequest(Guid companyId, string authId, Guid custo
 }
 
 internal class CustomerWithBudgetRequestHandler(
+    IAppointmentRepository appointmentRepository,
     IBudgetRepository budgetRepository,
     ICustomerRepository customerRepository,
     IEmployeeRepository employeeRepository,
@@ -29,7 +30,9 @@ internal class CustomerWithBudgetRequestHandler(
     {
         var employee = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
 
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerId, employee!.IsManager ? null : employee.Id)
+        var isReplacement = await appointmentRepository.IsAppointmentReplacement(request.CustomerId, employee!.Id);
+
+        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerId, employee!.IsManager || isReplacement ? null : employee.Id)
                        ?? throw new NotFoundException("Kunde existiert nicht");
 
         var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.CustomerId) ?? new Budget { Customer = customer };

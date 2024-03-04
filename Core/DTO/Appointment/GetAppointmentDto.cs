@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Core.DTO.Appointment;
 
+using Customer;
 using Entities;
 using Enums;
 
@@ -13,6 +14,9 @@ public class GetAppointmentDto
 
     /// <inheritdoc cref="Appointment.CostsLastYearBudget" />
     public decimal CostsLastYearBudget { get; set; }
+
+    /// <inheritdoc cref="Appointment.Customer" />
+    public GetMinimalCustomerListEntryDto Customer { get; set; } = new();
 
     /// <inheritdoc cref="Appointment.CustomerId" />
     public Guid CustomerId { get; set; }

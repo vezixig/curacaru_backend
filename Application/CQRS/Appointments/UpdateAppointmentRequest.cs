@@ -141,9 +141,10 @@ internal class UpdateAppointmentRequestHandler(
 
     private async Task Validate(UpdateAppointmentRequest request, Appointment appointment)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
+        var userEmployee = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
 
-        if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine bearbeiten.");
+        if (userEmployee!.Id != appointment.EmployeeId && userEmployee.Id != appointment.EmployeeReplacementId && !userEmployee.IsManager)
+            throw new ForbiddenException("Nur Manager dürfen fremde Termine bearbeiten.");
 
         // Date
         if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Now.Month, 1))
@@ -152,7 +153,7 @@ internal class UpdateAppointmentRequestHandler(
         // customer
         if (appointment.CustomerId != request.Appointment.CustomerId)
         {
-            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
+            if (!userEmployee.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
 
             var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
                            ?? throw new BadRequestException("Kunde nicht gefunden.");
@@ -163,7 +164,7 @@ internal class UpdateAppointmentRequestHandler(
 
         if (appointment.EmployeeId != request.Appointment.EmployeeId)
         {
-            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
+            if (!userEmployee.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
 
             var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
                            ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
@@ -173,7 +174,7 @@ internal class UpdateAppointmentRequestHandler(
         // employee replacement
         if (appointment.EmployeeReplacementId != request.Appointment.EmployeeReplacementId)
         {
-            if (!user.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
+            if (!userEmployee.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
 
             if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacementId = null; }
             else

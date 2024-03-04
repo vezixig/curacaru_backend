@@ -38,6 +38,12 @@ public interface IAppointmentRepository
     /// <returns>A list of appointments.</returns>
     Task<List<Appointment>> GetPlannedAppointmentsOfCurrentMonthAsync();
 
+    /// <summary>Checks if an employee is a replacement for an appointment.</summary>
+    /// <param name="customerId">The id of the customer.</param>
+    /// <param name="employeeId">The id of the employee.</param>
+    /// <returns>True if the employee is a replacement for the customer's appointment, otherwise false.</returns>
+    Task<bool> IsAppointmentReplacement(Guid customerId, Guid employeeId);
+
     /// <summary>Updates an appointment.</summary>
     /// <param name="appointment">The modified appointment.</param>
     /// <returns>The updated appointment.</returns>
