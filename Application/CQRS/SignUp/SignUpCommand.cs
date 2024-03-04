@@ -35,7 +35,9 @@ internal class SignUpCommandHandler(
             // Add the company
             var company = new Company
             {
-                Name = request.SignUpDto.CompanyName
+                Name = request.SignUpDto.CompanyName,
+                ZipCity = null,
+                ZipCode = null
             };
 
             company = await companyRepository.AddCompanyAsync(company);
