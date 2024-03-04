@@ -32,6 +32,7 @@ internal class UpdateCompanyRequestHandler(ICompanyRepository companyRepository)
         company.Street = request.CompanyData.Street;
         company.TaxNumber = request.CompanyData.TaxNumber;
         company.ZipCode = request.CompanyData.ZipCode;
+        company.ZipCity = null;
 
         await companyRepository.UpdateCompanyAsync(company);
     }

@@ -30,7 +30,8 @@ internal class GetBudgetListRequestHandler(
 
         var result = mapper.Map<List<GetBudgetListEntryDto>>(budgets);
         result.AddRange(customers.Select(o => new GetBudgetListEntryDto { CustomerId = o.Id, CustomerName = $"{o.FirstName} {o.LastName}".Trim() }));
-        result.ForEach(o => o.RemainingHours = o.TotalAmount / company!.PricePerHour);
+        var pricePerHour = company!.PricePerHour == 0 ? 1 : company.PricePerHour;
+        result.ForEach(o => o.RemainingHours = o.TotalAmount / pricePerHour);
         return result;
     }
 }
