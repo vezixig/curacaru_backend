@@ -42,7 +42,10 @@ internal class FinishAppointmentRequestHandler(
             throw new BadRequestException("Termine vor dem aktuellen Monat können nicht wieder geöffnet werden.");
 
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
+        if (user!.Id != appointment.EmployeeId && user.Id != appointment.EmployeeReplacementId && !user.IsManager)
+            throw new ForbiddenException("Nur Manager dürfen den Status fremder Termine ändern.");
+
+        if (!request.IsDone && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen Termine wieder öffnen.");
 
         appointment.IsDone = request.IsDone;
         appointment.Employee = new() { Id = appointment.EmployeeId };
