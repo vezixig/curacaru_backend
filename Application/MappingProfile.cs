@@ -48,6 +48,7 @@ internal class MappingProfile : Profile
         CreateMap<Appointment, GetAppointmentDto>();
 
         CreateMap<AddAppointmentDto, Appointment>();
+        CreateMap<Appointment, Appointment>();
     }
 
     private void CreateCustomerMappings()

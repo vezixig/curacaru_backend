@@ -3,6 +3,7 @@
 using Core.Entities;
 using Core.Enums;
 using Core.Exceptions;
+using Core.Models;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 
@@ -18,7 +19,7 @@ public class BudgetService(
     /// <summary>Gets the yearly preventive care raise.</summary>
     public const decimal YearlyPreventiveCareRaise = 1612;
 
-    public async Task<decimal> CalculateAppointmentPriceAsync(Appointment appointment)
+    public async Task<decimal> CalculateAppointmentPriceAsync(PriceCalculationData appointment)
     {
         var company = await companyRepository.GetCompanyByIdAsync(appointment.CompanyId);
         var ridePrice = company!.RideCostsType switch

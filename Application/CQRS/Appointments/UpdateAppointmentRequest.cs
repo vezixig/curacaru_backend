@@ -5,6 +5,7 @@ using Core.DTO.Appointment;
 using Core.Entities;
 using Core.Enums;
 using Core.Exceptions;
+using Core.Models;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
@@ -61,7 +62,7 @@ internal class UpdateAppointmentRequestHandler(
     private async Task HandleClearanceBudget(UpdateAppointmentRequest request, Appointment appointment)
     {
         var isPlanned = request.Appointment.Date > dateTimeService.EndOfMonth;
-        var price = await budgetService.CalculateAppointmentPriceAsync(appointment);
+        var price = await budgetService.CalculateAppointmentPriceAsync(PriceCalculationData.CreateFrom(request.Appointment, request.CompanyId));
         if (request.Appointment.ClearanceType != appointment.ClearanceType || (!appointment.IsPlanned && isPlanned) || appointment.HasBudgetError)
         {
             // clearance type changed - refund to old budget and charge new budget
@@ -72,15 +73,16 @@ internal class UpdateAppointmentRequestHandler(
         else if (!isPlanned && price < appointment.Costs + appointment.CostsLastYearBudget)
         {
             // appointment got cheaper - refund difference
-            var refundAppointment = mapper.Map<Appointment>(appointment);
+            var refundAppointment = new Appointment();
+            mapper.Map(appointment, refundAppointment);
             refundAppointment.Costs -= price;
             if (refundAppointment.Costs < 0)
             {
-                refundAppointment.CostsLastYearBudget -= refundAppointment.Costs;
+                refundAppointment.CostsLastYearBudget += refundAppointment.Costs;
                 refundAppointment.Costs = 0;
             }
 
-            await budgetService.RefundBudget(appointment);
+            await budgetService.RefundBudget(refundAppointment);
             appointment.Costs -= refundAppointment.Costs;
             appointment.CostsLastYearBudget -= refundAppointment.CostsLastYearBudget;
         }

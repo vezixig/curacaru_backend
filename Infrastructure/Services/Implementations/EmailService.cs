@@ -2,9 +2,8 @@
 
 using System.Net;
 using System.Net.Mail;
-using Microsoft.Extensions.Logging;
 
-internal class EmailService(ILogger<EmailService> logger) : IEmailService
+internal class EmailService : IEmailService
 {
     public void SendPasswordMail(string email, string password)
     {
@@ -18,7 +17,6 @@ internal class EmailService(ILogger<EmailService> logger) : IEmailService
         if (string.IsNullOrEmpty(mailPassword)) throw new InvalidOperationException("Environment variable EMAIL_PASSWORD missing");
 
         using var client = new SmtpClient(smtp, GetPort());
-        logger.LogInformation($"SMTP - Port: {client.Port}");
         client.UseDefaultCredentials = false;
         client.Credentials = new NetworkCredential(mailUser, mailPassword);
         client.EnableSsl = true;

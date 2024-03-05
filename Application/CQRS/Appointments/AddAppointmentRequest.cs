@@ -5,6 +5,7 @@ using Core.DTO.Appointment;
 using Core.Entities;
 using Core.Enums;
 using Core.Exceptions;
+using Core.Models;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -86,7 +87,7 @@ internal class AddAppointmentRequestHandler(
 
     private async Task ProcessBudget(Customer customer, Appointment appointment)
     {
-        var price = await budgetService.CalculateAppointmentPriceAsync(appointment);
+        var price = await budgetService.CalculateAppointmentPriceAsync(PriceCalculationData.CreateFrom(appointment));
         var budget = await budgetRepository.GetCurrentBudgetAsync(appointment.CompanyId, appointment.CustomerId)
                      ?? new Budget { Customer = customer };
         switch (appointment.ClearanceType)

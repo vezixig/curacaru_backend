@@ -4,6 +4,7 @@ using Curacaru.Backend.Application.Services;
 using Curacaru.Backend.Application.Services.Implementations;
 using Curacaru.Backend.Core.Entities;
 using Curacaru.Backend.Core.Enums;
+using Curacaru.Backend.Core.Models;
 using Curacaru.Backend.Infrastructure.Repositories;
 using Curacaru.Backend.Infrastructure.Services;
 
@@ -26,7 +27,7 @@ public class Worker(
 
         foreach (var appointment in appointments)
         {
-            appointment.Costs = await budgetService.CalculateAppointmentPriceAsync(appointment);
+            appointment.Costs = await budgetService.CalculateAppointmentPriceAsync(PriceCalculationData.CreateFrom(appointment));
             appointment.IsPlanned = false;
 
             var budget = await budgetRepository.GetCurrentBudgetAsync(appointment.CompanyId, appointment.CustomerId);
