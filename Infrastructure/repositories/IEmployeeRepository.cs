@@ -36,7 +36,7 @@ public interface IEmployeeRepository
     public Task<List<Employee>> GetEmployeesAsync(Guid companyId);
 
     /// <summary>Updates an employee.</summary>
-    /// <param name="currentEmploye">The modified employee.</param>
+    /// <param name="currentEmployee">The modified employee.</param>
     /// <returns>The updated employee.</returns>
-    public Task<Employee> UpdateEmployeeAsync(Employee currentEmploye);
+    public Task<Employee> UpdateEmployeeAsync(Employee currentEmployee);
 }

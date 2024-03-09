@@ -19,6 +19,7 @@ public static class ServiceRegistration
         services.AddDbContext<DataContext>();
 
         // Add repositories
+        // todo: use assembly scanning
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IBudgetRepository, BudgetRepository>();
@@ -26,6 +27,7 @@ public static class ServiceRegistration
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IInsuranceRepository, InsuranceRepository>();
+        services.AddScoped<IWorkingHoursRepository, WorkingHoursReportRepository>();
 
         // Add services
         services.AddScoped<IAuthService, AuthService>();

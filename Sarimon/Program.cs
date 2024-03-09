@@ -1,11 +1,7 @@
-using System.Security.Authentication;
-using System.Security.Claims;
 using Curacaru.Backend.Application;
-using Curacaru.Backend.Application.CQRS.TimeTracking;
-using Curacaru.Backend.Core.Enums;
+using Curacaru.Backend.Endpoints;
 using Curacaru.Backend.Infrastructure;
 using Curacaru.Backend.Middleware;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,22 +66,8 @@ app.UseMiddleware<CompanyMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 
-app.MapGet(
-        "employee/{employeeId:guid}/work-time",
-        async (
-            IMediator mediator,
-            ClaimsPrincipal principal,
-            Guid employeeId,
-            int month,
-            int year) => await mediator.Send(new WorkingHoursRequest(employeeId, GetCompanyId(principal), GetAuthId(principal), month, year)))
-    .RequireAuthorization(Policy.Company);
+// todo: use assembly scanning to register endpoints
+var timeTrackerEndpoints = new TimeTrackerEndpoints();
+timeTrackerEndpoints.MapTimeTrackerEndpoints(app);
 
 app.Run();
-
-static Guid GetCompanyId(ClaimsPrincipal claimsPrincipal)
-    => claimsPrincipal.Claims.Any(o => o.Type == "CompanyId")
-        ? Guid.Parse(claimsPrincipal.Claims.First(o => o.Type == "CompanyId").Value)
-        : throw new AuthenticationException("User is not associated with a company.");
-
-static string GetAuthId(ClaimsPrincipal claimsPrincipal)
-    => claimsPrincipal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;

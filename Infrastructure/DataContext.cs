@@ -25,6 +25,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of insurances.</summary>
     public DbSet<Insurance> Insurances { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of working time reports.</summary>
+    public DbSet<WorkingTimeReport> WorkingTimeReports { get; set; } = null!;
+
     /// <summary>Gets or sets the set of zip codes.</summary>
     public DbSet<ZipCity> ZipCities { get; set; } = null!;
 
@@ -117,5 +120,24 @@ internal class DataContext : DbContext
             .HasOne(o => o.ZipCity)
             .WithMany()
             .HasForeignKey(o => o.ZipCode);
+
+        modelBuilder.Entity<WorkingTimeReport>()
+            .HasOne(o => o.Employee)
+            .WithMany()
+            .HasForeignKey(o => o.EmployeeId);
+
+        modelBuilder.Entity<WorkingTimeReport>()
+            .HasOne(o => o.Manager)
+            .WithMany()
+            .HasForeignKey(o => o.ManagerId);
+
+        modelBuilder.Entity<WorkingTimeReport>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<WorkingTimeReport>()
+            .HasIndex(o => new { o.EmployeeId, o.Year, o.Month })
+            .IsUnique();
     }
 }

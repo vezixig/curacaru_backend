@@ -30,9 +30,9 @@ internal class EmployeeRepository(DataContext dataContext) : IEmployeeRepository
     public Task<List<Employee>> GetEmployeesAsync(Guid companyId)
         => dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
 
-    public async Task<Employee> UpdateEmployeeAsync(Employee currentEmploye)
+    public async Task<Employee> UpdateEmployeeAsync(Employee currentEmployee)
     {
-        var dbEmployee = dataContext.Employees.Update(currentEmploye);
+        var dbEmployee = dataContext.Employees.Update(currentEmployee);
         await dataContext.SaveChangesAsync();
         return dbEmployee.Entity;
     }

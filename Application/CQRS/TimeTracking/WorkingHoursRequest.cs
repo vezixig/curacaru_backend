@@ -6,8 +6,8 @@ using Infrastructure.Repositories;
 using MediatR;
 
 public class WorkingHoursRequest(
-    Guid employeeId,
     Guid companyId,
+    Guid employeeId,
     string authId,
     int month,
     int year) : IRequest<List<GetWorkingHoursDto>>
@@ -37,6 +37,7 @@ internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepo
             new DateOnly(request.Year, request.Month, 1).AddMonths(1).AddDays(-1),
             request.EmployeeId,
             null);
+
         return workingHours.Select(
                 wh => new GetWorkingHoursDto
                 {
