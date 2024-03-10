@@ -21,4 +21,6 @@ public interface IWorkingHoursRepository
         int year,
         int month,
         Guid? userId);
+
+    Task UpdateWorkingTimeReportAsync(WorkingTimeReport report);
 }

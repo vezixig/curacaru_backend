@@ -42,4 +42,10 @@ internal class WorkingHoursReportRepository(DataContext dataContext) : IWorkingH
                      && o.Month == month
                      && (userId == null || o.EmployeeId == (Guid)userId))
             .ToListAsync();
+
+    public Task UpdateWorkingTimeReportAsync(WorkingTimeReport report)
+    {
+        dataContext.WorkingTimeReports.Update(report);
+        return dataContext.SaveChangesAsync();
+    }
 }

@@ -13,11 +13,13 @@ public class GetWorkingTimeReportDto
 
     public int Month { get; set; }
 
-    public string SignatureEmployee { get; set; } = "";
-
     public string SignatureEmployeeCity { get; set; } = "";
 
     public DateOnly SignatureEmployeeDate { get; set; }
+
+    public string? SignatureManagerCity { get; set; } = "";
+
+    public DateOnly? SignatureManagerDate { get; set; }
 
     public double TotalHours { get; set; }
 

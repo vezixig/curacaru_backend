@@ -2,7 +2,6 @@
 
 using AutoMapper;
 using Core.DTO.TimeTracker;
-using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
@@ -12,7 +11,7 @@ public class WorkingHoursReportRequest(
     string authId,
     Guid employeeId,
     int month,
-    int year) : IRequest<GetWorkingTimeReportDto>
+    int year) : IRequest<GetWorkingTimeReportDto?>
 {
     public string AuthId { get; } = authId;
 
@@ -26,16 +25,16 @@ public class WorkingHoursReportRequest(
 }
 
 internal class WorkingHoursReportRequestHandler(IWorkingHoursRepository workingHoursRepository, IEmployeeRepository employeeRepository, IMapper mapper)
-    : IRequestHandler<WorkingHoursReportRequest, GetWorkingTimeReportDto>
+    : IRequestHandler<WorkingHoursReportRequest, GetWorkingTimeReportDto?>
 {
-    public async Task<GetWorkingTimeReportDto> Handle(WorkingHoursReportRequest request, CancellationToken cancellationToken)
+    public async Task<GetWorkingTimeReportDto?> Handle(WorkingHoursReportRequest request, CancellationToken cancellationToken)
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (!user!.IsManager && user.Id != request.EmployeeId) throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
 
-        var reports = await workingHoursRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, user.Id);
-        var report = reports.SingleOrDefault() ?? throw new NotFoundException("Arbeitszeitnachweis nicht gefunden");
+        var reports = await workingHoursRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, request.EmployeeId);
+        var report = reports.FirstOrDefault();
 
-        return mapper.Map<GetWorkingTimeReportDto>(report);
+        return mapper.Map<GetWorkingTimeReportDto?>(report);
     }
 }
