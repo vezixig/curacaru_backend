@@ -2,7 +2,7 @@
 
 using Enums;
 
-public class GetWorkingHoursReportListDto
+public class GetWorkingTimeReportListDto
 {
     public Guid EmployeeId { get; set; }
 

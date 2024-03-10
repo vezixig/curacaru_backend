@@ -10,7 +10,7 @@ public class WorkingHoursRequest(
     Guid employeeId,
     string authId,
     int month,
-    int year) : IRequest<List<GetWorkingHoursDto>>
+    int year) : IRequest<List<GetWorkedHoursDto>>
 {
     public string AuthId { get; } = authId;
 
@@ -24,9 +24,9 @@ public class WorkingHoursRequest(
 }
 
 internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepository, IEmployeeRepository employeeRepository)
-    : IRequestHandler<WorkingHoursRequest, List<GetWorkingHoursDto>>
+    : IRequestHandler<WorkingHoursRequest, List<GetWorkedHoursDto>>
 {
-    public async Task<List<GetWorkingHoursDto>> Handle(WorkingHoursRequest request, CancellationToken cancellationToken)
+    public async Task<List<GetWorkedHoursDto>> Handle(WorkingHoursRequest request, CancellationToken cancellationToken)
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (!user.IsManager && user!.Id != request.EmployeeId) throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
@@ -39,12 +39,13 @@ internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepo
             null);
 
         return workingHours.Select(
-                wh => new GetWorkingHoursDto
+                wh => new GetWorkedHoursDto
                 {
                     Date = wh.Date,
                     TimeEnd = wh.TimeEnd,
                     TimeStart = wh.TimeStart,
-                    WorkDuration = (wh.TimeEnd - wh.TimeStart).TotalHours
+                    WorkDuration = (wh.TimeEnd - wh.TimeStart).TotalHours,
+                    IsDone = wh.IsDone
                 })
             .OrderBy(o => o.Date)
             .ThenBy(o => o.TimeStart)

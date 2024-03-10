@@ -24,7 +24,7 @@ public class WorkingHoursReportRequest(
     public int Year { get; } = year;
 }
 
-internal class WorkingHoursReportRequestHandler(IWorkingHoursRepository workingHoursRepository, IEmployeeRepository employeeRepository, IMapper mapper)
+internal class WorkingHoursReportRequestHandler(IWorkingTimeRepository workingTimeRepository, IEmployeeRepository employeeRepository, IMapper mapper)
     : IRequestHandler<WorkingHoursReportRequest, GetWorkingTimeReportDto?>
 {
     public async Task<GetWorkingTimeReportDto?> Handle(WorkingHoursReportRequest request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ internal class WorkingHoursReportRequestHandler(IWorkingHoursRepository workingH
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (!user!.IsManager && user.Id != request.EmployeeId) throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
 
-        var reports = await workingHoursRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, request.EmployeeId);
+        var reports = await workingTimeRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, request.EmployeeId);
         var report = reports.FirstOrDefault();
 
         return mapper.Map<GetWorkingTimeReportDto?>(report);

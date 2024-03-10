@@ -31,6 +31,20 @@ public class TimeTrackerEndpoints : EndpointsBase
             .RequireAuthorization(Policy.Company);
 
         app.MapGet(
+                "/work-time/employee/{employeeId:guid}/report/{year:int}/{month:int}/print",
+                async (
+                    IMediator mediator,
+                    ClaimsPrincipal principal,
+                    Guid employeeId,
+                    int year,
+                    int month) =>
+                {
+                    var report = await mediator.Send(new WorkingHoursReportPrintRequest(GetCompanyId(principal), GetAuthId(principal), employeeId, month, year));
+                    return Results.File(report, "application/pdf");
+                })
+            .RequireAuthorization(Policy.Company);
+
+        app.MapGet(
                 "/work-time/list",
                 async (
                     IMediator mediator,
@@ -44,7 +58,7 @@ public class TimeTrackerEndpoints : EndpointsBase
                 async (
                         IMediator mediator,
                         ClaimsPrincipal principal,
-                        AddWorkTimeSignatureDto dto)
+                        AddWorkingTimeReportSignatureDto dto)
                     => await mediator.Send(new AddWorkingTimeSignatureRequest(GetCompanyId(principal), GetAuthId(principal), dto)))
             .RequireAuthorization(Policy.Company);
     }

@@ -2,6 +2,7 @@
 
 using Core.DTO.TimeTracker;
 using Core.Entities;
+using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
@@ -9,19 +10,19 @@ using MediatR;
 public class AddWorkingTimeSignatureRequest(
     Guid companyId,
     string authId,
-    AddWorkTimeSignatureDto data) : IRequest
+    AddWorkingTimeReportSignatureDto data) : IRequest
 {
     public string AuthId { get; } = authId;
 
     public Guid CompanyId { get; } = companyId;
 
-    public AddWorkTimeSignatureDto Data { get; } = data;
+    public AddWorkingTimeReportSignatureDto Data { get; } = data;
 }
 
 internal class AddWorkingTimeSignatureRequestHandler(
     IAppointmentRepository appointmentRepository,
     IEmployeeRepository employeeRepository,
-    IWorkingHoursRepository workingHoursRepository)
+    IWorkingTimeRepository workingTimeRepository)
     : IRequestHandler<AddWorkingTimeSignatureRequest>
 {
     public async Task Handle(AddWorkingTimeSignatureRequest request, CancellationToken cancellationToken)
@@ -30,13 +31,13 @@ internal class AddWorkingTimeSignatureRequestHandler(
         if (user!.Id != request.Data.EmployeeId && !user.IsManager)
             throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten unterschreiben");
 
-        var existingReport = await workingHoursRepository.GetWorkingTimeReportsAsync(
+        var existingReport = await workingTimeRepository.GetWorkingTimeReportsAsync(
             request.CompanyId,
             request.Data.Year,
             request.Data.Month,
             request.Data.EmployeeId);
 
-        if ((existingReport.Any() && !user.IsManager) || existingReport[0].SignatureManagerDate is not null)
+        if (existingReport.Any() && (!user.IsManager || existingReport[0].SignatureManagerDate is not null))
             throw new InvalidOperationException("Du hast diesen Bericht bereits unterschrieben");
 
         if (existingReport.Count > 0)
@@ -45,7 +46,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
             existingReport[0].SignatureManagerCity = request.Data.SignatureCity;
             existingReport[0].SignatureManagerDate = request.Data.SignatureDate;
 
-            await workingHoursRepository.UpdateWorkingTimeReportAsync(existingReport[0]);
+            await workingTimeRepository.UpdateWorkingTimeReportAsync(existingReport[0]);
         }
         else
         {
@@ -53,6 +54,9 @@ internal class AddWorkingTimeSignatureRequestHandler(
             var start = new DateOnly(request.Data.Year, request.Data.Month, 1);
             var end = start.AddMonths(1).AddDays(-1);
             var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, user.Id, null);
+
+            if (appointments.Exists(o => !o.IsDone)) throw new BadRequestException("Es gibt noch nicht abgeschlossene Termine in diesem Monat");
+
             var totalHours = appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours);
 
             var report = new WorkingTimeReport
@@ -67,7 +71,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
                 TotalHours = totalHours
             };
 
-            await workingHoursRepository.AddWorkingTimeReportAsync(report);
+            await workingTimeRepository.AddWorkingTimeReportAsync(report);
         }
     }
 }

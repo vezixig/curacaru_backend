@@ -10,7 +10,7 @@ public class WorkingHoursListRequest(
     Guid companyId,
     string authId,
     int year,
-    int month) : IRequest<List<GetWorkingHoursReportListDto>>
+    int month) : IRequest<List<GetWorkingTimeReportListDto>>
 {
     public string AuthId { get; } = authId;
 
@@ -21,22 +21,22 @@ public class WorkingHoursListRequest(
     public int Year { get; } = year;
 }
 
-internal class WorkingHoursListRequestHandler(IWorkingHoursRepository workingHoursRepository, IEmployeeRepository employeeRepository)
-    : IRequestHandler<WorkingHoursListRequest, List<GetWorkingHoursReportListDto>>
+internal class WorkingHoursListRequestHandler(IWorkingTimeRepository workingTimeRepository, IEmployeeRepository employeeRepository)
+    : IRequestHandler<WorkingHoursListRequest, List<GetWorkingTimeReportListDto>>
 {
-    public async Task<List<GetWorkingHoursReportListDto>> Handle(WorkingHoursListRequest request, CancellationToken cancellationToken)
+    public async Task<List<GetWorkingTimeReportListDto>> Handle(WorkingHoursListRequest request, CancellationToken cancellationToken)
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         var start = new DateOnly(request.Year, request.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
 
-        var workedMonths = await workingHoursRepository.GetWorkedMonthsAsync(
+        var workedMonths = await workingTimeRepository.GetWorkedMonthsAsync(
             request.CompanyId,
             start,
             end,
             user!.IsManager ? null : user.Id);
 
-        var reports = await workingHoursRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, user!.IsManager ? null : user.Id);
+        var reports = await workingTimeRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, user!.IsManager ? null : user.Id);
 
         var employees = await employeeRepository.GetEmployeesAsync(request.CompanyId);
 

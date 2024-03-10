@@ -3,14 +3,14 @@
 using Core.DTO.TimeTracker;
 using Core.Entities;
 
-public interface IWorkingHoursRepository
+public interface IWorkingTimeRepository
 {
     /// <summary>Adds a new working time report.</summary>
     /// <param name="report">The new report.</param>
     /// <returns>An awaitable task object.</returns>
     Task AddWorkingTimeReportAsync(WorkingTimeReport report);
 
-    Task<List<GetWorkingHoursReportListDto>> GetWorkedMonthsAsync(
+    Task<List<GetWorkingTimeReportListDto>> GetWorkedMonthsAsync(
         Guid requestCompanyId,
         DateOnly start,
         DateOnly end,

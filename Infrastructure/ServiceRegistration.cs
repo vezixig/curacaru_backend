@@ -27,7 +27,7 @@ public static class ServiceRegistration
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IInsuranceRepository, InsuranceRepository>();
-        services.AddScoped<IWorkingHoursRepository, WorkingHoursReportRepository>();
+        services.AddScoped<IWorkingTimeRepository, WorkingTimeReportRepository>();
 
         // Add services
         services.AddScoped<IAuthService, AuthService>();

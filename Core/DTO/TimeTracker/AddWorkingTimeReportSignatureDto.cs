@@ -1,6 +1,6 @@
 ﻿namespace Curacaru.Backend.Core.DTO.TimeTracker;
 
-public class AddWorkTimeSignatureDto
+public class AddWorkingTimeReportSignatureDto
 {
     public Guid EmployeeId { get; set; }
 

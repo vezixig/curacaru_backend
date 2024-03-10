@@ -3,9 +3,11 @@
 using System.Text.Json.Serialization;
 using Serializer;
 
-public class GetWorkingHoursDto
+public class GetWorkedHoursDto
 {
     public DateOnly Date { get; set; }
+
+    public bool IsDone { get; set; }
 
     [JsonConverter(typeof(TimeOnlySerializer))]
     public TimeOnly TimeEnd { get; set; }

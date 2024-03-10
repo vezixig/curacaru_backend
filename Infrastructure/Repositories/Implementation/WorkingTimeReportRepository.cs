@@ -4,7 +4,7 @@ using Core.DTO.TimeTracker;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-internal class WorkingHoursReportRepository(DataContext dataContext) : IWorkingHoursRepository
+internal class WorkingTimeReportRepository(DataContext dataContext) : IWorkingTimeRepository
 {
     public Task AddWorkingTimeReportAsync(WorkingTimeReport report)
     {
@@ -12,7 +12,7 @@ internal class WorkingHoursReportRepository(DataContext dataContext) : IWorkingH
         return dataContext.SaveChangesAsync();
     }
 
-    public Task<List<GetWorkingHoursReportListDto>> GetWorkedMonthsAsync(
+    public Task<List<GetWorkingTimeReportListDto>> GetWorkedMonthsAsync(
         Guid requestCompanyId,
         DateOnly start,
         DateOnly end,
@@ -22,7 +22,7 @@ internal class WorkingHoursReportRepository(DataContext dataContext) : IWorkingH
                 o => o.CompanyId == requestCompanyId && o.Date >= start && o.Date <= end && (userId == null || (o.EmployeeReplacementId ?? o.EmployeeId) == userId))
             .GroupBy(o => new { EmployeeId = o.EmployeeReplacementId ?? o.EmployeeId, o.Date.Year, o.Date.Month })
             .Select(
-                o => new GetWorkingHoursReportListDto
+                o => new GetWorkingTimeReportListDto
                 {
                     EmployeeId = o.First().EmployeeReplacementId ?? o.First().EmployeeId,
                     Year = o.Key.Year,
@@ -36,6 +36,7 @@ internal class WorkingHoursReportRepository(DataContext dataContext) : IWorkingH
         int month,
         Guid? userId)
         => dataContext.WorkingTimeReports
+            .Include(o => o.Employee)
             .Where(
                 o => o.CompanyId == requestCompanyId
                      && o.Year == year
