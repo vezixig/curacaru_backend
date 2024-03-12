@@ -50,7 +50,7 @@ public class TimeTrackerEndpoints : EndpointsBase
                     IMediator mediator,
                     ClaimsPrincipal principal,
                     int month,
-                    int year) => await mediator.Send(new WorkingHoursListRequest(GetCompanyId(principal), GetAuthId(principal), month, year)))
+                    int year) => await mediator.Send(new WorkingHoursListRequest(GetCompanyId(principal), GetAuthId(principal), year, month)))
             .RequireAuthorization(Policy.Company);
 
         app.MapPost(

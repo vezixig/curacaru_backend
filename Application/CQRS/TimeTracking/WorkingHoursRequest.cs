@@ -29,7 +29,7 @@ internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepo
     public async Task<List<GetWorkedHoursDto>> Handle(WorkingHoursRequest request, CancellationToken cancellationToken)
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (!user.IsManager && user!.Id != request.EmployeeId) throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
+        if (!user!.IsManager && user!.Id != request.EmployeeId) throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
 
         var workingHours = await appointmentRepository.GetAppointmentsAsync(
             request.CompanyId,
