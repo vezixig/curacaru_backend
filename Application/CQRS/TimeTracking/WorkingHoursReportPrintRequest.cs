@@ -44,6 +44,7 @@ internal class WorkingHoursReportPrintRequestHandler(
         var start = new DateOnly(request.Year, request.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
         var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, request.EmployeeId, null);
+        appointments = appointments.Where(o => o.EmployeeReplacementId == request.EmployeeId || o.EmployeeReplacementId is null).ToList();
 
         return reportService.GenerateWorkingHoursReport(reports[0], appointments);
     }

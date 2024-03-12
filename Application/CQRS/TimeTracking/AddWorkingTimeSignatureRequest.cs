@@ -54,6 +54,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
             var start = new DateOnly(request.Data.Year, request.Data.Month, 1);
             var end = start.AddMonths(1).AddDays(-1);
             var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, user.Id, null);
+            appointments = appointments.Where(o => o.EmployeeReplacementId == user.Id || o.EmployeeReplacementId is null).ToList();
 
             if (appointments.Exists(o => !o.IsDone)) throw new BadRequestException("Es gibt noch nicht abgeschlossene Termine in diesem Monat");
 

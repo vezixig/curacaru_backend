@@ -38,7 +38,8 @@ internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepo
             request.EmployeeId,
             null);
 
-        return workingHours.Select(
+        return workingHours.Where(o => o.EmployeeReplacementId == request.EmployeeId || o.EmployeeReplacementId is null)
+            .Select(
                 wh => new GetWorkedHoursDto
                 {
                     Date = wh.Date,
