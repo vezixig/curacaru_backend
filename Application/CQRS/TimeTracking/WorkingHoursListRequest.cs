@@ -53,6 +53,6 @@ internal class WorkingHoursListRequestHandler(IWorkingTimeRepository workingTime
                 workedMonth.EmployeeName = employees.Find(employee => employee.Id == workedMonth.EmployeeId)!.FullName;
             });
 
-        return workedMonths;
+        return workedMonths.OrderBy(o => o.EmployeeName).ToList();
     }
 }

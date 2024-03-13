@@ -24,7 +24,7 @@ internal class DeleteEmployeeRequestHandler(IAuthService authService, IEmployeeR
         var employee = await employeeRepository.GetEmployeeByIdAsync(user.CompanyId.Value, request.EmployeeId)
                        ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
-        await authService.DeleteUserAsync(employee.AuthId);
         await employeeRepository.DeleteEmployeeAsync(employee);
+        await authService.DeleteUserAsync(employee.AuthId);
     }
 }
