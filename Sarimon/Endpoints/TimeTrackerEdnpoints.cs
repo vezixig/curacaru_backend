@@ -61,5 +61,14 @@ public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
                         AddWorkingTimeReportSignatureDto dto)
                     => await mediator.Send(new AddWorkingTimeSignatureRequest(GetCompanyId(principal), GetAuthId(principal), dto)))
             .RequireAuthorization(Policy.Company);
+
+        app.MapDelete(
+                "work-time/report/{reportId:guid}",
+                async (
+                    IMediator mediator,
+                    ClaimsPrincipal principal,
+                    Guid reportId) => await mediator.Send(new DeleteWorkingTimeReportRequest(GetCompanyId(principal), reportId))
+            )
+            .RequireAuthorization(Policy.Manager);
     }
 }

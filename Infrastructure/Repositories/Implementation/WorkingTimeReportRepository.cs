@@ -12,6 +12,12 @@ internal class WorkingTimeReportRepository(DataContext dataContext) : IWorkingTi
         return dataContext.SaveChangesAsync();
     }
 
+    public Task DeleteWorkingTimeReportAsync(WorkingTimeReport report)
+    {
+        dataContext.WorkingTimeReports.Remove(report);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task<List<GetWorkingTimeReportListDto>> GetWorkedMonthsAsync(
         Guid requestCompanyId,
         DateOnly start,
@@ -29,6 +35,9 @@ internal class WorkingTimeReportRepository(DataContext dataContext) : IWorkingTi
                     Month = o.Key.Month
                 })
             .ToListAsync();
+
+    public Task<WorkingTimeReport?> GetWorkingTimeReportByIdAsync(Guid companyId, Guid reportId)
+        => dataContext.WorkingTimeReports.FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == reportId);
 
     public Task<List<WorkingTimeReport>> GetWorkingTimeReportsAsync(
         Guid requestCompanyId,

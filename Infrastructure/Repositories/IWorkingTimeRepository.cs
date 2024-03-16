@@ -10,11 +10,21 @@ public interface IWorkingTimeRepository
     /// <returns>An awaitable task object.</returns>
     Task AddWorkingTimeReportAsync(WorkingTimeReport report);
 
+    /// <summary>Deletes a working time report.</summary>
+    /// <param name="report">The report to delete.</param>
+    /// <returns>An awaitable task object.</returns>
+    Task DeleteWorkingTimeReportAsync(WorkingTimeReport report);
+
     Task<List<GetWorkingTimeReportListDto>> GetWorkedMonthsAsync(
         Guid requestCompanyId,
         DateOnly start,
         DateOnly end,
         Guid? userId);
+
+    /// <summary>Gets a working time report by its id.</summary>
+    /// <param name="companyId">The company id.</param>
+    /// <param name="reportId">The report id.</param>
+    Task<WorkingTimeReport?> GetWorkingTimeReportByIdAsync(Guid companyId, Guid reportId);
 
     Task<List<WorkingTimeReport>> GetWorkingTimeReportsAsync(
         Guid requestCompanyId,

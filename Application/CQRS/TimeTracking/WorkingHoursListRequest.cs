@@ -51,6 +51,7 @@ internal class WorkingHoursListRequestHandler(IWorkingTimeRepository workingTime
                     _ => WorkingHoursReportStatus.ManagerSigned
                 };
                 workedMonth.EmployeeName = employees.Find(employee => employee.Id == workedMonth.EmployeeId)!.FullName;
+                workedMonth.Id = report?.Id;
             });
 
         return workedMonths.OrderBy(o => o.EmployeeName).ToList();
