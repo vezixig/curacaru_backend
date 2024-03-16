@@ -6,9 +6,9 @@ using Core.DTO.TimeTracker;
 using Core.Enums;
 using MediatR;
 
-public class TimeTrackerEndpoints : EndpointsBase
+public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
 {
-    public void MapTimeTrackerEndpoints(WebApplication app)
+    public void MapEndpoints(WebApplication app)
     {
         app.MapGet(
                 "/work-time/employee/{employeeId:guid}",

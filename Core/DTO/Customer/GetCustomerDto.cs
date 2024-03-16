@@ -9,6 +9,8 @@ using Insurance;
 /// <seealso cref="Customer" />
 public class GetCustomerDto
 {
+    public required GetEmployeeBase AssociatedEmployee { get; set; }
+
     public Guid? AssociatedEmployeeId { get; set; }
 
     public DateOnly BirthDate { get; set; }

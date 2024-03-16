@@ -10,6 +10,8 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of appointments.</summary>
     public DbSet<Appointment> Appointments { get; set; } = null!;
 
+    public DbSet<AssignmentDeclaration> AssignmentDeclarations { get; set; } = null!;
+
     /// <summary>Gets or sets the set of budgets.</summary>
     public DbSet<Budget> Budgets { get; set; } = null!;
 
@@ -70,6 +72,9 @@ internal class DataContext : DbContext
             .HasOne(o => o.EmployeeReplacement)
             .WithMany()
             .HasForeignKey(o => o.EmployeeReplacementId);
+
+        // todo:  assembly  scanning?
+        AssignmentDeclaration.RegisterEntity(modelBuilder);
 
         modelBuilder.Entity<Budget>()
             .HasOne<Company>()

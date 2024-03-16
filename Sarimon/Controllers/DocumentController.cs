@@ -11,13 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class DocumentController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("assignment-declaration/{customerId:guid}/{year:int}")]
-    public async Task<IActionResult> GetDeclarationOfAssignment(Guid customerId, int year)
-    {
-        var report = await mediator.Send(new AssignmentDeclarationRequest(CompanyId, AuthId, customerId, year));
-        return File(report, "application/pdf");
-    }
-
     [HttpGet("deployment/{customerId:guid}/{insuranceStatusId:int}")]
     public async Task<IActionResult> GetProofOfDeployment(
         Guid customerId,

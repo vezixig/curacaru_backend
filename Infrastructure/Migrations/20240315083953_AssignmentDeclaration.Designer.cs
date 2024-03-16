@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240315083953_AssignmentDeclaration")]
+    partial class AssignmentDeclaration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,8 +171,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
 
                     b.HasIndex("CustomerZipCode");
 
@@ -556,19 +557,13 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.AssignmentDeclaration", b =>
                 {
-                    b.HasOne("Curacaru.Backend.Core.Entities.Company", null)
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Curacaru.Backend.Core.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", "CustomerZipCity")
+                    b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", null)
                         .WithMany()
                         .HasForeignKey("CustomerZipCode")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -580,17 +575,13 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", "InsuranceZipCity")
+                    b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", null)
                         .WithMany()
                         .HasForeignKey("InsuranceZipCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
-
-                    b.Navigation("CustomerZipCity");
-
-                    b.Navigation("InsuranceZipCity");
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Budget", b =>

@@ -7,7 +7,7 @@ using Core.Enums;
 public interface IReportService
 {
     /// <summary>Creates a assignment declaration document.</summary>
-    byte[] CreateAssignmentDeclaration(Company company, Customer customer, int year);
+    byte[] CreateAssignmentDeclaration(Company company, AssignmentDeclaration assignmentDeclaration);
 
     /// <summary>Creates a deployment report.</summary>
     byte[] CreateDeploymentReport(Company company, Customer customer, InsuranceStatus insuranceStatus);

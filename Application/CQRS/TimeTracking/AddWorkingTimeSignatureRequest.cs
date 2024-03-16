@@ -56,6 +56,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
             var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, user.Id, null);
             appointments = appointments.Where(o => o.EmployeeReplacementId == user.Id || o.EmployeeReplacementId is null).ToList();
 
+            if (appointments.Count == 0) throw new BadRequestException("Es gibt keine Arbeitszeiten in diesem Monat");
             if (appointments.Exists(o => !o.IsDone)) throw new BadRequestException("Es gibt noch nicht abgeschlossene Termine in diesem Monat");
 
             var totalHours = appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours);

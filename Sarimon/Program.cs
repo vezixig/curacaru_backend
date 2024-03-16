@@ -1,7 +1,7 @@
 using Curacaru.Backend.Application;
-using Curacaru.Backend.Endpoints;
 using Curacaru.Backend.Infrastructure;
 using Curacaru.Backend.Middleware;
+using Curacaru.Backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,9 +65,6 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<CompanyMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
-
-// todo: use assembly scanning to register endpoints
-var timeTrackerEndpoints = new TimeTrackerEndpoints();
-timeTrackerEndpoints.MapTimeTrackerEndpoints(app);
+app.RegisterEndpointsFromAssembly();
 
 app.Run();

@@ -12,10 +12,10 @@ using WorkingTimeReport = Reports.WorkingTimeReport;
 
 public class ReportService : IReportService
 {
-    public byte[] CreateAssignmentDeclaration(Company company, Customer customer, int year)
+    public byte[] CreateAssignmentDeclaration(Company company, AssignmentDeclaration assignmentDeclaration)
     {
         InitFont();
-        var document = DeclarationOfAssignment.Create(company, customer, year);
+        var document = DeclarationOfAssignment.Create(company, assignmentDeclaration);
         return RenderDocument(document);
     }
 

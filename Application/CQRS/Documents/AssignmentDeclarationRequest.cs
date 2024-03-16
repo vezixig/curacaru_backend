@@ -27,6 +27,7 @@ public class AssignmentDeclarationRequest(
 
 internal class AssignmentDeclarationRequestHandler(
     ICompanyRepository companyRepository,
+    IDocumentRepository documentRepository,
     ICustomerRepository customerRepository,
     IEmployeeRepository employeeRepository,
     IReportService reportService) : IRequestHandler<AssignmentDeclarationRequest, byte[]>
@@ -42,8 +43,11 @@ internal class AssignmentDeclarationRequestHandler(
         var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerId)
                        ?? throw new BadRequestException("Kunde existiert nicht.");
 
+        var document = await documentRepository.GetAssignmentDeclarationAsync(request.Year, request.CustomerId)
+                       ?? throw new BadRequestException("Abtretungserklärung existiert nicht.");
+
         if (customer.AssociatedEmployeeId != user.Id && !user.IsManager) throw new ForbiddenException("Diesen Kunden darfst du nicht bearbeiten.");
 
-        return reportService.CreateAssignmentDeclaration(company, customer, request.Year);
+        return reportService.CreateAssignmentDeclaration(company, document);
     }
 }

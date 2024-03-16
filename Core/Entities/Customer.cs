@@ -43,6 +43,8 @@ public class Customer
     /// <summary>Gets or sets the first name.</summary>
     public string FirstName { get; set; } = "";
 
+    public string FullName => $"{FirstName} {LastName}".Trim();
+
     [Key]
     public Guid Id { get; set; }
 
