@@ -1,6 +1,7 @@
 using Curacaru.Backend.Application;
 using Curacaru.Backend.Infrastructure;
 using Curacaru.Backend.Middleware;
+using Curacaru.Backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,5 +65,6 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<CompanyMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.RegisterEndpointsFromAssembly();
 
 app.Run();

@@ -20,7 +20,7 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
 
     public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId)
         => dataContext.Insurances
-            .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == insuranceId);
+            .FirstOrDefaultAsync(o => (o.CompanyId == null || o.CompanyId == companyId) && o.Id == insuranceId);
 
     public Task<List<Insurance>> GetInsurancesAsync(Guid companyId)
         => dataContext.Insurances

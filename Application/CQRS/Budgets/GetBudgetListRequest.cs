@@ -32,6 +32,6 @@ internal class GetBudgetListRequestHandler(
         result.AddRange(customers.Select(o => new GetBudgetListEntryDto { CustomerId = o.Id, CustomerName = $"{o.FirstName} {o.LastName}".Trim() }));
         var pricePerHour = company!.PricePerHour == 0 ? 1 : company.PricePerHour;
         result.ForEach(o => o.RemainingHours = o.TotalAmount / pricePerHour);
-        return result;
+        return result.OrderBy(o => o.CustomerName).ToList();
     }
 }

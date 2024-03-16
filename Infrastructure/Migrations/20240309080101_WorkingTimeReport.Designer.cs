@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240309080101_WorkingTimeReport")]
+    partial class WorkingTimeReport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,95 +95,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.HasIndex("EmployeeReplacementId");
 
                     b.ToTable("Appointments");
-                });
-
-            modelBuilder.Entity("Curacaru.Backend.Core.Entities.AssignmentDeclaration", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CustomerFirstName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CustomerLastName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("CustomerStreet")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("CustomerZipCode")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("character varying(5)");
-
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date");
-
-                    b.Property<Guid>("InsuranceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("InsuranceName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("InsuranceStreet")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("InsuranceZipCode")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("character varying(5)");
-
-                    b.Property<string>("InsuredPersonNumber")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("Signature")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SignatureCity")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<DateOnly>("SignatureDate")
-                        .HasColumnType("date");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("CustomerZipCode");
-
-                    b.HasIndex("InsuranceId");
-
-                    b.HasIndex("InsuranceZipCode");
-
-                    b.HasIndex("CustomerId", "Year")
-                        .IsUnique();
-
-                    b.ToTable("AssignmentDeclarations");
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Budget", b =>
@@ -552,45 +466,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("EmployeeReplacement");
-                });
-
-            modelBuilder.Entity("Curacaru.Backend.Core.Entities.AssignmentDeclaration", b =>
-                {
-                    b.HasOne("Curacaru.Backend.Core.Entities.Company", null)
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Curacaru.Backend.Core.Entities.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", "CustomerZipCity")
-                        .WithMany()
-                        .HasForeignKey("CustomerZipCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Curacaru.Backend.Core.Entities.Insurance", null)
-                        .WithMany()
-                        .HasForeignKey("InsuranceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Curacaru.Backend.Core.Entities.ZipCity", "InsuranceZipCity")
-                        .WithMany()
-                        .HasForeignKey("InsuranceZipCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("CustomerZipCity");
-
-                    b.Navigation("InsuranceZipCity");
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Budget", b =>

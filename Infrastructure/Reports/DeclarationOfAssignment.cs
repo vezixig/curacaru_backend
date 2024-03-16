@@ -5,7 +5,7 @@ using MigraDoc.DocumentObjectModel;
 
 internal static class DeclarationOfAssignment
 {
-    public static Document Create(Company company, Customer customer, int year)
+    public static Document Create(Company company, AssignmentDeclaration data)
     {
         Document document = new();
         document.Info.Title = "Abtretungserklärung";
@@ -16,20 +16,20 @@ internal static class DeclarationOfAssignment
         var section = document.Sections[0];
         section.AddParagraph("Abtretungserklärung", "H1");
 
-        AddCustomerData(document, customer);
+        AddCustomerData(document, data);
 
         section.AddParagraph("Hiermit erteile ich mein Einverständnis, dass das folgende Angebot zur Unterstützung im Alltag:");
 
         AddCompanyData(document, company);
 
         section.AddParagraph(
-            @$"die Leistungen gemäß §45b SGB XI für das Jahr {year} direkt mit meiner Pflegekasse abrechnen darf.
+            @$"die Leistungen gemäß §45b SGB XI für das Jahr {data.Year} direkt mit meiner Pflegekasse abrechnen darf.
 Mit Vorlage einer Rechnung inklusive eines von mir unterschriebenen Einsatznachweises ist das o.g. Angebot zur Unterstützung im Alltag berechtigt, die erbrachten Leistungen abzurechnen.
 Ich erkläre mich zudem damit einverstanden, dass das o.g. Angebot bei meiner Pflegekasse Auskünfte über die zur Verfügung stehenden Leistungen gemäß §45b SGB XI einholen darf.
 Ich habe eine Kopie dieser Abtretungserklärung erhalten.
 ");
 
-        AddSignatureArea(document);
+        AddSignatureArea(document, data);
 
         section.AddParagraph("", "PClose").AddFormattedText("Hinweis:", TextFormat.Bold);
         section.AddParagraph(
@@ -51,7 +51,7 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
         AddLine("Angebots-ID", company.ServiceId);
         AddLine("Datum der Anerkennung", company.RecognitionDate.ToString("dd.MM.yyyy"));
         AddLine("IK-Nummer", company.InstitutionCode);
-        section.AddParagraph("", "PClose");
+        section.LastParagraph!.Format.SpaceAfter = "0.3cm";
 #pragma warning disable S3626
         return;
 #pragma warning restore S3626
@@ -65,7 +65,7 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
         }
     }
 
-    private static void AddCustomerData(Document document, Customer customer)
+    private static void AddCustomerData(Document document, AssignmentDeclaration declaration)
     {
         var section = document.Sections[0];
         var table = section.AddTable();
@@ -76,21 +76,21 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
 
         var row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Name, Vorname", TextFormat.Bold);
-        row.Cells[0].AddParagraph($"{customer.LastName}, {customer.FirstName}");
+        row.Cells[0].AddParagraph($"{declaration.CustomerLastName}, {declaration.CustomerFirstName}");
         row.Cells[2].AddParagraph().AddFormattedText("Geburtsdatum", TextFormat.Bold);
-        row.Cells[2].AddParagraph(customer.BirthDate.ToString("dd.MM.yyyy"));
+        row.Cells[2].AddParagraph(declaration.DateOfBirth.ToString("dd.MM.yyyy"));
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Straße, Hausnr.", TextFormat.Bold);
-        row.Cells[0].AddParagraph(customer.Street);
+        row.Cells[0].AddParagraph(declaration.CustomerStreet);
         row.Cells[1].AddParagraph().AddFormattedText("PLZ", TextFormat.Bold);
-        row.Cells[1].AddParagraph(customer.ZipCode ?? "");
+        row.Cells[1].AddParagraph(declaration.CustomerZipCode ?? "");
         row.Cells[2].AddParagraph().AddFormattedText("Ort", TextFormat.Bold);
-        row.Cells[2].AddParagraph(customer.ZipCity?.City ?? "");
+        row.Cells[2].AddParagraph(declaration.CustomerZipCity?.City ?? "");
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Versichertennummer", TextFormat.Bold);
-        row.Cells[0].AddParagraph(customer.InsuredPersonNumber);
+        row.Cells[0].AddParagraph(declaration.InsuredPersonNumber);
         row.Cells[1].MergeRight = 1;
         row.Cells[1]
             .AddParagraph()
@@ -100,7 +100,7 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Name der Krankenkasse", TextFormat.Bold);
-        row.Cells[0].AddParagraph(customer.Insurance?.Name ?? "");
+        row.Cells[0].AddParagraph(declaration.InsuranceName ?? "");
         row.Cells[1].MergeRight = 1;
         row.Cells[1]
             .AddParagraph()
@@ -109,14 +109,14 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Straße, Hausnr.", TextFormat.Bold);
-        row.Cells[0].AddParagraph(customer.Insurance?.Street ?? "");
+        row.Cells[0].AddParagraph(declaration.InsuranceStreet ?? "");
         row.Cells[1].AddParagraph().AddFormattedText("PLZ", TextFormat.Bold);
-        row.Cells[1].AddParagraph(customer.Insurance?.ZipCode ?? "");
+        row.Cells[1].AddParagraph(declaration.InsuranceZipCode ?? "");
         row.Cells[2].AddParagraph().AddFormattedText("Ort", TextFormat.Bold);
-        row.Cells[2].AddParagraph(customer.Insurance?.ZipCity?.City ?? "");
+        row.Cells[2].AddParagraph(declaration.InsuranceZipCity?.City ?? "");
     }
 
-    private static void AddSignatureArea(Document document)
+    private static void AddSignatureArea(Document document, AssignmentDeclaration data)
     {
         var table = document.Sections[0].AddTable();
         table.AddColumn("3.75cm");
@@ -124,15 +124,22 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
         table.AddColumn("3.75cm");
         table.AddColumn("0.5cm");
         table.AddColumn("8.0cm");
-        table.Rows.Height = "1.2cm";
         var row = table.AddRow();
-        row.Cells[0].AddParagraph().AddFormattedText("Ort", TextFormat.Bold);
-        row.Cells[0].Borders.Bottom.Visible = true;
-        row.Cells[2].AddParagraph().AddFormattedText("Datum", TextFormat.Bold);
-        row.Cells[2].Borders.Bottom.Visible = true;
-        row.Cells[4].AddParagraph().AddFormattedText("Unterschrift", TextFormat.Bold);
-        row.Cells[4].Borders.Bottom.Visible = true;
-        document.Sections[0].AddParagraph("", "PClose");
+        var cell = row.Cells[0].AddParagraph();
+        cell.Format.SpaceAfter = 0;
+        cell.AddFormattedText("Ort", TextFormat.Bold).AddLineBreak();
+        cell.AddFormattedText(data.SignatureCity, TextFormat.NotBold);
+
+        cell = row.Cells[2].AddParagraph();
+        cell.Format.SpaceAfter = 0;
+        cell.AddFormattedText("Datum", TextFormat.Bold).AddLineBreak();
+        cell.AddFormattedText(data.SignatureDate.ToString("dd.MM.yyyy"), TextFormat.NotBold);
+
+        cell = row.Cells[4].AddParagraph();
+        cell.Format.SpaceAfter = 0;
+
+        cell.AddFormattedText("Unterschrift", TextFormat.Bold).AddLineBreak();
+        cell.AddImage(data.Signature![15..].Replace("base64,", "base64:")).Height = 40;
     }
 
     private static void CreatePage(Document document)

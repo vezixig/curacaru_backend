@@ -58,6 +58,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
                      && o.Date < new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
             .ToListAsync();
 
+    public Task<bool> IsAppointmentReplacement(Guid customerId, Guid employeeId)
+        => dataContext.Appointments.AnyAsync(o => o.CustomerId == customerId && o.EmployeeReplacementId != employeeId);
+
     public async Task<Appointment> UpdateAppointmentAsync(Appointment appointment)
     {
         if (appointment.Employee is not null) dataContext.Attach(appointment.Employee);
@@ -68,7 +71,4 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         await dataContext.SaveChangesAsync();
         return dbAppointment.Entity;
     }
-
-    public Task<bool> IsAppointmentReplacement(Guid customerId, Guid employeeId)
-        => dataContext.Appointments.AnyAsync(o => o.CustomerId == customerId && o.EmployeeReplacementId != employeeId);
 }

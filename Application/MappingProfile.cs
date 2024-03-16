@@ -7,6 +7,7 @@ using Core.DTO.Budget;
 using Core.DTO.Company;
 using Core.DTO.Customer;
 using Core.DTO.Insurance;
+using Core.DTO.TimeTracker;
 using Core.Entities;
 
 internal class MappingProfile : Profile
@@ -30,6 +31,8 @@ internal class MappingProfile : Profile
 
         CreateMap<Employee, GetEmployeeBase>()
             .ForMember(o => o.Name, src => src.MapFrom(o => (o.FirstName + " " + o.LastName).Trim()));
+
+        CreateMap<WorkingTimeReport, GetWorkingTimeReportDto>();
     }
 
     private void CreateAppointmentMappings()

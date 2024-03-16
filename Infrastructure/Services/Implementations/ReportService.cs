@@ -8,13 +8,14 @@ using PdfSharp;
 using PdfSharp.Fonts;
 using PdfSharp.Snippets.Font;
 using Reports;
+using WorkingTimeReport = Reports.WorkingTimeReport;
 
 public class ReportService : IReportService
 {
-    public byte[] CreateAssignmentDeclaration(Company company, Customer customer, int year)
+    public byte[] CreateAssignmentDeclaration(Company company, AssignmentDeclaration assignmentDeclaration)
     {
         InitFont();
-        var document = DeclarationOfAssignment.Create(company, customer, year);
+        var document = DeclarationOfAssignment.Create(company, assignmentDeclaration);
         return RenderDocument(document);
     }
 
@@ -22,6 +23,13 @@ public class ReportService : IReportService
     {
         InitFont();
         var document = DeploymentReport.Create(company, customer, insuranceStatus);
+        return RenderDocument(document);
+    }
+
+    public byte[] GenerateWorkingHoursReport(Core.Entities.WorkingTimeReport report, List<Appointment> appointments)
+    {
+        InitFont();
+        var document = WorkingTimeReport.Create(report, appointments);
         return RenderDocument(document);
     }
 

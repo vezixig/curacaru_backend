@@ -27,11 +27,11 @@ public class EmployeeController(ISender mediator) : ControllerBase
         return NoContent();
     }
 
-    [Authorize(Policy = Policy.Manager)]
+    [Authorize(Policy = Policy.Company)]
     [HttpGet("{employeeId}")]
     public async Task<IActionResult> GetEmployee([FromRoute] string employeeId)
     {
-        var employee = await mediator.Send(new EmployeeByIdRequest(CompanyId, employeeId));
+        var employee = await mediator.Send(new EmployeeByIdRequest(CompanyId, AuthId, employeeId));
         return employee == null ? NotFound() : Ok(employee);
     }
 
