@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories;
 
 using Core.Entities;
+using Core.Enums;
 
 /// <summary>Repository for <see cref="Customer" />.</summary>
 public interface ICustomerRepository
@@ -29,8 +30,9 @@ public interface ICustomerRepository
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>
     /// <param name="employeeId">An optional employee id to check access.</param>
+    /// <param name="insuranceStatus">An optional filter for the insurance status.</param>
     /// <returns>A list of customers.</returns>
-    public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null);
+    public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null, InsuranceStatus? insuranceStatus = null);
 
     /// <summary>Updates a customer.</summary>
     /// <param name="customer">The modified customer.</param>

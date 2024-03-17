@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories.Implementation;
 
 using Core.Entities;
+using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
 internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
@@ -33,7 +34,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .ThenInclude(o => o!.ZipCity)
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
 
-    public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null)
+    public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null, InsuranceStatus? insuranceStatus = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -41,6 +42,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .Where(c => c.CompanyId == companyId);
 
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
+
+        if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
 
         return result
             .OrderBy(c => c.LastName)
