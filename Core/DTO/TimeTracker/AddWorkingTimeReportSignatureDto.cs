@@ -10,7 +10,5 @@ public class AddWorkingTimeReportSignatureDto
 
     public string SignatureCity { get; set; } = "";
 
-    public DateOnly SignatureDate { get; set; }
-
     public int Year { get; set; }
 }

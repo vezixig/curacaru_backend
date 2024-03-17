@@ -44,7 +44,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
         {
             existingReport[0].SignatureManager = request.Data.Signature;
             existingReport[0].SignatureManagerCity = request.Data.SignatureCity;
-            existingReport[0].SignatureManagerDate = request.Data.SignatureDate;
+            existingReport[0].SignatureManagerDate = DateOnly.FromDateTime(DateTime.Today);
 
             await workingTimeRepository.UpdateWorkingTimeReportAsync(existingReport[0]);
         }
@@ -69,7 +69,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
                 Year = request.Data.Year,
                 SignatureEmployee = request.Data.Signature,
                 SignatureEmployeeCity = request.Data.SignatureCity,
-                SignatureEmployeeDate = request.Data.SignatureDate,
+                SignatureEmployeeDate = DateOnly.FromDateTime(DateTime.Today),
                 TotalHours = totalHours
             };
 
