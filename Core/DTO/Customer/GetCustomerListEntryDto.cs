@@ -25,12 +25,6 @@ public class GetCustomerListEntryDto
     /// <inheritdoc cref="Customer.LastName" />
     public string LastName { get; set; } = "";
 
-    /// <inheritdoc cref="Customer.Latitude" />
-    public decimal Latitude { get; set; }
-
-    /// <inheritdoc cref="Customer.Longitude" />
-    public decimal Longitude { get; set; }
-
     /// <inheritdoc cref="Customer.Phone" />
     public string Phone { get; set; } = "";
 

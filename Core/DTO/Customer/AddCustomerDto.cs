@@ -11,8 +11,6 @@ public class AddCustomerDto
 
     public int CareLevel { get; set; }
 
-    public List<int> DeclarationsOfAssignment { get; set; } = [];
-
     /// <inheritdoc cref="Customer.DoClearanceCareBenefit" />
     public bool DoClearanceCareBenefit { get; set; }
 
@@ -36,8 +34,6 @@ public class AddCustomerDto
     public InsuranceStatus? InsuranceStatus { get; set; }
 
     public string InsuredPersonNumber { get; set; } = "";
-
-    public bool IsCareContractAvailable { get; set; }
 
     public string LastName { get; set; } = "";
 
