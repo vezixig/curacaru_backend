@@ -12,6 +12,12 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         return dataContext.SaveChangesAsync();
     }
 
+    public Task DeleteAssignmentDeclarationAsync(AssignmentDeclaration assignmentDeclaration)
+    {
+        dataContext.AssignmentDeclarations.Remove(assignmentDeclaration);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task<bool> DoesAssignmentDeclarationExistAsync(Guid customerId, int year)
         => dataContext.AssignmentDeclarations.AnyAsync(o => o.CustomerId == customerId && o.Year == year);
 
@@ -20,6 +26,9 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
             .Include(o => o.CustomerZipCity)
             .Include(o => o.InsuranceZipCity)
             .FirstOrDefaultAsync(o => o.Year == requestYear && o.CustomerId == requestCustomerId);
+
+    public Task<AssignmentDeclaration?> GetAssignmentDeclarationByIdAsync(Guid companyId, Guid assignmentDeclarationId)
+        => dataContext.AssignmentDeclarations.FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == assignmentDeclarationId);
 
     public Task<List<AssignmentDeclaration>> GetAssignmentDeclarationsAsync(
         Guid companyId,

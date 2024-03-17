@@ -12,6 +12,18 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
 {
     public void MapEndpoints(WebApplication app)
     {
+        app.MapDelete(
+                "/documents/assignment-declarations/{id:guid}",
+                async (IMediator Mediator, ClaimsPrincipal principal, Guid id) => await Mediator.Send(
+                    new DeleteAssignmentDeclarationRequest(GetCompanyId(principal), id)))
+            .RequireAuthorization(Policy.Manager)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Deletes an assignment declaration by its id.";
+                    return generatedOperation;
+                });
+
         app.MapGet(
                 "/documents/assignment-declarations/{year:int}",
                 async (
@@ -30,21 +42,6 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                     return generatedOperation;
                 });
 
-        app.MapPost(
-                "/documents/assignment-declarations",
-                async (
-                        IMediator mediator,
-                        ClaimsPrincipal principal,
-                        AddAssignmentDeclarationDto data) =>
-                    await mediator.Send(new AddAssignmentDeclarationRequest(GetCompanyId(principal), GetAuthId(principal), data)))
-            .RequireAuthorization(Policy.Company)
-            .WithOpenApi(
-                generatedOperation =>
-                {
-                    generatedOperation.Description = "Adds a new and signed assignment declaration.";
-                    return generatedOperation;
-                });
-
         app.MapGet(
                 "/documents/assignment-declarations/{year:int}/{customerId:guid}",
                 async (
@@ -60,6 +57,21 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 generatedOperation =>
                 {
                     generatedOperation.Description = "Returns a customer's assignment declaration for the given year.";
+                    return generatedOperation;
+                });
+
+        app.MapPost(
+                "/documents/assignment-declarations",
+                async (
+                        IMediator mediator,
+                        ClaimsPrincipal principal,
+                        AddAssignmentDeclarationDto data) =>
+                    await mediator.Send(new AddAssignmentDeclarationRequest(GetCompanyId(principal), GetAuthId(principal), data)))
+            .RequireAuthorization(Policy.Company)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Adds a new and signed assignment declaration.";
                     return generatedOperation;
                 });
     }
