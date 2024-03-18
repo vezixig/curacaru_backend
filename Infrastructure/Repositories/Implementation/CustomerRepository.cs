@@ -1,9 +1,11 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories.Implementation;
 
+using Core.Attributes;
 using Core.Entities;
 using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
+[Repository]
 internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 {
     public async Task<Customer> AddCustomerAsync(Customer customer)

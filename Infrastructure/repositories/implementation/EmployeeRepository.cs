@@ -1,8 +1,10 @@
 ﻿namespace Curacaru.Backend.Infrastructure.repositories.implementation;
 
+using Core.Attributes;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
+[Repository]
 internal class EmployeeRepository(DataContext dataContext) : IEmployeeRepository
 {
     public async Task<Employee> AddEmployeeAsync(Employee employee)

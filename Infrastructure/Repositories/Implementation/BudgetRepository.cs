@@ -1,8 +1,10 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories.Implementation;
 
+using Core.Attributes;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
+[Repository]
 internal class BudgetRepository(DataContext dataContext) : IBudgetRepository
 {
     public Task AddBudgetAsync(Budget budget)

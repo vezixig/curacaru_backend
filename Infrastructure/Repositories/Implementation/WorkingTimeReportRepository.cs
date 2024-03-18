@@ -1,9 +1,11 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories.Implementation;
 
+using Core.Attributes;
 using Core.DTO.TimeTracker;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
+[Repository]
 internal class WorkingTimeReportRepository(DataContext dataContext) : IWorkingTimeRepository
 {
     public Task AddWorkingTimeReportAsync(WorkingTimeReport report)

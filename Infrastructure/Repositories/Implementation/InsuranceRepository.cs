@@ -1,8 +1,10 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories.Implementation;
 
+using Core.Attributes;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
+[Repository]
 internal class InsuranceRepository(DataContext dataContext) : IInsuranceRepository
 {
     public async Task<Insurance> AddInsuranceAsync(Insurance insurance)
