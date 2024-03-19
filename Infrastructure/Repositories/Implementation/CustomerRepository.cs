@@ -36,7 +36,11 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .ThenInclude(o => o!.ZipCity)
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
 
-    public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null, InsuranceStatus? insuranceStatus = null)
+    public Task<List<Customer>> GetCustomersAsync(
+        Guid companyId,
+        Guid? employeeId = null,
+        InsuranceStatus? insuranceStatus = null,
+        int? requestAssignmentDeclarationYear = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -46,6 +50,9 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
+
+        if (requestAssignmentDeclarationYear.HasValue)
+            result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
 
         return result
             .OrderBy(c => c.LastName)

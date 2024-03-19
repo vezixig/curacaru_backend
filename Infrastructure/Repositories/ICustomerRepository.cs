@@ -31,8 +31,16 @@ public interface ICustomerRepository
     /// <param name="companyId">The company identifier.</param>
     /// <param name="employeeId">An optional employee id to check access.</param>
     /// <param name="insuranceStatus">An optional filter for the insurance status.</param>
+    /// <param name="requestAssignmentDeclarationYear">
+    ///     An optional filter to remove customers that already have an assignment
+    ///     declaration for the provided year.
+    /// </param>
     /// <returns>A list of customers.</returns>
-    public Task<List<Customer>> GetCustomersAsync(Guid companyId, Guid? employeeId = null, InsuranceStatus? insuranceStatus = null);
+    public Task<List<Customer>> GetCustomersAsync(
+        Guid companyId,
+        Guid? employeeId = null,
+        InsuranceStatus? insuranceStatus = null,
+        int? requestAssignmentDeclarationYear = null);
 
     /// <summary>Updates a customer.</summary>
     /// <param name="customer">The modified customer.</param>

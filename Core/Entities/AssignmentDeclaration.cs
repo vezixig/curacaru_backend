@@ -87,7 +87,7 @@ public class AssignmentDeclaration
 
         modelBuilder.Entity<AssignmentDeclaration>()
             .HasOne(o => o.Customer)
-            .WithMany()
+            .WithMany(o => o.AssignmentDeclarations)
             .HasForeignKey(o => o.CustomerId);
 
         modelBuilder.Entity<AssignmentDeclaration>()

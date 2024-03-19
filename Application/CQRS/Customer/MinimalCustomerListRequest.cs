@@ -12,8 +12,11 @@ using MediatR;
 public class MinimalCustomerListRequest(
     Guid companyId,
     string authId,
-    InsuranceStatus? insuranceStatus) : IRequest<List<GetMinimalCustomerListEntryDto>>
+    InsuranceStatus? insuranceStatus,
+    int? assignmentDeclarationYear) : IRequest<List<GetMinimalCustomerListEntryDto>>
 {
+    public int? AssignmentDeclarationYear { get; } = assignmentDeclarationYear;
+
     public string AuthId { get; } = authId;
 
     public Guid CompanyId { get; } = companyId;
@@ -29,7 +32,11 @@ internal class DeploymentsRequestHandler(ICustomerRepository customerRepository,
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId)
                    ?? throw new BadRequestException("Mitarbeiter existiert nicht.");
 
-        var customers = await customerRepository.GetCustomersAsync(request.CompanyId, user!.IsManager ? null : user.Id, request.InsuranceStatus);
+        var customers = await customerRepository.GetCustomersAsync(
+            request.CompanyId,
+            user!.IsManager ? null : user.Id,
+            request.InsuranceStatus,
+            request.AssignmentDeclarationYear);
 
         return mapper.Map<List<GetMinimalCustomerListEntryDto>>(customers);
     }
