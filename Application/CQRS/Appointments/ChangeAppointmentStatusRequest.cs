@@ -41,6 +41,9 @@ internal class FinishAppointmentRequestHandler(
         if (appointment.Date < dateTimeService.BeginOfCurrentMonth && !request.IsDone)
             throw new BadRequestException("Termine vor dem aktuellen Monat können nicht wieder geöffnet werden.");
 
+        if (string.IsNullOrEmpty(appointment.SignatureEmployee) || string.IsNullOrEmpty(appointment.SignatureCustomer))
+            throw new BadRequestException("Der Termin wurde noch nicht von Kunden und Mitarbeiter unterschrieben.");
+
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (user!.Id != appointment.EmployeeId && user.Id != appointment.EmployeeReplacementId && !user.IsManager)
             throw new ForbiddenException("Nur Manager dürfen den Status fremder Termine ändern.");

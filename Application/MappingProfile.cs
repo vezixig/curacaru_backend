@@ -48,7 +48,9 @@ internal class MappingProfile : Profile
                 o => o.EmployeeReplacementName,
                 src => src.MapFrom(o => o.EmployeeReplacement != null ? (o.EmployeeReplacement.FirstName + " " + o.EmployeeReplacement.LastName).Trim() : ""));
 
-        CreateMap<Appointment, GetAppointmentDto>();
+        CreateMap<Appointment, GetAppointmentDto>()
+            .ForMember(o => o.IsSignedByCustomer, src => src.MapFrom(o => !string.IsNullOrEmpty(o.SignatureCustomer)))
+            .ForMember(o => o.IsSignedByEmployee, src => src.MapFrom(o => !string.IsNullOrEmpty(o.SignatureEmployee)));
 
         CreateMap<AddAppointmentDto, Appointment>();
         CreateMap<Appointment, Appointment>();

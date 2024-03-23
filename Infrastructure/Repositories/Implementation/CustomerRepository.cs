@@ -5,6 +5,7 @@ using Core.Entities;
 using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
+#pragma warning disable S6603 - trueForAll is not convertible to sql
 [Repository]
 internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 {
@@ -69,3 +70,4 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         return dataContext.SaveChangesAsync().ContinueWith(_ => result.Entity);
     }
 }
+#pragma warning restore S6603

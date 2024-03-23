@@ -45,10 +45,10 @@ public class GetAppointmentDto
     /// <inheritdoc cref="Appointment.IsPlanned" />
     public bool IsPlanned { get; set; }
 
-    /// <inheritdoc cref="Appointment.IsSignedByCustomer" />
+    /// <summary>Gets or sets a value indicating whether the appointment is signed by the customer.</summary>
     public bool IsSignedByCustomer { get; set; }
 
-    /// <inheritdoc cref="Appointment.IsSignedByEmployee" />
+    /// <summary>Gets or sets a value indicating whether the appointment is signed by the employee.</summary>
     public bool IsSignedByEmployee { get; set; }
 
     /// <inheritdoc cref="Appointment.Notes" />

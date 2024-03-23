@@ -45,8 +45,6 @@ internal class UpdateAppointmentRequestHandler(
         appointment.TimeStart = request.Appointment.TimeStart;
         appointment.ClearanceType = request.Appointment.ClearanceType;
         appointment.DistanceToCustomer = request.Appointment.DistanceToCustomer;
-        appointment.IsSignedByCustomer = request.Appointment.IsSignedByCustomer;
-        appointment.IsSignedByEmployee = request.Appointment.IsSignedByEmployee;
         appointment.IsPlanned = request.Appointment.Date > dateTimeService.EndOfMonth;
 
         appointment.Customer = new() { Id = appointment.CustomerId };

@@ -19,21 +19,35 @@ public class AppointmentController(ISender mediator) : ControllerBase
         return CreatedAtAction(nameof(GetAppointment), new { appointmentId = newAppointment.Id }, newAppointment);
     }
 
-    [HttpDelete("{appointmentId}")]
+    [HttpPost("{appointmentId:guid}/signature/customer")]
+    public async Task<IActionResult> AddCustomerSignature([FromRoute] Guid appointmentId, [FromBody] AddSignatureDto signature)
+    {
+        await mediator.Send(new AddCustomerSignatureToAppointmentRequest(CompanyId, AuthId, appointmentId, signature));
+        return Ok();
+    }
+
+    [HttpPost("{appointmentId:guid}/signature/employee")]
+    public async Task<IActionResult> AddEmployeeSignature([FromRoute] Guid appointmentId, [FromBody] AddSignatureDto signature)
+    {
+        await mediator.Send(new AddEmployeeSignatureToAppointmentRequest(CompanyId, AuthId, appointmentId, signature));
+        return Ok();
+    }
+
+    [HttpDelete("{appointmentId:guid}")]
     public async Task<IActionResult> DeleteAppointment([FromRoute] Guid appointmentId)
     {
         await mediator.Send(new BudgetService(CompanyId, AuthId, appointmentId));
         return NoContent();
     }
 
-    [HttpPost("{appointmentId}/finish")]
+    [HttpPost("{appointmentId:guid}/finish")]
     public async Task<IActionResult> FinishAppointment([FromRoute] Guid appointmentId)
     {
         await mediator.Send(new ChangeAppointmentStatusRequest(CompanyId, AuthId, appointmentId, true));
         return NoContent();
     }
 
-    [HttpGet("{appointmentId}")]
+    [HttpGet("{appointmentId:guid}")]
     public async Task<IActionResult> GetAppointment([FromRoute] Guid appointmentId)
     {
         var appointment = await mediator.Send(new AppointmentByIdRequest(CompanyId, appointmentId));
@@ -47,12 +61,12 @@ public class AppointmentController(ISender mediator) : ControllerBase
         [FromQuery] Guid? employeeId,
         [FromQuery] Guid? customerId)
     {
-        var appointments = await mediator.Send(new AppointmentsRequest(CompanyId, from, to, employeeId, customerId));
+        var appointments = await mediator.Send(new AppointmentsRequest(CompanyId, AuthId, from, to, employeeId, customerId));
         return Ok(appointments);
     }
 
     [Authorize(Policy = Policy.Manager)]
-    [HttpPost("{appointmentId}/reopen")]
+    [HttpPost("{appointmentId:guid}/reopen")]
     public async Task<IActionResult> ReopenAppointment([FromRoute] Guid appointmentId)
     {
         await mediator.Send(new ChangeAppointmentStatusRequest(CompanyId, AuthId, appointmentId, false));
