@@ -2,6 +2,8 @@
 
 using Core.Attributes;
 using Core.Entities;
+using Core.Enums;
+using Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 [Repository]
@@ -32,7 +34,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         DateOnly? from,
         DateOnly? to,
         Guid? employeeId,
-        Guid? customerId)
+        Guid? customerId,
+        ClearanceType? clearanceType = null,
+        bool asTracking = false)
 
     {
         var query = dataContext.Appointments
@@ -42,14 +46,44 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
             .Include(o => o.EmployeeReplacement)
             .Where(o => o.CompanyId == companyId);
 
+        if (asTracking) query = query.AsTracking();
+
         if (from.HasValue) query = query.Where(o => o.Date >= from.Value);
         if (to.HasValue) query = query.Where(o => o.Date <= to.Value);
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
+        if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
 
         query = query.OrderBy(o => o.Date).ThenBy(o => o.TimeStart);
 
         return query.ToListAsync();
+    }
+
+    public Task<List<AppointmentClearance>> GetClearanceTypes(
+        Guid companyId,
+        Guid? customerId,
+        Guid? employeeId,
+        int year,
+        int month)
+    {
+        var query = dataContext.Appointments.Include(o => o.Customer)
+            .Include(o => o.Employee)
+            .Include(o => o.EmployeeReplacement)
+            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month && o.IsDone);
+
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
+        if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
+
+        return query.GroupBy(o => new { o.CustomerId, o.EmployeeId, o.ClearanceType })
+            .Select(
+                o => new AppointmentClearance
+                {
+                    Customer = o.First().Customer,
+                    Employee = o.First().Employee,
+                    ReplacementEmployee = o.Where(p => p.EmployeeReplacement != null).Select(p => p.EmployeeReplacement!).ToList(),
+                    ClearanceType = o.Key.ClearanceType
+                })
+            .ToListAsync();
     }
 
     public Task<List<Appointment>> GetPlannedAppointmentsOfCurrentMonthAsync()

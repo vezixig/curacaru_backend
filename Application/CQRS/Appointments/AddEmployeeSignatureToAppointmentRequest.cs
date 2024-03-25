@@ -4,6 +4,7 @@ using Core.DTO.Appointment;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
 
 /// <summary>Request to add an employee's signature to an appointment.</summary>
@@ -26,7 +27,10 @@ public class AddEmployeeSignatureToAppointmentRequest(
     public AddSignatureDto Signature { get; } = signature;
 }
 
-internal class AddEmployeeSignatureToAppointmentRequestHandler(IEmployeeRepository employeeRepository, IAppointmentRepository appointmentRepository)
+internal class AddEmployeeSignatureToAppointmentRequestHandler(
+    IEmployeeRepository employeeRepository,
+    IAppointmentRepository appointmentRepository,
+    IImageService imageService)
     : IRequestHandler<AddEmployeeSignatureToAppointmentRequest>
 {
     public async Task Handle(AddEmployeeSignatureToAppointmentRequest request, CancellationToken cancellationToken)
@@ -41,7 +45,7 @@ internal class AddEmployeeSignatureToAppointmentRequestHandler(IEmployeeReposito
 
         if (!string.IsNullOrEmpty(appointment.SignatureEmployee)) throw new BadRequestException("Der Termin wurde bereits von einem Mitarbeiter unterschrieben");
 
-        appointment.SignatureEmployee = request.Signature.Signature;
+        appointment.SignatureEmployee = imageService.ReduceImage(request.Signature.Signature);
         await appointmentRepository.UpdateAppointmentAsync(appointment);
     }
 }

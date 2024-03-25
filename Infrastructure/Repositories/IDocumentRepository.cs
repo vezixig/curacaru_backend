@@ -1,12 +1,18 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories;
 
 using Core.Entities;
+using Core.Enums;
 
 public interface IDocumentRepository
 {
     /// <summary>Adds a new assignment declaration to the database.</summary>
     /// <param name="document">The assignment declaration to add.</param>
     Task AddAssignmentDeclarationAsync(AssignmentDeclaration document);
+
+    /// <summary>Adds a new deployment report.</summary>
+    /// <param name="deploymentReport">The report to add.</param>
+    /// <returns>An awaitable task object.</returns>
+    Task AddDeploymentReportAsync(DeploymentReport deploymentReport);
 
     /// <summary>Deletes an assignment declaration from the database.</summary>
     /// <param name="assignmentDeclaration">The assignment declaration to delete.</param>
@@ -18,6 +24,14 @@ public interface IDocumentRepository
     /// <param name="year">The year of the assignment declaration.</param>
     /// <returns>True if the assignment declaration exists, otherwise false.</returns>
     Task<bool> DoesAssignmentDeclarationExistAsync(Guid customerId, int year);
+
+    /// <summary>Checks if a deployment report for the given year and month already exists.</summary>
+    Task<bool> DoesDeploymentReportExistAsync(
+        Guid companyId,
+        Guid customerId,
+        int year,
+        int month,
+        ClearanceType clearanceType);
 
     /// <summary>Gets the assignment declaration for the given year and customer.</summary>
     /// <param name="requestYear">The year of the assignment declaration.</param>
@@ -42,4 +56,13 @@ public interface IDocumentRepository
         int year,
         Guid? customerId,
         Guid? employeeId);
+
+    /// <summary>Gets the deployment reports for the given filters.</summary>
+    Task<List<DeploymentReport>> GetDeploymentReportsAsync(
+        Guid companyId,
+        Guid? customerId,
+        int year,
+        int month,
+        ClearanceType? clearanceType = null,
+        bool includeAppointments = false);
 }

@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Services.Implementations;
 
 using Core.Entities;
-using Core.Enums;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
 using PdfSharp;
@@ -19,10 +18,10 @@ public class ReportService : IReportService
         return RenderDocument(document);
     }
 
-    public byte[] CreateDeploymentReport(Company company, Customer customer, InsuranceStatus insuranceStatus)
+    public byte[] CreateDeploymentReport(Company company, DeploymentReport report)
     {
         InitFont();
-        var document = DeploymentReport.Create(company, customer, insuranceStatus);
+        var document = DeploymentReportDocument.Create(company, report);
         return RenderDocument(document);
     }
 

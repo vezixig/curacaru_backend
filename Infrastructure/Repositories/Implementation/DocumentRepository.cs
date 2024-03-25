@@ -2,6 +2,7 @@
 
 using Core.Attributes;
 using Core.Entities;
+using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
 [Repository]
@@ -14,6 +15,14 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         return dataContext.SaveChangesAsync();
     }
 
+    public Task AddDeploymentReportAsync(DeploymentReport deploymentReport)
+    {
+        dataContext.Attach(deploymentReport.Customer);
+        dataContext.AttachRange(deploymentReport.Appointments);
+        dataContext.DeploymentReports.Add(deploymentReport);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task DeleteAssignmentDeclarationAsync(AssignmentDeclaration assignmentDeclaration)
     {
         dataContext.AssignmentDeclarations.Remove(assignmentDeclaration);
@@ -22,6 +31,15 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
 
     public Task<bool> DoesAssignmentDeclarationExistAsync(Guid customerId, int year)
         => dataContext.AssignmentDeclarations.AnyAsync(o => o.CustomerId == customerId && o.Year == year);
+
+    public Task<bool> DoesDeploymentReportExistAsync(
+        Guid companyId,
+        Guid customerId,
+        int year,
+        int month,
+        ClearanceType clearanceType)
+        => dataContext.DeploymentReports.AnyAsync(
+            o => o.CompanyId == companyId && o.CustomerId == customerId && o.Year == year && o.Month == month && o.ClearanceType == clearanceType);
 
     public Task<AssignmentDeclaration?> GetAssignmentDeclarationAsync(int requestYear, Guid requestCustomerId)
         => dataContext.AssignmentDeclarations
@@ -42,9 +60,35 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
             .Where(o => o.CompanyId == companyId && o.Year == year);
 
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId);
-
         if (employeeId.HasValue) query = query.Where(o => o.Customer.AssociatedEmployeeId == employeeId);
 
+        return query.ToListAsync();
+    }
+
+    public Task<List<DeploymentReport>> GetDeploymentReportsAsync(
+        Guid companyId,
+        Guid? customerId,
+        int year,
+        int month,
+        ClearanceType? clearanceType = null,
+        bool includeAppointments = false)
+    {
+        var query = dataContext.DeploymentReports.Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
+
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId);
+        if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
+
+        if (includeAppointments)
+            query = query.Include(o => o.Appointments)
+                .Include(o => o.Customer)
+                .ThenInclude(o => o.ZipCity)
+                .Include(o => o.Customer.Insurance)
+                .ThenInclude(o => o.ZipCity)
+                .Include(o => o.Appointments)
+                .ThenInclude(o => o.Employee)
+                .Include(o => o.Appointments)
+                .ThenInclude(o => o.EmployeeReplacement);
+        ;
         return query.ToListAsync();
     }
 }

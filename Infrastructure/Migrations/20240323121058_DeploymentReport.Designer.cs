@@ -3,6 +3,7 @@ using System;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240323121058_DeploymentReport")]
+    partial class DeploymentReport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -395,8 +398,14 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Month")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("ReplacementEmployeeId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("SignatureCity")
                         .IsRequired()
@@ -423,6 +432,10 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ReplacementEmployeeId");
 
                     b.HasIndex("CustomerId", "Year", "Month", "ClearanceType")
                         .IsUnique();
@@ -713,7 +726,21 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Curacaru.Backend.Core.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Curacaru.Backend.Core.Entities.Employee", "ReplacementEmployee")
+                        .WithMany()
+                        .HasForeignKey("ReplacementEmployeeId");
+
                     b.Navigation("Customer");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("ReplacementEmployee");
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Employee", b =>

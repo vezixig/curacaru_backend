@@ -21,6 +21,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of customers.</summary>
     public DbSet<Customer> Customers { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of deployment reports.</summary>
+    public DbSet<DeploymentReport> DeploymentReports { get; set; } = null!;
+
     /// <summary>Gets or sets the set of employees.</summary>
     public DbSet<Employee> Employees { get; set; } = null!;
 
@@ -75,6 +78,7 @@ internal class DataContext : DbContext
 
         // todo:  assembly  scanning?
         AssignmentDeclaration.RegisterEntity(modelBuilder);
+        DeploymentReport.RegisterEntity(modelBuilder);
 
         modelBuilder.Entity<Budget>()
             .HasOne<Company>()

@@ -1,6 +1,8 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Repositories;
 
 using Core.Entities;
+using Core.Enums;
+using Core.Models;
 
 /// <summary>Repository for <see cref="Appointment" />.</summary>
 public interface IAppointmentRepository
@@ -27,12 +29,30 @@ public interface IAppointmentRepository
     /// <param name="to">The end date of the appointments.</param>
     /// <param name="employeeId">The id of the employee associated with appointments.</param>
     /// <param name="customerId">The id of the appointment's customer.</param>
+    /// <param name="clearanceType">An optional filter for the clearance type.</param>
+    /// <param name="asTracking">Indicates whether to track the appointments.</param>
     Task<List<Appointment>> GetAppointmentsAsync(
         Guid companyId,
         DateOnly? from,
         DateOnly? to,
         Guid? employeeId,
-        Guid? customerId);
+        Guid? customerId,
+        ClearanceType? clearanceType = null,
+        bool asTracking = false);
+
+    /// <summary>Gets the clearance types of the appointments of the given month and year grouped by employee.</summary>
+    /// <param name="companyId">The id of the company.</param>
+    /// <param name="customerId">An optional customer id.</param>
+    /// <param name="employeeId">An optional employee id.</param>
+    /// <param name="year">The year to filter by.</param>
+    /// <param name="month">The month to filter by.</param>
+    /// <returns></returns>
+    Task<List<AppointmentClearance>> GetClearanceTypes(
+        Guid companyId,
+        Guid? customerId,
+        Guid? employeeId,
+        int year,
+        int month);
 
     /// <summary>Gets all planned appointments of the current month.</summary>
     /// <returns>A list of appointments.</returns>

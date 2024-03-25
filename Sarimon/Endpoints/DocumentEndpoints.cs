@@ -3,6 +3,7 @@
 using System.Security.Claims;
 using Application.CQRS.Documents;
 using Core.DTO.AssignmentDeclaration;
+using Core.DTO.Documents;
 using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,23 @@ using Microsoft.AspNetCore.Mvc;
 public class DocumentEndpoints : EndpointsBase, IEndpoints
 {
     public void MapEndpoints(WebApplication app)
+    {
+        var deploymentReportEndpoints = app.MapGroup("/documents/deployment-reports");
+
+        // Deployment reports
+        MapGetDeploymentReportList(deploymentReportEndpoints);
+        MapGetDeploymentReport(deploymentReportEndpoints);
+        MapGetDeploymentReportDocument(app);
+        MapPostDeploymentReport(deploymentReportEndpoints);
+
+        // Assignment declarations
+        MapDeleteAssignmentDeclaration(app);
+        MapGetAssignmentDeclarationsList(app);
+        MapGetAssignmentDeclarationDocument(app);
+        MapPostAssignmentDeclaration(app);
+    }
+
+    private void MapDeleteAssignmentDeclaration(WebApplication app)
     {
         app.MapDelete(
                 "/documents/assignment-declarations/{id:guid}",
@@ -23,7 +41,32 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                     generatedOperation.Description = "Deletes an assignment declaration by its id.";
                     return generatedOperation;
                 });
+    }
 
+    private void MapGetAssignmentDeclarationDocument(WebApplication app)
+    {
+        app.MapGet(
+                "/documents/assignment-declarations/{year:int}/{customerId:guid}",
+                async (
+                    IMediator mediator,
+                    ClaimsPrincipal principal,
+                    Guid customerId,
+                    int year) =>
+                {
+                    var document = await mediator.Send(new AssignmentDeclarationRequest(GetCompanyId(principal), GetAuthId(principal), customerId, year));
+                    return Results.File(document, "application/pdf");
+                })
+            .RequireAuthorization(Policy.Company)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Returns a customer's assignment declaration for the given year.";
+                    return generatedOperation;
+                });
+    }
+
+    private void MapGetAssignmentDeclarationsList(WebApplication app)
+    {
         app.MapGet(
                 "/documents/assignment-declarations/{year:int}",
                 async (
@@ -41,25 +84,80 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                     generatedOperation.Description = "Gets the list of assignment declarations for the given year and filters optional by employee and/or customer.";
                     return generatedOperation;
                 });
+    }
 
+    private void MapGetDeploymentReport(RouteGroupBuilder deploymentReportEndpoints)
+    {
+        deploymentReportEndpoints.MapGet(
+                "{year:int}/{month:int}/{customerId:guid}/{clearanceType:int}",
+                async (
+                        IMediator mediator,
+                        ClaimsPrincipal principal,
+                        int year,
+                        int month,
+                        Guid customerId,
+                        int clearanceType) =>
+                    await mediator.Send(
+                        new DeploymentReportRequest(GetCompanyId(principal), GetAuthId(principal), customerId, year, month, (ClearanceType)clearanceType)))
+            .RequireAuthorization(Policy.Company)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Returns the deployment report matching the filters or null if none is found.";
+                    return generatedOperation;
+                });
+    }
+
+    private void MapGetDeploymentReportDocument(WebApplication app)
+    {
         app.MapGet(
-                "/documents/assignment-declarations/{year:int}/{customerId:guid}",
+                "/documents/deployment-reports/{year:int}/{month:int}/{customerId:guid}/{clearanceType:int}/document",
                 async (
                     IMediator mediator,
                     ClaimsPrincipal principal,
                     Guid customerId,
-                    int year) =>
+                    int clearanceType,
+                    int year,
+                    int month) =>
                 {
-                    var document = await mediator.Send(new AssignmentDeclarationRequest(GetCompanyId(principal), GetAuthId(principal), customerId, year));
+                    var document = await mediator.Send(
+                        new DeploymentReportDocumentRequest(GetCompanyId(principal), GetAuthId(principal), customerId, (ClearanceType)clearanceType, year, month));
                     return Results.File(document, "application/pdf");
                 })
+            .RequireAuthorization(Policy.Company)
             .WithOpenApi(
                 generatedOperation =>
                 {
-                    generatedOperation.Description = "Returns a customer's assignment declaration for the given year.";
+                    generatedOperation.Description = "Returns the deployment report document for the given customer, clearance type, year and month.";
                     return generatedOperation;
                 });
+    }
 
+    private void MapGetDeploymentReportList(RouteGroupBuilder deploymentReportEndpoints)
+    {
+        deploymentReportEndpoints.MapGet(
+                "{year:int}/{month:int}",
+                async (
+                        IMediator mediator,
+                        ClaimsPrincipal principal,
+                        [FromRoute] int year,
+                        [FromRoute] int month,
+                        [FromQuery] Guid? customerId,
+                        [FromQuery] Guid? employeeId) =>
+                    await mediator.Send(
+                        new DeploymentReportsRequest(GetCompanyId(principal), GetAuthId(principal), year, month, customerId, employeeId)
+                    ))
+            .RequireAuthorization(Policy.Company)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Returns the deployment reports matching the given filters.";
+                    return generatedOperation;
+                });
+    }
+
+    private void MapPostAssignmentDeclaration(WebApplication app)
+    {
         app.MapPost(
                 "/documents/assignment-declarations",
                 async (
@@ -72,6 +170,25 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 generatedOperation =>
                 {
                     generatedOperation.Description = "Adds a new and signed assignment declaration.";
+                    return generatedOperation;
+                });
+    }
+
+    private void MapPostDeploymentReport(RouteGroupBuilder deploymentReportEndpoints)
+    {
+        deploymentReportEndpoints.MapPost(
+                "",
+                async (
+                        IMediator mediator,
+                        ClaimsPrincipal principal,
+                        AddDeploymentReportDto data) =>
+                    await mediator.Send(
+                        new AddDeploymentReportRequest(GetCompanyId(principal), GetAuthId(principal), data)))
+            .RequireAuthorization(Policy.Company)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Adds a new deployment report.";
                     return generatedOperation;
                 });
     }
