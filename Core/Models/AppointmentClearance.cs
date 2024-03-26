@@ -9,7 +9,7 @@ public class AppointmentClearance
 
     public Customer Customer { get; set; }
 
-    public Employee Employee { get; set; }
+    public List<Employee> Employees { get; set; } = [];
 
     public List<Employee> ReplacementEmployee { get; set; } = [];
 }

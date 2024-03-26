@@ -55,12 +55,11 @@ internal class DeploymentReportsRequestHandler(
                     reports.Exists(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType),
                     o.ClearanceType,
                     o.Customer.Id,
-                    o.Employee.Id,
                     request.Month,
                     request.Year,
                     o.Customer.FullName,
-                    o.Employee.FullName,
-                    string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName))))
+                    string.Join(", ", o.Employees.Select(p => p.FullName).Distinct()),
+                    string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName).Distinct())))
             .ToList();
     }
 }

@@ -47,7 +47,7 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
             request.ClearanceType);
 
         return new(
-            EmployeeName: appointments[0].Employee.FullName,
+            EmployeeName: string.Join(", ", appointments.Select(o => o.Employee.FullName).Distinct()),
             IsCreated: doesReportExist,
             HasUnfinishedAppointment: appointments.Exists(o => !o.IsDone),
             ReplacementEmployeeNames: string.Join(
