@@ -5,6 +5,9 @@ using Enums;
 
 public class Customer
 {
+    /// <summary>Gets or sets the appointments of the customer.</summary>
+    public List<Appointment> Appointments { get; set; } = [];
+
     /// <summary>Gets or sets the assignment declarations of the customer.</summary>
     public List<AssignmentDeclaration> AssignmentDeclarations { get; set; } = [];
 

@@ -63,7 +63,7 @@ internal class DataContext : DbContext
 
         modelBuilder.Entity<Appointment>()
             .HasOne(o => o.Customer)
-            .WithMany()
+            .WithMany(o => o.Appointments)
             .HasForeignKey(o => o.CustomerId);
 
         modelBuilder.Entity<Appointment>()

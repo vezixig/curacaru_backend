@@ -48,7 +48,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .Include(o => o.ZipCity)
             .Where(c => c.CompanyId == companyId);
 
-        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
+        if (employeeId.HasValue)
+            result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value || c.Appointments.Any(a => a.EmployeeReplacementId == employeeId));
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
 
