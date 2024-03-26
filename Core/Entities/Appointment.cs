@@ -28,6 +28,9 @@ public class Appointment
     /// <summary>Gets or sets the date of the appointment.</summary>
     public DateOnly Date { get; set; }
 
+    /// <summary>Gets or sets the id of the deployment report.</summary>
+    public Guid? DeploymentReportId { get; set; }
+
     /// <summary>Gets or sets the distance in km to the customer.</summary>
     public int DistanceToCustomer { get; set; }
 

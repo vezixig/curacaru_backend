@@ -29,6 +29,12 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         return dataContext.SaveChangesAsync();
     }
 
+    public Task DeleteDeploymentReportAsync(DeploymentReport deploymentReport)
+    {
+        dataContext.DeploymentReports.Remove(deploymentReport);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task<bool> DoesAssignmentDeclarationExistAsync(Guid customerId, int year)
         => dataContext.AssignmentDeclarations.AnyAsync(o => o.CustomerId == customerId && o.Year == year);
 
@@ -64,6 +70,9 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
 
         return query.ToListAsync();
     }
+
+    public Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId)
+        => dataContext.DeploymentReports.AsTracking().Include(o => o.Appointments).FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == reportId);
 
     public Task<List<DeploymentReport>> GetDeploymentReportsAsync(
         Guid companyId,

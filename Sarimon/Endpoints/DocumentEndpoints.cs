@@ -16,6 +16,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
         var deploymentReportEndpoints = app.MapGroup("/documents/deployment-reports");
 
         // Deployment reports
+        MapDeleteDeploymentReport(deploymentReportEndpoints);
         MapGetDeploymentReportList(deploymentReportEndpoints);
         MapGetDeploymentReport(deploymentReportEndpoints);
         MapGetDeploymentReportDocument(app);
@@ -28,7 +29,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
         MapPostAssignmentDeclaration(app);
     }
 
-    private void MapDeleteAssignmentDeclaration(WebApplication app)
+    private void MapDeleteAssignmentDeclaration(IEndpointRouteBuilder app)
     {
         app.MapDelete(
                 "/documents/assignment-declarations/{id:guid}",
@@ -43,7 +44,22 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapGetAssignmentDeclarationDocument(WebApplication app)
+    private void MapDeleteDeploymentReport(IEndpointRouteBuilder app)
+    {
+        app.MapDelete(
+                "/{id:guid}",
+                async (IMediator Mediator, ClaimsPrincipal principal, Guid id) => await Mediator.Send(
+                    new DeleteDeploymentReportRequest(GetCompanyId(principal), id)))
+            .RequireAuthorization(Policy.Manager)
+            .WithOpenApi(
+                generatedOperation =>
+                {
+                    generatedOperation.Description = "Deletes a deployment report by its id.";
+                    return generatedOperation;
+                });
+    }
+
+    private void MapGetAssignmentDeclarationDocument(IEndpointRouteBuilder app)
     {
         app.MapGet(
                 "/documents/assignment-declarations/{year:int}/{customerId:guid}",
@@ -65,7 +81,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapGetAssignmentDeclarationsList(WebApplication app)
+    private void MapGetAssignmentDeclarationsList(IEndpointRouteBuilder app)
     {
         app.MapGet(
                 "/documents/assignment-declarations/{year:int}",
@@ -86,7 +102,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapGetDeploymentReport(RouteGroupBuilder deploymentReportEndpoints)
+    private void MapGetDeploymentReport(IEndpointRouteBuilder deploymentReportEndpoints)
     {
         deploymentReportEndpoints.MapGet(
                 "{year:int}/{month:int}/{customerId:guid}/{clearanceType:int}",
@@ -108,7 +124,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapGetDeploymentReportDocument(WebApplication app)
+    private void MapGetDeploymentReportDocument(IEndpointRouteBuilder app)
     {
         app.MapGet(
                 "/documents/deployment-reports/{year:int}/{month:int}/{customerId:guid}/{clearanceType:int}/document",
@@ -133,7 +149,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapGetDeploymentReportList(RouteGroupBuilder deploymentReportEndpoints)
+    private void MapGetDeploymentReportList(IEndpointRouteBuilder deploymentReportEndpoints)
     {
         deploymentReportEndpoints.MapGet(
                 "{year:int}/{month:int}",
@@ -156,7 +172,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapPostAssignmentDeclaration(WebApplication app)
+    private void MapPostAssignmentDeclaration(IEndpointRouteBuilder app)
     {
         app.MapPost(
                 "/documents/assignment-declarations",
@@ -174,7 +190,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                 });
     }
 
-    private void MapPostDeploymentReport(RouteGroupBuilder deploymentReportEndpoints)
+    private void MapPostDeploymentReport(IEndpointRouteBuilder deploymentReportEndpoints)
     {
         deploymentReportEndpoints.MapPost(
                 "",

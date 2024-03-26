@@ -4,6 +4,7 @@ using Enums;
 
 public record GetDeploymentReportListEntryDto(
     bool IsCreated,
+    Guid? ReportId,
     ClearanceType ClearanceType,
     Guid CustomerId,
     int Month,

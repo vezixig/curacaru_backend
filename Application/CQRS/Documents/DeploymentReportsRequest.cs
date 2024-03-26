@@ -53,6 +53,7 @@ internal class DeploymentReportsRequestHandler(
         return possibleReports.Select(
                 o => new GetDeploymentReportListEntryDto(
                     reports.Exists(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType),
+                    reports.Find(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType)?.Id,
                     o.ClearanceType,
                     o.Customer.Id,
                     request.Month,

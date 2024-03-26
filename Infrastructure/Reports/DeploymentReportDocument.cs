@@ -109,22 +109,6 @@ internal static class DeploymentReportDocument
         };
 
         document.Sections[0].AddParagraph(clearanceTypeString, "H2");
-
-        //var table = document.Sections[0].AddTable();
-        //table.Format.SpaceBefore = "0.3cm";
-        //table.Format.SpaceAfter = "0.3cm";
-        //table.Borders.Visible = true;
-        //table.AddColumn("2.82cm");
-        //table.AddColumn("6.19cm");
-        //table.AddColumn("6.44cm");
-        //table.AddColumn("9.33cm");
-
-        //var row = table.AddRow();
-        //row.Cells[0].AddParagraph().AddFormattedText("Leistungsart", TextFormat.Bold);
-
-        //row.Cells[1].AddParagraph($"[{(report.ClearanceType == ClearanceType.ReliefAmount ? "X" : " ")}] Entlastungsbetrag § 45b SGB XI");
-        //row.Cells[2].AddParagraph($"[{(report.ClearanceType == ClearanceType.PreventiveCare ? "X" : " ")}] Verhinderungspflege § 39 SGB XI");
-        //row.Cells[3].AddParagraph($"[{(report.ClearanceType == ClearanceType.CareBenefit ? "X" : " ")}] ___% Pflegesachleistungen § 36 SGB XI (max. 40%)");
     }
 
     private static void AddSignatures(Document document, Company company, DeploymentReport report)
@@ -208,24 +192,23 @@ internal static class DeploymentReportDocument
         subHeaderRow.Cells[5].Borders.Top.Visible = false;
         subHeaderRow.Cells[5].Borders.Left.Visible = false;
 
-        for (var i = 0; i < 6; i++)
-            foreach (var appointment in report.Appointments.OrderBy(o => o.Date).ThenBy(o => o.TimeStart))
-            {
-                var row = tableDates.AddRow();
-                row.VerticalAlignment = VerticalAlignment.Center;
-                row.Cells[0].AddParagraph(appointment.Date.ToString("dd.MM.yyyy")).Style = "TdCenter";
-                row.Cells[1].AddParagraph($"{appointment.TimeStart:HH:mm} - {appointment.TimeEnd:HH:mm}").Style = "TdCenter";
-                row.Cells[2].AddParagraph($"{(appointment.TimeEnd - appointment.TimeStart).TotalHours:0.00}").Style = "TdCenter";
+        foreach (var appointment in report.Appointments.OrderBy(o => o.Date).ThenBy(o => o.TimeStart))
+        {
+            var row = tableDates.AddRow();
+            row.VerticalAlignment = VerticalAlignment.Center;
+            row.Cells[0].AddParagraph(appointment.Date.ToString("dd.MM.yyyy")).Style = "TdCenter";
+            row.Cells[1].AddParagraph($"{appointment.TimeStart:HH:mm} - {appointment.TimeEnd:HH:mm}").Style = "TdCenter";
+            row.Cells[2].AddParagraph($"{(appointment.TimeEnd - appointment.TimeStart).TotalHours:0.00}").Style = "TdCenter";
 
-                row.Cells[3].AddParagraph(appointment.EmployeeReplacement?.FullName ?? appointment.Employee.FullName);
-                var signatureEmployee = row.Cells[4].AddParagraph().AddImage(appointment.SignatureEmployee![15..].Replace("base64,", "base64:"));
-                signatureEmployee.Height = 25;
-                signatureEmployee.Width = 100;
+            row.Cells[3].AddParagraph(appointment.EmployeeReplacement?.FullName ?? appointment.Employee.FullName);
+            var signatureEmployee = row.Cells[4].AddParagraph().AddImage(appointment.SignatureEmployee![15..].Replace("base64,", "base64:"));
+            signatureEmployee.Height = 25;
+            signatureEmployee.Width = 100;
 
-                var signatureCustomer = row.Cells[5].AddParagraph().AddImage(appointment.SignatureCustomer![15..].Replace("base64,", "base64:"));
-                signatureCustomer.Height = 25;
-                signatureCustomer.Width = 100;
-            }
+            var signatureCustomer = row.Cells[5].AddParagraph().AddImage(appointment.SignatureCustomer![15..].Replace("base64,", "base64:"));
+            signatureCustomer.Height = 25;
+            signatureCustomer.Width = 100;
+        }
 
         var footerRow = tableDates.AddRow();
         footerRow.VerticalAlignment = VerticalAlignment.Center;

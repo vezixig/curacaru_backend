@@ -50,10 +50,18 @@ internal class FinishAppointmentRequestHandler(
 
         if (!request.IsDone && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen Termine wieder öffnen.");
 
+        if (!request.IsDone && appointment.DeploymentReportId.HasValue)
+            throw new ForbiddenException("Der Termin wurde bereits in einem Einsatznachweis erfasst und darf nicht wieder geöffnet werden.");
+
         appointment.IsDone = request.IsDone;
         appointment.Employee = new() { Id = appointment.EmployeeId };
         appointment.EmployeeReplacement = appointment.EmployeeReplacementId.HasValue ? new Employee { Id = appointment.EmployeeReplacementId!.Value } : null;
         appointment.Customer = new() { Id = appointment.CustomerId };
+        if (!request.IsDone)
+        {
+            appointment.SignatureEmployee = "";
+            appointment.SignatureCustomer = "";
+        }
 
         await appointmentRepository.UpdateAppointmentAsync(appointment);
 

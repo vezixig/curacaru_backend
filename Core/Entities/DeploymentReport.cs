@@ -65,7 +65,8 @@ public class DeploymentReport
 
         modelBuilder.Entity<DeploymentReport>()
             .HasMany(o => o.Appointments)
-            .WithOne();
+            .WithOne()
+            .HasForeignKey(o => o.DeploymentReportId);
 
         // unique constraint
         modelBuilder.Entity<DeploymentReport>()

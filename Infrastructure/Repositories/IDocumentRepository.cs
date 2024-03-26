@@ -19,6 +19,11 @@ public interface IDocumentRepository
     /// <returns>An awaitable task object.</returns>
     Task DeleteAssignmentDeclarationAsync(AssignmentDeclaration assignmentDeclaration);
 
+    /// <summary>Deletes a deployment report.</summary>
+    /// <param name="deploymentReport">The report to delete</param>
+    /// <returns>An awaitable task object.</returns>
+    Task DeleteDeploymentReportAsync(DeploymentReport deploymentReport);
+
     /// <summary>Checks if an assignment declaration for the given year already exists.</summary>
     /// <param name="customerId">The customer id.</param>
     /// <param name="year">The year of the assignment declaration.</param>
@@ -56,6 +61,12 @@ public interface IDocumentRepository
         int year,
         Guid? customerId,
         Guid? employeeId);
+
+    /// <summary>Gets a deployment report by its id.</summary>
+    /// <param name="companyId">The company id.</param>
+    /// <param name="reportId">The id of the deployment report.</param>
+    /// <returns>The deployment report or null if none is found.</returns>
+    Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId);
 
     /// <summary>Gets the deployment reports for the given filters.</summary>
     Task<List<DeploymentReport>> GetDeploymentReportsAsync(
