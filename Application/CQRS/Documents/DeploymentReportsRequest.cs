@@ -34,13 +34,14 @@ internal class DeploymentReportsRequestHandler(
 {
     public async Task<List<GetDeploymentReportListEntryDto>> Handle(DeploymentReportsRequest request, CancellationToken cancellationToken)
     {
+        if (request.Year >= DateTime.Now.Year && request.Month >= DateTime.Now.Month) return [];
+
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
 
-        var employeeId = user!.IsManager ? request.EmployeeId : user.Id;
         var possibleReports = await appointmentRepository.GetClearanceTypes(
             request.CompanyId,
             request.CustomerId,
-            employeeId,
+            request.EmployeeId,
             request.Year,
             request.Month);
 
@@ -49,6 +50,9 @@ internal class DeploymentReportsRequestHandler(
             request.CustomerId,
             request.Year,
             request.Month);
+
+        if (!user!.IsManager)
+            possibleReports = possibleReports.Where(o => o.Employees.Any(p => p.Id == user.Id) || o.ReplacementEmployee.Any(p => p.Id == user.Id)).ToList();
 
         return possibleReports.Select(
                 o => new GetDeploymentReportListEntryDto(

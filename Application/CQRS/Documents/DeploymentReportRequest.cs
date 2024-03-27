@@ -31,6 +31,8 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
 {
     public async Task<GetDeploymentReportDto?> Handle(DeploymentReportRequest request, CancellationToken cancellationToken)
     {
+        if (request.Year >= DateTime.Now.Year && request.Month >= DateTime.Now.Month) return null;
+
         var start = new DateOnly(request.Year, request.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
         var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, null, request.CustomerId, request.ClearanceType);

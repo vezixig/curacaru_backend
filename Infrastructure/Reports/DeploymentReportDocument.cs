@@ -45,9 +45,9 @@ internal static class DeploymentReportDocument
             tableSelfPay.AddColumn("20.0cm");
             var rowSelfPay = tableSelfPay.AddRow();
 
-            var pTop = rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FirstName} {report.Customer.LastName}");
+            var pTop = rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.CustomerName}");
             rowSelfPay.Cells[0].AddParagraph("Geburtsdatum: ").AddText(report.Customer.BirthDate.ToString("dd.MM.yyyy"));
-            var pBottom = rowSelfPay.Cells[0].AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCode} {report.Customer.ZipCity?.City ?? ""}");
+            var pBottom = rowSelfPay.Cells[0].AddParagraph($"Anschrift: {report.CustomerAddress}");
             pBottom.Format.SpaceAfter = "0.3cm";
             return;
         }
@@ -56,20 +56,20 @@ internal static class DeploymentReportDocument
         table.AddColumn("10.0cm");
         table.AddColumn("10.0cm");
         var row = table.AddRow();
-        var p = row.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FirstName} {report.Customer.LastName}");
+        var p = row.Cells[0].AddParagraph($"Name des Kunden: {report.CustomerName}");
         p.Format.SpaceBefore = "0.3cm";
 
         if (report.ClearanceType != ClearanceType.SelfPayment)
         {
-            row.Cells[0].AddParagraph("Krankenkasse: ").AddText(report.Customer.Insurance?.Name ?? "");
-            p = row.Cells[0].AddParagraph($"Versichertennummer: {report.Customer.InsuredPersonNumber}");
+            row.Cells[0].AddParagraph("Krankenkasse: ").AddText(report.InsuranceName);
+            p = row.Cells[0].AddParagraph($"Versichertennummer: {report.InsuredPersonNumber}");
             p.Format.SpaceAfter = "0.3cm";
         }
 
-        p = row.Cells[1].AddParagraph($"Pflegegrad: {report.Customer.CareLevel}");
+        p = row.Cells[1].AddParagraph($"Pflegegrad: {report.CareLevel}");
         p.Format.SpaceBefore = "0.3cm";
         row.Cells[1].AddParagraph("Geburtsdatum: ").AddText(report.Customer.BirthDate.ToString("dd.MM.yyyy"));
-        p = row.Cells[1].AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCode} {report.Customer.ZipCity?.City ?? ""}");
+        p = row.Cells[1].AddParagraph($"Anschrift: {report.CustomerAddress}");
         p.Format.SpaceAfter = "0.3cm";
     }
 

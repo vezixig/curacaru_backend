@@ -1,12 +1,12 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
 using Core.DTO.Documents;
-using Core.Entities;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
+using DeploymentReport = Core.Entities.DeploymentReport;
 
 public class AddDeploymentReportRequest(Guid companyId, string authId, AddDeploymentReportDto report) : IRequest
 {
@@ -19,6 +19,7 @@ public class AddDeploymentReportRequest(Guid companyId, string authId, AddDeploy
 
 internal class AddDeploymentReportRequestHandler(
     IAppointmentRepository appointmentRepository,
+    ICustomerRepository customerRepository,
     IDocumentRepository documentRepository,
     IEmployeeRepository employeeRepository,
     IImageService imageService) : IRequestHandler<AddDeploymentReportRequest>
@@ -44,10 +45,18 @@ internal class AddDeploymentReportRequestHandler(
         if (!appointments.Exists(o => o.EmployeeId == user!.Id || o.EmployeeReplacementId == user.Id))
             throw new ForbiddenException("Du darfst keine Berichte für diesen Kunden erstellen.");
 
+        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Report.CustomerId)
+                       ?? throw new BadRequestException("Kunde existiert nicht.");
+
         var deploymentReport = new DeploymentReport
         {
             CompanyId = request.CompanyId,
             CustomerId = request.Report.CustomerId,
+            CareLevel = customer.CareLevel,
+            CustomerName = customer.FullName,
+            CustomerAddress = $"{customer.Street} · {customer.ZipCode} · {customer.ZipCity?.City}",
+            InsuranceName = customer.Insurance?.Name ?? "",
+            InsuredPersonNumber = customer.InsuredPersonNumber,
             Year = request.Report.Year,
             Month = request.Report.Month,
             ClearanceType = request.Report.ClearanceType,

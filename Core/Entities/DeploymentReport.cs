@@ -10,6 +10,10 @@ public class DeploymentReport
     /// <summary>Gets or sets the associated appointments.</summary>
     public List<Appointment> Appointments { get; set; } = [];
 
+    /// <summary>Gets or sets the care level at the time of creation.</summary>
+    /// <remarks>This is a copy to save the state.</remarks>
+    public int CareLevel { get; set; }
+
     /// <summary>Gets or sets the clearance type of the report.</summary>
     public ClearanceType ClearanceType { get; set; }
 
@@ -19,11 +23,27 @@ public class DeploymentReport
     /// <summary>Gets or sets the customer.</summary>
     public required Customer Customer { get; set; }
 
+    /// <summary>Gets or sets the address of the customer at the time of creation.</summary>
+    /// <remarks>This is a copy to save the state.</remarks>
+    public string CustomerAddress { get; set; } = "";
+
     /// <summary>Gets or sets the customer id.</summary>
     public Guid CustomerId { get; set; }
 
+    /// <summary>Gets or sets the name of the customer at the time of creation.</summary>
+    /// <remarks>This is a copy to save the state.</remarks>
+    public string CustomerName { get; set; } = "";
+
     [Key]
     public Guid Id { get; set; }
+
+    /// <summary>Gets or sets the insurance name at the time of creation.</summary>
+    /// <remarks>This is a copy to save the state.</remarks>
+    public string InsuranceName { get; set; } = "";
+
+    /// <summary>Gets or sets the insurance number at the time of creation.</summary>
+    /// <remarks>This is a copy to save the state.</remarks>
+    public string InsuredPersonNumber { get; set; } = "";
 
     /// <summary>Gets or sets the month of the report.</summary>
     public int Month { get; set; }

@@ -42,12 +42,8 @@ internal class DeploymentReportDocumentRequestHandler(
 {
     public async Task<byte[]> Handle(DeploymentReportDocumentRequest request, CancellationToken cancellationToken)
     {
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerId)
-                       ?? throw new BadRequestException("Kunde existiert nicht.");
-
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
 
-        if (customer.AssociatedEmployeeId != user.Id && !user.IsManager) throw new ForbiddenException("Diesen Kunden darfst du nicht bearbeiten.");
         var report = await documentRepository.GetDeploymentReportsAsync(
             request.CompanyId,
             request.CustomerId,
@@ -56,6 +52,9 @@ internal class DeploymentReportDocumentRequestHandler(
             request.ClearanceType,
             true);
         if (report.Count != 1) throw new BadRequestException("Einsatznachweis existiert nicht.");
+
+        if (!user!.IsManager && !report[0].Appointments.Exists(o => o.EmployeeId == user.Id || o.EmployeeReplacementId == user.Id))
+            throw new ForbiddenException("Du darfst diesen Einsatznachweis nicht herunterladen.");
 
         var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
 
