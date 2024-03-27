@@ -61,17 +61,7 @@ internal class AssignmentDeclarationsRequestHandler(
     private async Task<List<Customer>> GetCustomersAsync(AssignmentDeclarationsRequest request, Employee? user)
     {
         var employeeId = request.EmployeeId ?? (user!.IsManager ? null : user.Id);
-        List<Customer> customers = [];
-        if (request.CustomerId.HasValue)
-        {
-            var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerId.Value, employeeId);
-            if (customer is not null) customers.Add(customer);
-        }
-        else
-        {
-            var customerList = await customerRepository.GetCustomersAsync(request.CompanyId, employeeId);
-            customers.AddRange(customerList);
-        }
+        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.CompanyId, employeeId, request.CustomerId);
 
         return customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
     }

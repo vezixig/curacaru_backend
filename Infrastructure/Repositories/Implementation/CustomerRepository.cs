@@ -41,7 +41,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
-        int? requestAssignmentDeclarationYear = null)
+        int? requestAssignmentDeclarationYear = null,
+        bool includeReplacements = false)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -49,12 +50,30 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .Where(c => c.CompanyId == companyId);
 
         if (employeeId.HasValue)
-            result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value || c.Appointments.Any(a => a.EmployeeReplacementId == employeeId));
+            if (includeReplacements)
+                result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value || c.Appointments.Any(a => a.EmployeeReplacementId == employeeId));
+            else
+                result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
 
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
+
+        return result
+            .OrderBy(c => c.LastName)
+            .ToListAsync();
+    }
+
+    public Task<List<Customer>> GetCustomersForResponsibleEmployee(Guid companyId, Guid? employeeId, Guid? customerId = null)
+    {
+        var result = dataContext.Customers
+            .Include(o => o.AssociatedEmployee)
+            .Include(o => o.ZipCity)
+            .Where(c => c.CompanyId == companyId);
+
+        if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
+        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId);
 
         return result
             .OrderBy(c => c.LastName)
@@ -69,6 +88,21 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 
         var result = dataContext.Customers.Update(customer);
         return dataContext.SaveChangesAsync().ContinueWith(_ => result.Entity);
+    }
+
+    public Task<List<Customer>> GetCustomersForDeploymentReportsAsync(
+        Guid companyId,
+        Guid? employeeId)
+    {
+        var result = dataContext.Customers.Where(o => o.CompanyId == companyId);
+
+        if (employeeId.HasValue)
+            result = result.Where(
+                o => o.AssociatedEmployeeId == employeeId
+                     || o.Appointments.Any(
+                         appointment => appointment.EmployeeId == employeeId || appointment.EmployeeReplacementId == employeeId));
+
+        return result.ToListAsync();
     }
 }
 #pragma warning restore S6603

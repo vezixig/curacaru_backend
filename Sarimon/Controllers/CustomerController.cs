@@ -50,9 +50,20 @@ public class CustomerController(ISender mediator) : ControllerBase
     }
 
     [HttpGet("list/minimal")]
-    public async Task<IActionResult> GetMinimalCustomerList([FromQuery] InsuranceStatus? insuranceStatus, [FromQuery] int? assignmentDeclarationYear)
+    public async Task<IActionResult> GetMinimalCustomerList(
+        [FromQuery] InsuranceStatus? insuranceStatus,
+        [FromQuery] int? assignmentDeclarationYear)
     {
-        var customers = await mediator.Send(new MinimalCustomerListRequest(CompanyId, AuthId, insuranceStatus, assignmentDeclarationYear));
+        var customers = await mediator.Send(
+            new MinimalCustomerListRequest(CompanyId, AuthId, insuranceStatus, assignmentDeclarationYear));
+        return Ok(customers);
+    }
+
+    [HttpGet("list/minimal-deployment-reports")]
+    public async Task<IActionResult> GetMinimalCustomerList()
+    {
+        var customers = await mediator.Send(
+            new MinimalCustomerListForDeploymentReportsRequest(CompanyId, AuthId));
         return Ok(customers);
     }
 

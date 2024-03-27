@@ -40,7 +40,7 @@ internal class AddEmployeeSignatureToAppointmentRequestHandler(
         var appointment = await appointmentRepository.GetAppointmentAsync(request.CompanyId, request.AppointmentId)
                           ?? throw new NotFoundException("Termin nicht gefunden.");
 
-        if (appointment.EmployeeId != user!.Id && appointment.EmployeeReplacementId != user.Id)
+        if ((appointment.EmployeeReplacementId is not null && appointment.EmployeeReplacementId != user!.Id) || appointment.EmployeeId != user.Id)
             throw new BadRequestException("Du darfst diesen Termin nicht unterschreiben");
 
         if (!string.IsNullOrEmpty(appointment.SignatureEmployee)) throw new BadRequestException("Der Termin wurde bereits von einem Mitarbeiter unterschrieben");

@@ -34,7 +34,7 @@ internal class DeploymentReportsRequestHandler(
 {
     public async Task<List<GetDeploymentReportListEntryDto>> Handle(DeploymentReportsRequest request, CancellationToken cancellationToken)
     {
-        if (request.Year >= DateTime.Now.Year && request.Month >= DateTime.Now.Month) return [];
+        if (request.Year >= DateTime.Now.Year && request.Month > DateTime.Now.Month) return [];
 
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
 

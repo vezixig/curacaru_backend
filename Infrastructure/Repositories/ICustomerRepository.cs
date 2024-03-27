@@ -40,7 +40,23 @@ public interface ICustomerRepository
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
-        int? requestAssignmentDeclarationYear = null);
+        int? requestAssignmentDeclarationYear = null,
+        bool includeReplacements = false);
+
+    /// <summary>
+    ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or
+    ///     an existing deployment report.
+    /// </summary>
+    Task<List<Customer>> GetCustomersForDeploymentReportsAsync(
+        Guid requestCompanyId,
+        Guid? employeeId);
+
+    /// <summary>Gets all customers of a company that are assigned to a specific employee.</summary>
+    /// <param name="companyId">The company id.</param>
+    /// <param name="customerId">If set only the customer with the id is returned.</param>
+    /// <param name="employeeId">Can be null for managers to return all customers.</param>
+    /// <returns>A list of customers.</returns>
+    public Task<List<Customer>> GetCustomersForResponsibleEmployee(Guid companyId, Guid? employeeId, Guid? customerId = null);
 
     /// <summary>Updates a customer.</summary>
     /// <param name="customer">The modified customer.</param>

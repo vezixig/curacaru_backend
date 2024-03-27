@@ -20,7 +20,7 @@ public class CustomerListRequestHandler(ICustomerRepository customerRepository, 
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
 
-        var customers = await customerRepository.GetCustomersAsync(request.CompanyId, user!.IsManager ? null : user.Id);
+        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.CompanyId, user!.IsManager ? null : user.Id);
         return mapper.Map<List<GetCustomerListEntryDto>>(customers);
     }
 }

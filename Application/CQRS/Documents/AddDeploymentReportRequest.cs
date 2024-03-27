@@ -65,7 +65,7 @@ internal class AddDeploymentReportRequestHandler(
             SignatureEmployee = imageService.ReduceImage(request.Report.SignatureEmployee),
             Customer = appointments[0].Customer,
             WorkedHours = appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours),
-            SignatureDate = new(request.Report.Year, request.Report.Month, 1),
+            SignatureDate = DateOnly.FromDateTime(DateTime.Today),
             Appointments = appointments
         };
 
