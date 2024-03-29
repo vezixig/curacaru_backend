@@ -6,11 +6,13 @@ using Core.Exceptions;
 using Infrastructure.repositories;
 using MediatR;
 
-public class UpdateEmployeeRequest(Guid companyId, UpdateEmployeeDto employee) : IRequest<Employee>
+public class UpdateEmployeeRequest(Guid companyId, Guid userId, UpdateEmployeeDto employee) : IRequest<Employee>
 {
     public Guid CompanyId { get; } = companyId;
 
     public UpdateEmployeeDto Employee { get; } = employee;
+
+    public Guid UserId { get; } = userId;
 }
 
 internal class UpdateEmployeeRequestHandler(IEmployeeRepository employeeRepository) : IRequestHandler<UpdateEmployeeRequest, Employee>
@@ -19,6 +21,8 @@ internal class UpdateEmployeeRequestHandler(IEmployeeRepository employeeReposito
     {
         var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Employee.Id)
                               ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
+
+        if (currentEmployee.Id == request.UserId) throw new NotFoundException("Du darfst deine eigene Rolle nicht ändern.");
 
         currentEmployee.Email = request.Employee.Email;
         currentEmployee.FirstName = request.Employee.FirstName;

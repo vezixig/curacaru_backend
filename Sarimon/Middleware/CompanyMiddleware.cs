@@ -2,6 +2,7 @@
 
 using System.Security.Authentication;
 using System.Security.Claims;
+using Core;
 using Infrastructure.repositories;
 
 public class CompanyMiddleware : IMiddleware
@@ -23,8 +24,9 @@ public class CompanyMiddleware : IMiddleware
                 var employee = await employeeRepository.GetEmployeeByAuthIdAsync(userIdClaim.Value);
                 if (employee != null)
                 {
-                    if (employee.CompanyId != null) identity.AddClaim(new("CompanyId", employee.CompanyId.ToString()!));
-                    if (employee.IsManager) identity.AddClaim(new("Manager", ""));
+                    if (employee.CompanyId != null) identity.AddClaim(new(Constants.Claims.CompanyId, employee.CompanyId.ToString()!));
+                    if (employee.IsManager) identity.AddClaim(new(Constants.Claims.Manager, ""));
+                    identity.AddClaim(new(Constants.Claims.UserId, employee.Id.ToString()));
                 }
             }
         }

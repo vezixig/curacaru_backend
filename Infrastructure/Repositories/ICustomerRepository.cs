@@ -40,8 +40,7 @@ public interface ICustomerRepository
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
-        int? requestAssignmentDeclarationYear = null,
-        bool includeReplacements = false);
+        int? requestAssignmentDeclarationYear = null);
 
     /// <summary>
     ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or

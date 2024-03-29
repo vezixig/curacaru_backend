@@ -62,7 +62,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateEmployee([FromBody] UpdateEmployeeDto employee)
     {
-        var updatedEmployee = await mediator.Send(new UpdateEmployeeRequest(CompanyId, employee));
+        var updatedEmployee = await mediator.Send(new UpdateEmployeeRequest(CompanyId, UserId, employee));
         return Ok(updatedEmployee);
     }
 }
