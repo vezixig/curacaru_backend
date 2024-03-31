@@ -6,6 +6,7 @@ using Core.Enums;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
 
 /// <summary>Request to add a new and signed assignment declaration.</summary>
@@ -25,6 +26,7 @@ internal class AddAssignmentDeclarationRequestHandler(
     IEmployeeRepository employeeRepository,
     ICustomerRepository customerRepository,
     IDocumentRepository documentRepository,
+    IImageService imageService,
     IInsuranceRepository insuranceRepository) : IRequestHandler<AddAssignmentDeclarationRequest>
 {
     public async Task Handle(AddAssignmentDeclarationRequest request, CancellationToken cancellationToken)
@@ -65,7 +67,7 @@ internal class AddAssignmentDeclarationRequestHandler(
             InsuranceZipCode = insurance.ZipCode,
             InsuranceZipCity = insurance.ZipCity!,
             InsuredPersonNumber = customer.InsuredPersonNumber,
-            Signature = request.Document.Signature,
+            Signature = imageService.ReduceImage(request.Document.Signature),
             SignatureCity = request.Document.SignatureCity,
             SignatureDate = DateOnly.FromDateTime(DateTime.Today),
             Year = request.Document.Year
