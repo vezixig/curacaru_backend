@@ -22,7 +22,7 @@ internal static class DeploymentReportDocument
             .AddParagraph($"Einsatznachweis {CultureInfo.GetCultureInfo("de", "DE").DateTimeFormat.GetMonthName(report.Month)} {report.Year}", "H1")
             .Format.SpaceAfter = "0.3cm";
 
-        if (report.ClearanceType != ClearanceType.SelfPayment) AddServiceType(document, report);
+        if (report.ClearanceType != ClearanceType.SelfPayment) document.Sections[0].AddParagraph(report.ClearanceType.ToFriendlyString(), "H2");
 
         AddCustomerInfo(document, report);
         AddTimeTable(document, report);
@@ -61,7 +61,7 @@ internal static class DeploymentReportDocument
 
         if (report.ClearanceType != ClearanceType.SelfPayment)
         {
-            row.Cells[0].AddParagraph("Krankenkasse: ").AddText(report.InsuranceName);
+            row.Cells[0].AddParagraph("Krankenkasse: ").AddText(report.Insurance.Name);
             p = row.Cells[0].AddParagraph($"Versichertennummer: {report.InsuredPersonNumber}");
             p.Format.SpaceAfter = "0.3cm";
         }
@@ -96,19 +96,6 @@ internal static class DeploymentReportDocument
                 $"Adresse: {(!string.IsNullOrEmpty(company.OwnerName) ? $"{company.OwnerName} · " : "")} {company.Street} · {company.ZipCode} {company.ZipCity?.City}",
                 "Table");
         row2.Cells[1].AddParagraph().AddFormattedText($"IK-Nummer: {company.InstitutionCode}", "Table");
-    }
-
-    private static void AddServiceType(Document document, DeploymentReport report)
-    {
-        var clearanceTypeString = report.ClearanceType switch
-        {
-            ClearanceType.ReliefAmount => "Entlastungsbetrag § 45b SGB XI",
-            ClearanceType.PreventiveCare => "Verhinderungspflege § 39 SGB XI",
-            ClearanceType.CareBenefit => "Pflegesachleistungen § 36 SGB XI (max. 40%)",
-            _ => throw new ArgumentOutOfRangeException(nameof(report))
-        };
-
-        document.Sections[0].AddParagraph(clearanceTypeString, "H2");
     }
 
     private static void AddSignatures(Document document, Company company, DeploymentReport report)

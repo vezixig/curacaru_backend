@@ -30,14 +30,6 @@ public interface IDocumentRepository
     /// <returns>True if the assignment declaration exists, otherwise false.</returns>
     Task<bool> DoesAssignmentDeclarationExistAsync(Guid customerId, int year);
 
-    /// <summary>Checks if a deployment report for the given year and month already exists.</summary>
-    Task<bool> DoesDeploymentReportExistAsync(
-        Guid companyId,
-        Guid customerId,
-        int year,
-        int month,
-        ClearanceType clearanceType);
-
     /// <summary>Gets the assignment declaration for the given year and customer.</summary>
     /// <param name="requestYear">The year of the assignment declaration.</param>
     /// <param name="requestCustomerId">The id of the customer.</param>
@@ -67,6 +59,14 @@ public interface IDocumentRepository
     /// <param name="reportId">The id of the deployment report.</param>
     /// <returns>The deployment report or null if none is found.</returns>
     Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId);
+
+    /// <summary>Checks if a deployment report for the given year and month already exists.</summary>
+    Task<Guid?> GetDeploymentReportId(
+        Guid companyId,
+        Guid customerId,
+        int year,
+        int month,
+        ClearanceType clearanceType);
 
     /// <summary>Gets the deployment reports for the given filters.</summary>
     Task<List<DeploymentReport>> GetDeploymentReportsAsync(

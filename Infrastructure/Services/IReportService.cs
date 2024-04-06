@@ -11,6 +11,9 @@ public interface IReportService
     /// <summary>Creates a deployment report.</summary>
     byte[] CreateDeploymentReport(Company company, DeploymentReport report);
 
+    /// <summary>Creates an invoice document.</summary>
+    byte[] CreateInvoiceDocument(Company company, Invoice invoice);
+
     /// <summary>Generates a working time report.</summary>
     byte[] GenerateWorkingHoursReport(WorkingTimeReport report, List<Appointment> appointments);
 }

@@ -3,6 +3,7 @@ using System;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240406075648_DeploymentReportInsuranceStatus")]
+    partial class DeploymentReportInsuranceStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -409,8 +412,9 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("InsuranceId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("InsuranceName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("InsuredPersonNumber")
                         .IsRequired()
@@ -444,8 +448,6 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("InsuranceId");
 
                     b.HasIndex("CustomerId", "Year", "Month", "ClearanceType")
                         .IsUnique();
@@ -793,13 +795,7 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Curacaru.Backend.Core.Entities.Insurance", "Insurance")
-                        .WithMany()
-                        .HasForeignKey("InsuranceId");
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Insurance");
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Employee", b =>

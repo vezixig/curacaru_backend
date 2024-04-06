@@ -30,6 +30,9 @@ public class DeploymentReport
     /// <summary>Gets or sets the customer id.</summary>
     public Guid CustomerId { get; set; }
 
+    /// <summary>Gets or sets the customer's insurance status at the time of creation.</summary>
+    public InsuranceStatus? CustomerInsuranceStatus { get; set; }
+
     /// <summary>Gets or sets the name of the customer at the time of creation.</summary>
     /// <remarks>This is a copy to save the state.</remarks>
     public string CustomerName { get; set; } = "";
@@ -37,13 +40,18 @@ public class DeploymentReport
     [Key]
     public Guid Id { get; set; }
 
-    /// <summary>Gets or sets the insurance name at the time of creation.</summary>
-    /// <remarks>This is a copy to save the state.</remarks>
-    public string InsuranceName { get; set; } = "";
+    /// <summary>Gets or sets the insurance at the time of creation.</summary>
+    public required Insurance? Insurance { get; set; }
+
+    /// <summary>Gets or sets the insurance id.</summary>
+    public Guid? InsuranceId { get; set; }
 
     /// <summary>Gets or sets the insurance number at the time of creation.</summary>
     /// <remarks>This is a copy to save the state.</remarks>
     public string InsuredPersonNumber { get; set; } = "";
+
+    /// <summary>Gets or sets the invoice for the report. Null if not created yet.</summary>
+    public Invoice? Invoice { get; set; }
 
     /// <summary>Gets or sets the month of the report.</summary>
     public int Month { get; set; }
@@ -77,6 +85,11 @@ public class DeploymentReport
             .HasOne<Company>()
             .WithMany()
             .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<DeploymentReport>()
+            .HasOne(o => o.Insurance)
+            .WithMany()
+            .HasForeignKey(o => o.InsuranceId);
 
         modelBuilder.Entity<DeploymentReport>()
             .HasOne(o => o.Customer)

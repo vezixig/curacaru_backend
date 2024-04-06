@@ -41,7 +41,7 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
 
         appointments = appointments.OrderBy(o => o.Date).ThenBy(o => o.TimeStart).ToList();
 
-        var doesReportExist = await documentRepository.DoesDeploymentReportExistAsync(
+        var deploymentReport = await documentRepository.GetDeploymentReportsAsync(
             request.CompanyId,
             request.CustomerId,
             request.Year,
@@ -50,13 +50,17 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
 
         return new(
             EmployeeName: string.Join(", ", appointments.Select(o => o.Employee.FullName).Distinct()),
-            IsCreated: doesReportExist,
+            IsCreated: deploymentReport.Count == 1,
             HasUnfinishedAppointment: appointments.Exists(o => !o.IsDone),
             ReplacementEmployeeNames: string.Join(
                 ", ",
                 appointments.Where(o => o.EmployeeReplacement != null).Select(o => o.EmployeeReplacement.FullName).Distinct()),
-            Times: appointments.Select(o => new GetDeploymentReportTimeDto(o.Date, o.TimeStart, o.TimeEnd, (o.TimeEnd - o.TimeStart).TotalHours)).ToList(),
-            TotalDuration: appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours)
+            ReportId: deploymentReport.FirstOrDefault()?.Id,
+            Times: appointments.Select(
+                    o => new GetDeploymentReportTimeDto(o.Date, o.TimeStart, o.TimeEnd, (o.TimeEnd - o.TimeStart).TotalHours, o.DistanceToCustomer))
+                .ToList(),
+            TotalDuration: appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours),
+            HasInvoice: deploymentReport.FirstOrDefault()?.Invoice is not null
         );
     }
 }

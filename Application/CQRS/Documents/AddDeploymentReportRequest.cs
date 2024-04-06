@@ -50,23 +50,25 @@ internal class AddDeploymentReportRequestHandler(
 
         var deploymentReport = new DeploymentReport
         {
-            CompanyId = request.CompanyId,
-            CustomerId = request.Report.CustomerId,
+            Appointments = appointments,
             CareLevel = customer.CareLevel,
-            CustomerName = customer.FullName,
-            CustomerAddress = $"{customer.Street} · {customer.ZipCode} · {customer.ZipCity?.City}",
-            InsuranceName = customer.Insurance?.Name ?? "",
-            InsuredPersonNumber = customer.InsuredPersonNumber,
-            Year = request.Report.Year,
-            Month = request.Report.Month,
             ClearanceType = request.Report.ClearanceType,
+            CompanyId = request.CompanyId,
+            Customer = appointments[0].Customer,
+            CustomerAddress = $"{customer.Street} · {customer.ZipCode} · {customer.ZipCity?.City}",
+            CustomerId = request.Report.CustomerId,
+            CustomerInsuranceStatus = customer.InsuranceStatus,
+            CustomerName = customer.FullName,
+            Insurance = customer.Insurance,
+            InsuranceId = customer.InsuranceId,
+            InsuredPersonNumber = customer.InsuredPersonNumber,
+            Month = request.Report.Month,
             SignatureCity = request.Report.SignatureCity,
             SignatureCustomer = imageService.ReduceImage(request.Report.SignatureCustomer),
-            SignatureEmployee = imageService.ReduceImage(request.Report.SignatureEmployee),
-            Customer = appointments[0].Customer,
-            WorkedHours = appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours),
             SignatureDate = DateOnly.FromDateTime(DateTime.Today),
-            Appointments = appointments
+            SignatureEmployee = imageService.ReduceImage(request.Report.SignatureEmployee),
+            WorkedHours = appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours),
+            Year = request.Report.Year
         };
 
         await documentRepository.AddDeploymentReportAsync(deploymentReport);

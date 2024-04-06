@@ -2,6 +2,7 @@
 
 using System.Security.Authentication;
 using System.Security.Claims;
+using Core;
 
 /// <summary>Base class for all endpoints classes.</summary>
 public class EndpointsBase
@@ -16,4 +17,10 @@ public class EndpointsBase
         => claimsPrincipal.Claims.Any(o => o.Type == "CompanyId")
             ? Guid.Parse(claimsPrincipal.Claims.First(o => o.Type == "CompanyId").Value)
             : throw new AuthenticationException("User is not associated with a company.");
+
+    /// <summary>Gets the user id.</summary>
+    public Guid GetUserId(ClaimsPrincipal claimsPrincipal)
+        => claimsPrincipal.Claims.Any(o => o.Type == Constants.Claims.UserId)
+            ? Guid.Parse(claimsPrincipal.Claims.First(o => o.Type == Constants.Claims.UserId).Value)
+            : throw new AuthenticationException("User does not exist.");
 }

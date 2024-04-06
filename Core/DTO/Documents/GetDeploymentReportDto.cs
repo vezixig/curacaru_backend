@@ -5,7 +5,9 @@ public record GetDeploymentReportDto(
     bool HasUnfinishedAppointment,
     string EmployeeName,
     string ReplacementEmployeeNames,
+    Guid? ReportId,
     List<GetDeploymentReportTimeDto> Times,
-    double TotalDuration)
+    double TotalDuration,
+    bool HasInvoice)
 {
 }

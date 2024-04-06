@@ -11,3 +11,13 @@ public enum Gender
     [Description("male")]
     Male = 1
 }
+
+public static class GenderExtensions
+{
+    public static string ToFriendlyString(this Gender gender)
+        => gender switch
+        {
+            Gender.Female => "Frau",
+            Gender.Male => "Herr"
+        };
+}

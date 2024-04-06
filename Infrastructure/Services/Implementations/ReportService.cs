@@ -25,6 +25,13 @@ public class ReportService : IReportService
         return RenderDocument(document);
     }
 
+    public byte[] CreateInvoiceDocument(Company company, Invoice invoice)
+    {
+        InitFont();
+        var document = InvoiceDocument.Create(company, invoice);
+        return RenderDocument(document);
+    }
+
     public byte[] GenerateWorkingHoursReport(Core.Entities.WorkingTimeReport report, List<Appointment> appointments)
     {
         InitFont();

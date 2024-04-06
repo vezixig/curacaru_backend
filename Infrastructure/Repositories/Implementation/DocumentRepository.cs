@@ -19,6 +19,7 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
     {
         dataContext.Attach(deploymentReport.Customer);
         dataContext.AttachRange(deploymentReport.Appointments);
+        if (deploymentReport.Insurance != null) dataContext.Attach(deploymentReport.Insurance);
         dataContext.DeploymentReports.Add(deploymentReport);
         return dataContext.SaveChangesAsync();
     }
@@ -37,15 +38,6 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
 
     public Task<bool> DoesAssignmentDeclarationExistAsync(Guid customerId, int year)
         => dataContext.AssignmentDeclarations.AnyAsync(o => o.CustomerId == customerId && o.Year == year);
-
-    public Task<bool> DoesDeploymentReportExistAsync(
-        Guid companyId,
-        Guid customerId,
-        int year,
-        int month,
-        ClearanceType clearanceType)
-        => dataContext.DeploymentReports.AnyAsync(
-            o => o.CompanyId == companyId && o.CustomerId == customerId && o.Year == year && o.Month == month && o.ClearanceType == clearanceType);
 
     public Task<AssignmentDeclaration?> GetAssignmentDeclarationAsync(int requestYear, Guid requestCustomerId)
         => dataContext.AssignmentDeclarations
@@ -74,6 +66,15 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
     public Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId)
         => dataContext.DeploymentReports.AsTracking().Include(o => o.Appointments).FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == reportId);
 
+    public async Task<Guid?> GetDeploymentReportId(
+        Guid companyId,
+        Guid customerId,
+        int year,
+        int month,
+        ClearanceType clearanceType)
+        => (await dataContext.DeploymentReports.FirstOrDefaultAsync(
+            o => o.CompanyId == companyId && o.CustomerId == customerId && o.Year == year && o.Month == month && o.ClearanceType == clearanceType))?.Id;
+
     public Task<List<DeploymentReport>> GetDeploymentReportsAsync(
         Guid companyId,
         Guid? customerId,
@@ -82,7 +83,7 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         ClearanceType? clearanceType = null,
         bool includeAppointments = false)
     {
-        var query = dataContext.DeploymentReports.Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
+        var query = dataContext.DeploymentReports.Include(o => o.Invoice).Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
 
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId);
         if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);

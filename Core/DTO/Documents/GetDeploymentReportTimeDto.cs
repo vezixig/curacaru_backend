@@ -4,6 +4,7 @@ public record GetDeploymentReportTimeDto(
     DateOnly Date,
     TimeOnly Start,
     TimeOnly End,
-    double Duration)
+    double Duration,
+    decimal Distance)
 {
 }

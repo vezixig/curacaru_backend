@@ -30,6 +30,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of insurances.</summary>
     public DbSet<Insurance> Insurances { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of invoices.</summary>
+    public DbSet<Invoice> Invoices { get; set; } = null!;
+
     /// <summary>Gets or sets the set of working time reports.</summary>
     public DbSet<WorkingTimeReport> WorkingTimeReports { get; set; } = null!;
 
@@ -79,6 +82,7 @@ internal class DataContext : DbContext
         // todo:  assembly  scanning?
         AssignmentDeclaration.RegisterEntity(modelBuilder);
         DeploymentReport.RegisterEntity(modelBuilder);
+        Invoice.RegisterEntity(modelBuilder);
 
         modelBuilder.Entity<Budget>()
             .HasOne<Company>()
