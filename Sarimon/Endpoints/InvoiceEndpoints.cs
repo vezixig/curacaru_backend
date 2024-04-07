@@ -11,12 +11,13 @@ public class InvoiceEndpoints : EndpointsBase, IEndpoints
     public void MapEndpoints(WebApplication app)
     {
         app.MapGet(
-                "/invoices/{year:int}/{month:int}",
+                "/invoices/{year:int}/{month:int}/{customerId:guid?}",
                 async (
                     IMediator mediator,
                     ClaimsPrincipal principal,
                     int year,
-                    int month) => await mediator.Send(new InvoiceListRequest(GetCompanyId(principal), year, month)))
+                    int month,
+                    Guid? customerId) => await mediator.Send(new InvoiceListRequest(GetCompanyId(principal), year, month, customerId)))
             .RequireAuthorization(Policy.Manager);
 
         app.MapGet(

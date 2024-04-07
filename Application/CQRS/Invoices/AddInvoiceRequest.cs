@@ -62,7 +62,7 @@ internal class AddInvoiceRequestHandler(
             TotalRideCosts = rideCosts,
             WorkedHours = (decimal)deploymentReport.Appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours)
         };
-        invoice.InvoiceTotal = invoice.WorkedHours * invoice.HourlyRate + invoice.RideCosts;
+        invoice.InvoiceTotal = invoice.WorkedHours * invoice.HourlyRate + invoice.TotalRideCosts;
 
         await invoiceRepository.AddInvoiceAsync(invoice);
     }

@@ -117,7 +117,8 @@ internal static class InvoiceDocument
         sender.Format.SpaceBefore = "1.5cm";
         sender.AddFormattedText($"{company.Name} · {company.Street} · {company.ZipCode} {company.ZipCity?.City}", TextFormat.Underline);
 
-        if (invoice.DeploymentReport is { CustomerInsuranceStatus: InsuranceStatus.Statutory, Insurance: not null })
+        if (invoice.DeploymentReport is { CustomerInsuranceStatus: InsuranceStatus.Statutory, Insurance: not null }
+            && invoice.DeploymentReport.ClearanceType != ClearanceType.SelfPayment)
         {
             var insuranceName = section.AddParagraph();
             insuranceName.Format.SpaceBefore = "0.5cm";
@@ -162,7 +163,7 @@ internal static class InvoiceDocument
         p = row.Cells[1].AddParagraph();
         p.Format.Alignment = ParagraphAlignment.Right;
         p.AddFormattedText("IK-Nummer: ", TextFormat.Bold);
-        p.AddFormattedText(company.TaxNumber, TextFormat.NotBold);
+        p.AddFormattedText(company.InstitutionCode, TextFormat.NotBold);
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText(string.IsNullOrEmpty(company.OwnerName) ? "" : $"{company.ZipCode} {company.ZipCity?.City}");

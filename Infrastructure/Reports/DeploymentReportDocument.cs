@@ -48,7 +48,7 @@ internal static class DeploymentReportDocument
             var pTop = rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FullName}");
             rowSelfPay.Cells[0].AddParagraph("Geburtsdatum: ").AddText(report.Customer.BirthDate.ToString("dd.MM.yyyy"));
             var pBottom = rowSelfPay.Cells[0]
-                .AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCity?.ZipCode} · {report.Customer.ZipCity?.City}");
+                .AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCity?.ZipCode} {report.Customer.ZipCity?.City}");
             pBottom.Format.SpaceAfter = "0.3cm";
             return;
         }

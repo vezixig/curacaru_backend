@@ -4,9 +4,15 @@ using Core.DTO.Invoice;
 using Infrastructure.Repositories;
 using MediatR;
 
-public class InvoiceListRequest(Guid companyId, int year, int month) : IRequest<List<GetInvoiceListEntryDto>>
+public class InvoiceListRequest(
+    Guid companyId,
+    int year,
+    int month,
+    Guid? customerId) : IRequest<List<GetInvoiceListEntryDto>>
 {
     public Guid CompanyId { get; } = companyId;
+
+    public Guid? CustomerId { get; } = customerId;
 
     public int Month { get; } = month;
 
@@ -17,7 +23,7 @@ internal class InvoiceListRequestHandler(IDocumentRepository documentRepository)
 {
     public async Task<List<GetInvoiceListEntryDto>> Handle(InvoiceListRequest request, CancellationToken cancellationToken)
     {
-        var deploymentReports = await documentRepository.GetDeploymentReportsAsync(request.CompanyId, null, request.Year, request.Month);
+        var deploymentReports = await documentRepository.GetDeploymentReportsAsync(request.CompanyId, request.CustomerId, request.Year, request.Month);
 
         return deploymentReports.Select(
                 i =>
