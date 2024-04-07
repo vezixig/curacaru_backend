@@ -26,6 +26,7 @@ internal class InvoiceRepository(DataContext dataContext) : IInvoiceRepository
         => dataContext.Invoices
             .Include(o => o.DeploymentReport)
             .ThenInclude(o => o.Customer)
+            .ThenInclude(o => o.ZipCity)
             .Include(o => o.DeploymentReport)
             .ThenInclude(o => o.Insurance)
             .ThenInclude(o => o.ZipCity)

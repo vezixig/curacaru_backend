@@ -23,19 +23,11 @@ public class DeploymentReport
     /// <summary>Gets or sets the customer.</summary>
     public required Customer Customer { get; set; }
 
-    /// <summary>Gets or sets the address of the customer at the time of creation.</summary>
-    /// <remarks>This is a copy to save the state.</remarks>
-    public string CustomerAddress { get; set; } = "";
-
     /// <summary>Gets or sets the customer id.</summary>
     public Guid CustomerId { get; set; }
 
     /// <summary>Gets or sets the customer's insurance status at the time of creation.</summary>
     public InsuranceStatus? CustomerInsuranceStatus { get; set; }
-
-    /// <summary>Gets or sets the name of the customer at the time of creation.</summary>
-    /// <remarks>This is a copy to save the state.</remarks>
-    public string CustomerName { get; set; } = "";
 
     [Key]
     public Guid Id { get; set; }

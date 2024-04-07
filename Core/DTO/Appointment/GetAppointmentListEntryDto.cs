@@ -33,6 +33,12 @@ public class GetAppointmentListEntryDto
     /// <inheritdoc cref="Appointment.IsPlanned" />
     public bool IsPlanned { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether the appointment is signed by the customer.</summary>
+    public bool IsSignedByCustomer { get; set; }
+
+    /// <summary>Gets or sets a value indicating whether the appointment is signed by the employee.</summary>
+    public bool IsSignedByEmployee { get; set; }
+
     /// <inheritdoc cref="Customer.Phone" />
     public string Phone { get; set; } = "";
 

@@ -54,12 +54,12 @@ internal class AddInvoiceRequestHandler(
             HourlyRate = companyData.PricePerHour,
             InvoiceDate = request.Invoice.InvoiceDate,
             InvoiceNumber = request.Invoice.InvoiceNumber,
-            RideCosts = rideCosts,
+            RideCosts = companyData.RideCosts,
             RideCostsType = companyData.RideCostsType,
             Signature = imageService.ReduceImage(request.Invoice.Signature),
             SignedEmployee = user,
             SignedEmployeeId = request.UserId,
-            TotalRideCosts = companyData.RideCosts,
+            TotalRideCosts = rideCosts,
             WorkedHours = (decimal)deploymentReport.Appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours)
         };
         invoice.InvoiceTotal = invoice.WorkedHours * invoice.HourlyRate + invoice.RideCosts;

@@ -21,7 +21,7 @@ internal class InvoiceListRequestHandler(IDocumentRepository documentRepository)
 
         return deploymentReports.Select(
                 i =>
-                    new GetInvoiceListEntryDto(i.Year, i.Month, i.CustomerName, i.CustomerId, i.ClearanceType, i.Invoice?.Id, i.Invoice?.InvoiceNumber))
+                    new GetInvoiceListEntryDto(i.Year, i.Month, i.Customer.FullName, i.CustomerId, i.ClearanceType, i.Invoice?.Id, i.Invoice?.InvoiceNumber))
             .ToList();
     }
 }

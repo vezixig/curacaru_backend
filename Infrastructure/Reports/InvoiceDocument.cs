@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Reports;
 
+using System.Globalization;
 using Core.Entities;
 using Core.Enums;
 using MigraDoc.DocumentObjectModel;
@@ -39,14 +40,16 @@ internal static class InvoiceDocument
 
         if (invoice.DeploymentReport.ClearanceType != ClearanceType.SelfPayment)
         {
-            section.AddParagraph("Name des Kunden: ").AddText(invoice.DeploymentReport.CustomerName);
+            section.AddParagraph("Name des Kunden: ").AddText(invoice.DeploymentReport.Customer.FullName);
             section.AddParagraph("Versichertennummer: ").AddText(invoice.DeploymentReport.Customer.InsuredPersonNumber);
             section.AddParagraph("Pflegegrad: ").AddText(invoice.DeploymentReport.CareLevel.ToString());
             section.AddParagraph("Geburtsdatum: ").AddText(invoice.DeploymentReport.Customer.BirthDate.ToString("dd.MM.yyyy"));
-            section.AddParagraph("Anschrift: ").AddText(invoice.DeploymentReport.CustomerAddress);
+            section.AddParagraph("Anschrift: ")
+                .AddText(
+                    $"{invoice.DeploymentReport.Customer.Street} · {invoice.DeploymentReport.Customer.ZipCity?.ZipCode} {invoice.DeploymentReport.Customer.ZipCity?.City}");
         }
 
-        if (invoice.DeploymentReport.CustomerInsuranceStatus == InsuranceStatus.Statutory)
+        if (invoice.DeploymentReport.ClearanceType != ClearanceType.SelfPayment && invoice.DeploymentReport.CustomerInsuranceStatus == InsuranceStatus.Statutory)
         {
             section.AddParagraph("Sehr geehrte Damen und Herren,").Format.SpaceBefore = "0.5cm";
         }
@@ -54,10 +57,10 @@ internal static class InvoiceDocument
         {
             var preSalutation = invoice.DeploymentReport.Customer.Salutation == Gender.Female ? "geehrte" : "geehrter";
             var salutation = invoice.DeploymentReport.Customer.Salutation.ToFriendlyString();
-            section.AddParagraph($"Sehr {preSalutation} {salutation} {invoice.DeploymentReport.CustomerName},").Format.SpaceBefore = "0.5cm";
+            section.AddParagraph($"Sehr {preSalutation} {salutation} {invoice.DeploymentReport.Customer.LastName},").Format.SpaceBefore = "0.5cm";
         }
 
-        var monthName = new DateTime(2000, invoice.DeploymentReport.Month, 1).ToString("MMMM");
+        var monthName = new DateTime(2000, invoice.DeploymentReport.Month, 1).ToString("MMMM", CultureInfo.CreateSpecificCulture("de"));
         p = section.AddParagraph($"wir erlauben uns für {monthName} {invoice.DeploymentReport.Year} folgende Betreuungsleistung in Rechnung zu stellen:");
         p.Format.SpaceBefore = "0.2cm";
         p.Format.SpaceAfter = "0.3cm";
@@ -112,9 +115,9 @@ internal static class InvoiceDocument
         var sender = section.AddParagraph();
         sender.Style = "PSender";
         sender.Format.SpaceBefore = "1.5cm";
-        sender.AddFormattedText($"{company.Name} · {company.Street} · {company.ZipCode} · {company.ZipCity?.City}", TextFormat.Underline);
+        sender.AddFormattedText($"{company.Name} · {company.Street} · {company.ZipCode} {company.ZipCity?.City}", TextFormat.Underline);
 
-        if (invoice.DeploymentReport.CustomerInsuranceStatus == InsuranceStatus.Statutory)
+        if (invoice.DeploymentReport is { CustomerInsuranceStatus: InsuranceStatus.Statutory, Insurance: not null })
         {
             var insuranceName = section.AddParagraph();
             insuranceName.Format.SpaceBefore = "0.5cm";
@@ -127,11 +130,10 @@ internal static class InvoiceDocument
         {
             var customerName = section.AddParagraph();
             customerName.Format.SpaceBefore = "0.5cm";
-            customerName.AddText(invoice.DeploymentReport.CustomerName);
+            customerName.AddText(invoice.DeploymentReport.Customer.FullName);
 
-            var customerAddress = invoice.DeploymentReport.CustomerAddress.Split(" · ");
-            section.AddParagraph(customerAddress[0]);
-            section.AddParagraph(customerAddress[1] + " " + customerAddress[2]);
+            section.AddParagraph(invoice.DeploymentReport.Customer.Street);
+            section.AddParagraph(invoice.DeploymentReport.Customer.ZipCity?.ZipCode + " " + invoice.DeploymentReport.Customer.ZipCity?.City);
         }
     }
 
@@ -187,15 +189,15 @@ internal static class InvoiceDocument
 
         var row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Stunden (gesamt):", TextFormat.Bold);
-        row.Cells[1].AddParagraph().AddText($"{invoice.WorkedHours:#.00} Std.");
+        row.Cells[1].AddParagraph().AddText($"{invoice.WorkedHours:#0.00} Std.");
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Stundenlohn:", TextFormat.Bold);
-        row.Cells[1].AddParagraph().AddText($"{invoice.HourlyRate:#.00} €");
+        row.Cells[1].AddParagraph().AddText($"{invoice.HourlyRate:#0.00} €");
 
         row = table.AddRow();
         row.Cells[0].AddParagraph().AddFormattedText("Anfahrtskosten:", TextFormat.Bold);
-        row.Cells[1].AddParagraph().AddText($"{invoice.TotalRideCosts:#.00} €");
+        row.Cells[1].AddParagraph().AddText(invoice.TotalRideCosts == 0 ? "-" : $"{invoice.TotalRideCosts:#0.00} €");
 
         row = table.AddRow();
         var cell = row.Cells[0];
@@ -203,7 +205,7 @@ internal static class InvoiceDocument
         cell.AddParagraph().AddFormattedText("Rechnungsbetrag:", TextFormat.Bold);
         cell = row.Cells[1];
         cell.Shading.Color = Colors.LightGray;
-        cell.AddParagraph().AddText($"{invoice.InvoiceTotal:#.00} €");
+        cell.AddParagraph().AddText($"{invoice.InvoiceTotal:#0.00} €");
     }
 
     private static void CreatePage(Document document)

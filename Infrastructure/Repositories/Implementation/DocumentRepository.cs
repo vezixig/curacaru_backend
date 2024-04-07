@@ -83,22 +83,25 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         ClearanceType? clearanceType = null,
         bool includeAppointments = false)
     {
-        var query = dataContext.DeploymentReports.Include(o => o.Invoice).Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
+        var query = dataContext.DeploymentReports.Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
 
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId);
         if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
 
         if (includeAppointments)
             query = query.Include(o => o.Appointments)
-                .Include(o => o.Customer)
+                .Include(o => o.Insurance)
                 .ThenInclude(o => o.ZipCity)
-                .Include(o => o.Customer.Insurance)
+                .Include(o => o.Customer)
                 .ThenInclude(o => o.ZipCity)
                 .Include(o => o.Appointments)
                 .ThenInclude(o => o.Employee)
                 .Include(o => o.Appointments)
                 .ThenInclude(o => o.EmployeeReplacement);
-        ;
+        else
+            query = query.Include(o => o.Customer)
+                .Include(o => o.Invoice);
+
         return query.ToListAsync();
     }
 }

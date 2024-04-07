@@ -45,9 +45,10 @@ internal static class DeploymentReportDocument
             tableSelfPay.AddColumn("20.0cm");
             var rowSelfPay = tableSelfPay.AddRow();
 
-            var pTop = rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.CustomerName}");
+            var pTop = rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FullName}");
             rowSelfPay.Cells[0].AddParagraph("Geburtsdatum: ").AddText(report.Customer.BirthDate.ToString("dd.MM.yyyy"));
-            var pBottom = rowSelfPay.Cells[0].AddParagraph($"Anschrift: {report.CustomerAddress}");
+            var pBottom = rowSelfPay.Cells[0]
+                .AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCity?.ZipCode} · {report.Customer.ZipCity?.City}");
             pBottom.Format.SpaceAfter = "0.3cm";
             return;
         }
@@ -56,7 +57,7 @@ internal static class DeploymentReportDocument
         table.AddColumn("10.0cm");
         table.AddColumn("10.0cm");
         var row = table.AddRow();
-        var p = row.Cells[0].AddParagraph($"Name des Kunden: {report.CustomerName}");
+        var p = row.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FullName}");
         p.Format.SpaceBefore = "0.3cm";
 
         if (report.ClearanceType != ClearanceType.SelfPayment)
@@ -69,7 +70,7 @@ internal static class DeploymentReportDocument
         p = row.Cells[1].AddParagraph($"Pflegegrad: {report.CareLevel}");
         p.Format.SpaceBefore = "0.3cm";
         row.Cells[1].AddParagraph("Geburtsdatum: ").AddText(report.Customer.BirthDate.ToString("dd.MM.yyyy"));
-        p = row.Cells[1].AddParagraph($"Anschrift: {report.CustomerAddress}");
+        p = row.Cells[1].AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCity?.ZipCode} {report.Customer.ZipCity?.City}");
         p.Format.SpaceAfter = "0.3cm";
     }
 
@@ -103,7 +104,7 @@ internal static class DeploymentReportDocument
         // add empty paragraph to lazily create space
         document.Sections[0].AddParagraph();
 
-        if (report.ClearanceType != ClearanceType.SelfPayment && report.Customer.InsuranceStatus == InsuranceStatus.Statutory)
+        if (report.ClearanceType != ClearanceType.SelfPayment && report.CustomerInsuranceStatus == InsuranceStatus.Statutory)
             document.Sections[0].AddParagraph($"Ich habe meine Leistungen gemäß §45b SGB XI an {company.Name} abgetreten.");
 
         var info = document.Sections[0].AddParagraph("Hiermit bestätige ich den Einsatz und die Richtigkeit der oben angegebenen Einsatzzeit.");

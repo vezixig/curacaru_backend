@@ -44,6 +44,8 @@ internal class MappingProfile : Profile
             .ForMember(o => o.Phone, src => src.MapFrom(o => o.Customer.Phone))
             .ForMember(o => o.Street, src => src.MapFrom(o => o.Customer.Street))
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.Customer.ZipCode))
+            .ForMember(o => o.IsSignedByCustomer, src => src.MapFrom(o => !string.IsNullOrEmpty(o.SignatureCustomer)))
+            .ForMember(o => o.IsSignedByEmployee, src => src.MapFrom(o => !string.IsNullOrEmpty(o.SignatureEmployee)))
             .ForMember(
                 o => o.EmployeeReplacementName,
                 src => src.MapFrom(o => o.EmployeeReplacement != null ? (o.EmployeeReplacement.FirstName + " " + o.EmployeeReplacement.LastName).Trim() : ""));
