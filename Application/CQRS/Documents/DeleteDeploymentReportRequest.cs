@@ -11,7 +11,7 @@ public class DeleteDeploymentReportRequest(Guid companyId, Guid reportId) : IReq
     public Guid ReportId { get; } = reportId;
 }
 
-internal class DeleteDeploymentReportRequestHandler(IAppointmentRepository appointmentRepository, IDocumentRepository documentRepository)
+internal class DeleteDeploymentReportRequestHandler(IDocumentRepository documentRepository)
     : IRequestHandler<DeleteDeploymentReportRequest>
 {
     public async Task Handle(DeleteDeploymentReportRequest request, CancellationToken cancellationToken)

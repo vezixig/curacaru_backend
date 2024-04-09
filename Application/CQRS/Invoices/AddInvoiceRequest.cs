@@ -57,7 +57,7 @@ internal class AddInvoiceRequestHandler(
             RideCosts = companyData.RideCosts,
             RideCostsType = companyData.RideCostsType,
             Signature = imageService.ReduceImage(request.Invoice.Signature),
-            SignedEmployee = user,
+            SignedEmployee = user!,
             SignedEmployeeId = request.UserId,
             TotalRideCosts = rideCosts,
             WorkedHours = (decimal)deploymentReport.Appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours)

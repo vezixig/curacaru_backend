@@ -33,7 +33,6 @@ public class DeploymentReportDocumentRequest(
 }
 
 internal class DeploymentReportDocumentRequestHandler(
-    ICustomerRepository customerRepository,
     ICompanyRepository companyRepository,
     IDocumentRepository documentRepository,
     IEmployeeRepository employeeRepository,

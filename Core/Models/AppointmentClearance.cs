@@ -7,7 +7,7 @@ public class AppointmentClearance
 {
     public ClearanceType ClearanceType { get; set; }
 
-    public Customer Customer { get; set; }
+    public required Customer Customer { get; set; }
 
     public List<Employee> Employees { get; set; } = [];
 

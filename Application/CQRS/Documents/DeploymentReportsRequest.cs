@@ -52,7 +52,7 @@ internal class DeploymentReportsRequestHandler(
             request.Month);
 
         if (!user!.IsManager)
-            possibleReports = possibleReports.Where(o => o.Employees.Any(p => p.Id == user.Id) || o.ReplacementEmployee.Any(p => p.Id == user.Id)).ToList();
+            possibleReports = possibleReports.Where(o => o.Employees.Exists(p => p.Id == user.Id) || o.ReplacementEmployee.Exists(p => p.Id == user.Id)).ToList();
 
         return possibleReports.Select(
                 o => new GetDeploymentReportListEntryDto(

@@ -18,6 +18,7 @@ public static class GenderExtensions
         => gender switch
         {
             Gender.Female => "Frau",
-            Gender.Male => "Herr"
+            Gender.Male => "Herr",
+            _ => throw new ArgumentOutOfRangeException(nameof(gender), gender, null)
         };
 }

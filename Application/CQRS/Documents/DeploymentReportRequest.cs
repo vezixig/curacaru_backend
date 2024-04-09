@@ -54,7 +54,7 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
             HasUnfinishedAppointment: appointments.Exists(o => !o.IsDone),
             ReplacementEmployeeNames: string.Join(
                 ", ",
-                appointments.Where(o => o.EmployeeReplacement != null).Select(o => o.EmployeeReplacement.FullName).Distinct()),
+                appointments.Where(o => o.EmployeeReplacement != null).Select(o => o.EmployeeReplacement!.FullName).Distinct()),
             ReportId: deploymentReport.FirstOrDefault()?.Id,
             Times: appointments.Select(
                     o => new GetDeploymentReportTimeDto(o.Date, o.TimeStart, o.TimeEnd, (o.TimeEnd - o.TimeStart).TotalHours, o.DistanceToCustomer))

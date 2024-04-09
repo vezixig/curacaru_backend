@@ -44,7 +44,7 @@ internal class AddEmployeeSignatureToAppointmentRequestHandler(
             throw new BadRequestException("Der Termin liegt in der Zukunft und kann noch nicht unterschrieben werden.");
 
         if ((appointment.EmployeeReplacementId is not null && appointment.EmployeeReplacementId != user!.Id)
-            || (appointment.EmployeeReplacementId is null && appointment.EmployeeId != user.Id))
+            || (appointment.EmployeeReplacementId is null && appointment.EmployeeId != user!.Id))
             throw new BadRequestException("Du darfst diesen Termin nicht unterschreiben");
 
         if (!string.IsNullOrEmpty(appointment.SignatureEmployee)) throw new BadRequestException("Der Termin wurde bereits von einem Mitarbeiter unterschrieben");
