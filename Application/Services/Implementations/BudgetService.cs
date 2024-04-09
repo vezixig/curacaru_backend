@@ -29,7 +29,7 @@ public class BudgetService(
             _ => 0
         };
         var appointmentTime = appointment.TimeEnd - appointment.TimeStart;
-        return company.PricePerHour * appointmentTime.Hours + ridePrice;
+        return company.PricePerHour * (decimal)appointmentTime.TotalHours + ridePrice;
     }
 
     public async Task RefundBudget(Appointment appointment)
