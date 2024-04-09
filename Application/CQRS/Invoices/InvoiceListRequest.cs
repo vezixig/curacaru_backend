@@ -26,8 +26,16 @@ internal class InvoiceListRequestHandler(IDocumentRepository documentRepository)
         var deploymentReports = await documentRepository.GetDeploymentReportsAsync(request.CompanyId, request.CustomerId, request.Year, request.Month);
 
         return deploymentReports.Select(
-                i =>
-                    new GetInvoiceListEntryDto(i.Year, i.Month, i.Customer.FullName, i.CustomerId, i.ClearanceType, i.Invoice?.Id, i.Invoice?.InvoiceNumber))
+                report =>
+                    new GetInvoiceListEntryDto(
+                        ClearanceType: report.ClearanceType,
+                        CustomerId: report.Customer.Id,
+                        CustomerName: report.Customer.FullName,
+                        EmployeeName: report.Invoice?.SignedEmployee.FullName ?? "",
+                        InvoiceId: report.Invoice?.Id,
+                        InvoiceNumber: report.Invoice?.InvoiceNumber,
+                        Month: report.Month,
+                        Year: report.Year))
             .ToList();
     }
 }

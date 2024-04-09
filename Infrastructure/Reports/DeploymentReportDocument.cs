@@ -45,7 +45,7 @@ internal static class DeploymentReportDocument
             tableSelfPay.AddColumn("20.0cm");
             var rowSelfPay = tableSelfPay.AddRow();
 
-            var pTop = rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FullName}");
+            rowSelfPay.Cells[0].AddParagraph($"Name des Kunden: {report.Customer.FullName}");
             rowSelfPay.Cells[0].AddParagraph("Geburtsdatum: ").AddText(report.Customer.BirthDate.ToString("dd.MM.yyyy"));
             var pBottom = rowSelfPay.Cells[0]
                 .AddParagraph($"Anschrift: {report.Customer.Street} · {report.Customer.ZipCity?.ZipCode} {report.Customer.ZipCity?.City}");
@@ -62,7 +62,7 @@ internal static class DeploymentReportDocument
 
         if (report.ClearanceType != ClearanceType.SelfPayment)
         {
-            row.Cells[0].AddParagraph("Krankenkasse: ").AddText(report.Insurance.Name);
+            row.Cells[0].AddParagraph("Krankenkasse: ").AddText($"{report.Insurance?.Name}");
             p = row.Cells[0].AddParagraph($"Versichertennummer: {report.InsuredPersonNumber}");
             p.Format.SpaceAfter = "0.3cm";
         }
@@ -207,7 +207,7 @@ internal static class DeploymentReportDocument
         footerRow.Cells[0].Borders.Bottom.Visible = false;
         footerRow.Cells[0].Borders.Bottom.Visible = false;
 
-        footerRow.Cells[2].AddParagraph(report.Appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours).ToString("#.00")).Style = "TdCenter";
+        footerRow.Cells[2].AddParagraph(report.Appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours).ToString("#0.00")).Style = "TdCenter";
 
         footerRow.Cells[3].MergeRight = 2;
         footerRow.Cells[3].Borders.Bottom.Visible = false;

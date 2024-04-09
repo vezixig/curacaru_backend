@@ -79,7 +79,6 @@ internal class DataContext : DbContext
             .WithMany()
             .HasForeignKey(o => o.EmployeeReplacementId);
 
-        // todo:  assembly  scanning?
         AssignmentDeclaration.RegisterEntity(modelBuilder);
         DeploymentReport.RegisterEntity(modelBuilder);
         Invoice.RegisterEntity(modelBuilder);

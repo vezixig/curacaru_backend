@@ -100,7 +100,8 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
                 .ThenInclude(o => o.EmployeeReplacement);
         else
             query = query.Include(o => o.Customer)
-                .Include(o => o.Invoice);
+                .Include(o => o.Invoice)
+                .ThenInclude(o => o.SignedEmployee);
 
         return query.ToListAsync();
     }

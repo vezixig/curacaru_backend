@@ -20,7 +20,8 @@ internal static class InvoiceDocument
         AddCompanyData(document, company);
 
         var section = document.Sections[0];
-        AddAddress(company, invoice, section);
+
+        AddAddress(company, invoice, document);
 
         var p = section.AddParagraph("Rechnung", "H1");
         p.Format.SpaceBefore = "3cm";
@@ -109,10 +110,17 @@ internal static class InvoiceDocument
         return document;
     }
 
-    private static void AddAddress(Company company, Invoice invoice, Section section)
+    private static void AddAddress(Company company, Invoice invoice, Document document)
     {
-        section.AddParagraph(" ");
-        var sender = section.AddParagraph();
+        var table = document.Sections[0].AddTable();
+        table.AddColumn(document.GetPageWidth() / 5 * 3);
+        table.AddColumn(document.GetPageWidth() / 5 * 2);
+
+        var row = table.AddRow();
+
+        // Customer address
+        row.Cells[0].AddParagraph(" ");
+        var sender = row.Cells[0].AddParagraph();
         sender.Style = "PSender";
         sender.Format.SpaceBefore = "1.5cm";
         sender.AddFormattedText($"{company.Name} · {company.Street} · {company.ZipCode} {company.ZipCity?.City}", TextFormat.Underline);
@@ -120,22 +128,31 @@ internal static class InvoiceDocument
         if (invoice.DeploymentReport is { CustomerInsuranceStatus: InsuranceStatus.Statutory, Insurance: not null }
             && invoice.DeploymentReport.ClearanceType != ClearanceType.SelfPayment)
         {
-            var insuranceName = section.AddParagraph();
+            var insuranceName = row.Cells[0].AddParagraph();
             insuranceName.Format.SpaceBefore = "0.5cm";
             insuranceName.AddText(invoice.DeploymentReport.Insurance.Name);
 
-            section.AddParagraph(invoice.DeploymentReport.Insurance.Street);
-            section.AddParagraph(invoice.DeploymentReport.Insurance.ZipCity?.ZipCode + " " + invoice.DeploymentReport.Insurance.ZipCity?.City);
+            row.Cells[0].AddParagraph(invoice.DeploymentReport.Insurance.Street);
+            row.Cells[0].AddParagraph(invoice.DeploymentReport.Insurance.ZipCity?.ZipCode + " " + invoice.DeploymentReport.Insurance.ZipCity?.City);
         }
         else
         {
-            var customerName = section.AddParagraph();
+            var customerName = row.Cells[0].AddParagraph();
             customerName.Format.SpaceBefore = "0.5cm";
             customerName.AddText(invoice.DeploymentReport.Customer.FullName);
 
-            section.AddParagraph(invoice.DeploymentReport.Customer.Street);
-            section.AddParagraph(invoice.DeploymentReport.Customer.ZipCity?.ZipCode + " " + invoice.DeploymentReport.Customer.ZipCity?.City);
+            row.Cells[0].AddParagraph(invoice.DeploymentReport.Customer.Street);
+            row.Cells[0].AddParagraph(invoice.DeploymentReport.Customer.ZipCity?.ZipCode + " " + invoice.DeploymentReport.Customer.ZipCity?.City);
         }
+
+        // Company contact
+        row.Cells[1].VerticalAlignment = VerticalAlignment.Bottom;
+        row.Cells[1].AddParagraph().AddFormattedText("Ihr Ansprechpartner:", TextFormat.Bold);
+        row.Cells[1].AddParagraph().AddText(invoice.SignedEmployee.FullName);
+        row.Cells[1].AddParagraph().AddFormattedText("Telefonnummer:", TextFormat.Bold);
+        row.Cells[1].AddParagraph().AddText(invoice.SignedEmployee.PhoneNumber);
+        row.Cells[1].AddParagraph().AddFormattedText("E-Mail Adresse:", TextFormat.Bold);
+        row.Cells[1].AddParagraph().AddText(invoice.SignedEmployee.Email);
     }
 
     private static void AddCompanyData(Document document, Company company)

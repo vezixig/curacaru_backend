@@ -44,7 +44,7 @@ internal class InvoiceRepository(DataContext dataContext) : IInvoiceRepository
         invoiceNumbers = invoiceNumbers.Where(o => Regex.IsMatch(o, @"^2024-\d{4}$")).Order().ToList();
 
         return invoiceNumbers.Any()
-            ? DateTime.Today.Year + "-" + (int.Parse(invoiceNumbers.Last().Substring(5)) + 1).ToString("D4")
+            ? DateTime.Today.Year + "-" + (int.Parse(invoiceNumbers.Last()[5..]) + 1).ToString("D4")
             : DateTime.Today.Year + "-0001";
     }
 }

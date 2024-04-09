@@ -8,6 +8,7 @@ public record GetInvoiceListEntryDto(
     int Month,
     string CustomerName,
     Guid CustomerId,
+    string EmployeeName,
     ClearanceType ClearanceType,
     Guid? InvoiceId,
     string? InvoiceNumber)

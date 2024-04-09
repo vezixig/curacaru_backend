@@ -5,7 +5,7 @@ using Core.Entities;
 using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
-#pragma warning disable S6603 - trueForAll is not convertible to sql
+#pragma warning disable S6603 trueForAll is not convertible to sql
 [Repository]
 internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 {

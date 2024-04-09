@@ -47,7 +47,7 @@ public interface ICustomerRepository
     ///     an existing deployment report.
     /// </summary>
     Task<List<Customer>> GetCustomersForDeploymentReportsAsync(
-        Guid requestCompanyId,
+        Guid companyId,
         Guid? employeeId);
 
     /// <summary>Gets all customers of a company that are assigned to a specific employee.</summary>

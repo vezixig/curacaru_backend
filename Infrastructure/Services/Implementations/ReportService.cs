@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Services.Implementations;
 
+using System.Globalization;
 using Core.Entities;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
@@ -41,6 +42,8 @@ public class ReportService : IReportService
 
     private static void InitFont()
     {
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de");
+
         if (Capabilities.Build.IsCoreBuild) GlobalFontSettings.FontResolver ??= new FailsafeFontResolver();
     }
 
