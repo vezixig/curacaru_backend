@@ -15,8 +15,14 @@ public class GetAppointmentListEntryDto
     /// <inheritdoc cref="Appointment.Date" />
     public DateOnly Date { get; set; }
 
+    /// <inheritdoc cref="Appointment.EmployeeId" />
+    public Guid EmployeeId { get; set; }
+
     /// <summary>Gets or sets the name of the employee.</summary>
     public string EmployeeName { get; set; } = "";
+
+    /// <inheritdoc cref="Appointment.EmployeeReplacementId" />
+    public Guid? EmployeeReplacementId { get; set; }
 
     /// <summary>Gets or sets the name of the employee replacement.</summary>
     public string? EmployeeReplacementName { get; set; }
