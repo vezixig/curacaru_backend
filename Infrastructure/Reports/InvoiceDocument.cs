@@ -113,8 +113,8 @@ internal static class InvoiceDocument
     private static void AddAddress(Company company, Invoice invoice, Document document)
     {
         var table = document.Sections[0].AddTable();
-        table.AddColumn(document.GetPageWidth() / 5 * 3);
-        table.AddColumn(document.GetPageWidth() / 5 * 2);
+        table.AddColumn(document.GetPageWidth() / 7 * 5);
+        table.AddColumn(document.GetPageWidth() / 7 * 2);
 
         var row = table.AddRow();
 

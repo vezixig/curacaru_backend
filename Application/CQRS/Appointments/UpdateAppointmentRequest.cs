@@ -27,7 +27,8 @@ internal class UpdateAppointmentRequestHandler(
     ICustomerRepository customerRepository,
     IDateTimeService dateTimeService,
     IEmployeeRepository employeeRepository,
-    IMapper mapper)
+    IMapper mapper,
+    IMediator mediator)
     : IRequestHandler<UpdateAppointmentRequest, GetAppointmentDto>
 {
     public async Task<GetAppointmentDto> Handle(UpdateAppointmentRequest request, CancellationToken cancellationToken)
@@ -184,5 +185,16 @@ internal class UpdateAppointmentRequestHandler(
                 appointment.EmployeeReplacementId = employeeReplacement.Id;
             }
         }
+
+        // overlapping
+        var isOverlapping = await mediator.Send(
+            new IsBlockingAppointmentRequest(
+                request.CompanyId,
+                request.Appointment.EmployeeReplacementId ?? request.Appointment.EmployeeId,
+                request.Appointment.Date,
+                request.Appointment.TimeStart,
+                request.Appointment.TimeEnd,
+                appointment.Id));
+        if (isOverlapping) throw new BadRequestException("Der Termin überschneidet sich mit einem anderen Termin.");
     }
 }

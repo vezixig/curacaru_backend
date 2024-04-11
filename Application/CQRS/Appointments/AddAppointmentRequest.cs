@@ -29,7 +29,8 @@ internal class AddAppointmentRequestHandler(
     IDatabaseService databaseService,
     IDateTimeService dateTimeService,
     IEmployeeRepository employeeRepository,
-    IMapper mapper)
+    IMapper mapper,
+    IMediator mediator)
     : IRequestHandler<AddAppointmentRequest, GetAppointmentDto>
 {
     public async Task<GetAppointmentDto> Handle(AddAppointmentRequest request, CancellationToken cancellationToken)
@@ -68,6 +69,18 @@ internal class AddAppointmentRequestHandler(
                                       ?? throw new NotFoundException("Vertretung nicht gefunden.");
             appointment.EmployeeReplacement = new() { Id = employeeReplacement.Id };
         }
+
+        // overlapping
+        var isOverlapping = await mediator.Send(
+            new IsBlockingAppointmentRequest(
+                request.CompanyId,
+                request.Appointment.EmployeeReplacementId ?? request.Appointment.EmployeeId,
+                request.Appointment.Date,
+                request.Appointment.TimeStart,
+                request.Appointment.TimeEnd,
+                null),
+            cancellationToken);
+        if (isOverlapping) throw new BadRequestException("Der Termin überschneidet sich mit einem anderen Termin.");
 
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try

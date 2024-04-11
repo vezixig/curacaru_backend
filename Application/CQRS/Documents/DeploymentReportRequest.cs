@@ -51,13 +51,22 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
         return new(
             EmployeeName: string.Join(", ", appointments.Select(o => o.Employee.FullName).Distinct()),
             IsCreated: deploymentReport.Count == 1,
-            HasUnfinishedAppointment: appointments.Exists(o => !o.IsDone),
+            HasUnfinishedAppointment: appointments.Exists(o => !o.IsDone && !o.IsPlanned),
+            HasPlannedAppointment: appointments.Exists(o => o.IsPlanned),
             ReplacementEmployeeNames: string.Join(
                 ", ",
                 appointments.Where(o => o.EmployeeReplacement != null).Select(o => o.EmployeeReplacement!.FullName).Distinct()),
             ReportId: deploymentReport.FirstOrDefault()?.Id,
             Times: appointments.Select(
-                    o => new GetDeploymentReportTimeDto(o.Date, o.TimeStart, o.TimeEnd, (o.TimeEnd - o.TimeStart).TotalHours, o.DistanceToCustomer))
+                    o => new GetDeploymentReportTimeDto(
+                        o.Id,
+                        IsDone: o.IsDone,
+                        Date: o.Date,
+                        Start: o.TimeStart,
+                        End: o.TimeEnd,
+                        Duration: (o.TimeEnd - o.TimeStart).TotalHours,
+                        Distance: o.DistanceToCustomer,
+                        IsPlanned: o.IsPlanned))
                 .ToList(),
             TotalDuration: appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours),
             HasInvoice: deploymentReport.FirstOrDefault()?.Invoice is not null

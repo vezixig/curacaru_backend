@@ -35,7 +35,8 @@ internal class DeleteAppointmentRequestHandler(
 
         if (appointment.IsDone) throw new BadRequestException("Abgeschlossene Termine können nicht gelöscht werden.");
 
-        if (appointment.Date < dateTimeService.BeginOfCurrentMonth) throw new BadRequestException("Termine vor dem aktuellen Monat können nicht gelöscht werden.");
+        if (appointment.Date < dateTimeService.BeginOfCurrentMonth && !appointment.IsPlanned)
+            throw new BadRequestException("Termine vor dem aktuellen Monat können nicht gelöscht werden.");
 
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
