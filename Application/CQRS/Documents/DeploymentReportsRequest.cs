@@ -62,7 +62,7 @@ internal class DeploymentReportsRequestHandler(
                     o.Customer.Id,
                     request.Month,
                     request.Year,
-                    o.Customer.FullName,
+                    o.Customer.FullNameReverse,
                     string.Join(", ", o.Employees.Select(p => p.FullName).Distinct()),
                     string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName).Distinct())))
             .ToList();

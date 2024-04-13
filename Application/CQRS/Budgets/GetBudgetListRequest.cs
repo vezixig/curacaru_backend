@@ -29,7 +29,7 @@ internal class GetBudgetListRequestHandler(
         customers.RemoveAll(customer => budgets.Exists(budget => budget.CustomerId == customer.Id));
 
         var result = mapper.Map<List<GetBudgetListEntryDto>>(budgets);
-        result.AddRange(customers.Select(o => new GetBudgetListEntryDto { CustomerId = o.Id, CustomerName = $"{o.FirstName} {o.LastName}".Trim() }));
+        result.AddRange(customers.Select(o => new GetBudgetListEntryDto { CustomerId = o.Id, CustomerName = $"{o.LastName}, {o.FirstName}".Trim() }));
         var pricePerHour = company!.PricePerHour == 0 ? 1 : company.PricePerHour;
         result.ForEach(o => o.RemainingHours = o.TotalAmount / pricePerHour);
         return result.OrderBy(o => o.CustomerName).ToList();

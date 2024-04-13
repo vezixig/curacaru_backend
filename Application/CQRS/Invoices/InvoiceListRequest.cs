@@ -30,7 +30,7 @@ internal class InvoiceListRequestHandler(IDocumentRepository documentRepository)
                     new GetInvoiceListEntryDto(
                         ClearanceType: report.ClearanceType,
                         CustomerId: report.Customer.Id,
-                        CustomerName: report.Customer.FullName,
+                        CustomerName: report.Customer.FullNameReverse,
                         EmployeeName: report.Invoice?.SignedEmployee.FullName ?? "",
                         InvoiceId: report.Invoice?.Id,
                         InvoiceNumber: report.Invoice?.InvoiceNumber,

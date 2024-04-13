@@ -21,7 +21,7 @@ internal class MappingProfile : Profile
             .ForMember(
                 o => o.TotalAmount,
                 src => src.MapFrom(o => o.CareBenefitAmount + o.PreventiveCareAmount + o.ReliefAmount + o.ReliefAmountLastYear + o.SelfPayAmount))
-            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.FirstName} {o.Customer.LastName}".Trim()));
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.LastName},  {o.Customer.FirstName}".Trim()));
 
         CreateMap<Company, GetCompanyDto>();
         CreateMap<Company, GetCompanyPricesDto>();
@@ -39,7 +39,7 @@ internal class MappingProfile : Profile
     {
         CreateMap<Appointment, GetAppointmentListEntryDto>()
             .ForMember(o => o.City, src => src.MapFrom(o => o.Customer.ZipCity != null ? o.Customer.ZipCity.City : ""))
-            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.FirstName} {o.Customer.LastName}".Trim()))
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.Customer.LastName}, {o.Customer.FirstName}".Trim()))
             .ForMember(o => o.EmployeeName, src => src.MapFrom(o => $"{o.Employee.FirstName} {o.Employee.LastName}".Trim()))
             .ForMember(o => o.Phone, src => src.MapFrom(o => o.Customer.Phone))
             .ForMember(o => o.Street, src => src.MapFrom(o => o.Customer.Street))
@@ -70,7 +70,7 @@ internal class MappingProfile : Profile
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.ZipCode : ""));
 
         CreateMap<Customer, GetMinimalCustomerListEntryDto>()
-            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.FirstName} {o.LastName}"))
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.LastName}, {o.FirstName}"))
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 
         CreateMap<Customer, GetCustomerBudgetDto>()

@@ -46,7 +46,7 @@ internal class AssignmentDeclarationsRequestHandler(
                     return new GetAssignmentDeclarationListEntryDto(
                         assignment?.Id,
                         o.Id,
-                        o.FullName,
+                        o.FullNameReverse,
                         o.AssociatedEmployee?.FullName ?? "",
                         assignment is not null,
                         request.Year

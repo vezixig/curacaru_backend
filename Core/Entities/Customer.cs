@@ -49,6 +49,8 @@ public class Customer
 
     public string FullName => $"{FirstName} {LastName}".Trim();
 
+    public string FullNameReverse => $"{LastName}, {FirstName}".Trim();
+
     [Key]
     public Guid Id { get; set; }
 

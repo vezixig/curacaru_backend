@@ -35,7 +35,7 @@ public class GetBudgetRequestHandler(IBudgetRepository budgetRepository, ICompan
             CareBenefitAmount = budget.CareBenefitAmount,
             CareBenefitRaise = BudgetService.GetCareBenefitByCareLevel(customer.CareLevel),
             CustomerId = customer.Id,
-            CustomerName = $"{customer.FirstName} {customer.LastName}".Trim(),
+            CustomerName = $"{customer.LastName}, {customer.FirstName}".Trim(),
             DoClearanceCareBenefit = customer.DoClearanceCareBenefit,
             DoClearancePreventiveCare = customer.DoClearancePreventiveCare,
             DoClearanceReliefAmount = customer.DoClearanceReliefAmount,
