@@ -19,4 +19,7 @@ public interface IAuthService
     /// <param name="authId">The authId of the user.</param>
     /// <returns>The email of the user.</returns>
     public Task<string> GetMailAsync(string authId);
+
+    /// <summary>Sends a password reset mail to a user.</summary>
+    public Task SendPasswordResetMail(string email);
 }

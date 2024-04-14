@@ -2,6 +2,7 @@ namespace Curacaru.Backend.Controllers;
 
 using Application.CQRS.Employee;
 using Core.DTO;
+using Core.DTO.Employee;
 using Core.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -64,5 +65,21 @@ public class EmployeeController(ISender mediator) : ControllerBase
     {
         var updatedEmployee = await mediator.Send(new UpdateEmployeeRequest(CompanyId, UserId, employee));
         return Ok(updatedEmployee);
+    }
+
+    [Authorize(Policy = Policy.Company)]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> UpdatePassword()
+    {
+        await mediator.Send(new ChangePasswordRequest(AuthId));
+        return NoContent();
+    }
+
+    [Authorize(Policy = Policy.Company)]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto employee)
+    {
+        await mediator.Send(new UpdateProfileRequest(AuthId, employee));
+        return NoContent();
     }
 }

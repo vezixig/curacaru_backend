@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Infrastructure.Services.Implementations;
 
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Core.Exceptions;
@@ -70,6 +71,25 @@ internal class AuthService(IMemoryCache cache) : IAuthService
         var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var mail = jsonDocument.RootElement.GetProperty("email").GetString();
         return mail!;
+    }
+
+    public async Task SendPasswordResetMail(string email)
+    {
+        var token = await GetTokenAsync();
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{Environment.GetEnvironmentVariable("IDENTITY_AUTHORITY")}dbconnections/change_password");
+        request.Headers.Authorization = new("Bearer", token);
+
+        var payload = new
+        {
+            client_id = Environment.GetEnvironmentVariable("IDENTITY_CLIENTID"),
+            email,
+            connection = "Username-Password-Authentication"
+        };
+        request.Content = JsonContent.Create(payload);
+
+        using var client = new HttpClient();
+        var response = await client.SendAsync(request);
+        if (response.StatusCode != HttpStatusCode.OK) throw new BadRequestException("E-Mail zum Zurücksetzen des Passwort konnte nicht versendet werden.");
     }
 
     private static string GeneratePassword()
