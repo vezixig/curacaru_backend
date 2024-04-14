@@ -5,6 +5,7 @@ using Core.Entities;
 using Core.Exceptions;
 using Infrastructure.repositories;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
 
 public class AddWorkingTimeSignatureRequest(
@@ -22,6 +23,7 @@ public class AddWorkingTimeSignatureRequest(
 internal class AddWorkingTimeSignatureRequestHandler(
     IAppointmentRepository appointmentRepository,
     IEmployeeRepository employeeRepository,
+    IImageService imageService,
     IWorkingTimeRepository workingTimeRepository)
     : IRequestHandler<AddWorkingTimeSignatureRequest>
 {
@@ -42,7 +44,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
 
         if (existingReport.Count > 0)
         {
-            existingReport[0].SignatureManager = request.Data.Signature;
+            existingReport[0].SignatureManager = imageService.ReduceImage(request.Data.Signature);
             existingReport[0].SignatureManagerCity = request.Data.SignatureCity;
             existingReport[0].SignatureManagerDate = DateOnly.FromDateTime(DateTime.Today);
 
@@ -67,7 +69,7 @@ internal class AddWorkingTimeSignatureRequestHandler(
                 EmployeeId = user.Id,
                 Month = request.Data.Month,
                 Year = request.Data.Year,
-                SignatureEmployee = request.Data.Signature,
+                SignatureEmployee = imageService.ReduceImage(request.Data.Signature),
                 SignatureEmployeeCity = request.Data.SignatureCity,
                 SignatureEmployeeDate = DateOnly.FromDateTime(DateTime.Today),
                 TotalHours = totalHours
