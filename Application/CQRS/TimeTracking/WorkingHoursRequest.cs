@@ -46,7 +46,9 @@ internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepo
                     TimeEnd = wh.TimeEnd,
                     TimeStart = wh.TimeStart,
                     WorkDuration = (wh.TimeEnd - wh.TimeStart).TotalHours,
-                    IsDone = wh.IsDone
+                    IsDone = wh.IsDone,
+                    IsPlanned = wh.IsPlanned || wh.HasBudgetError,
+                    AppointmentId = wh.Id
                 })
             .OrderBy(o => o.Date)
             .ThenBy(o => o.TimeStart)

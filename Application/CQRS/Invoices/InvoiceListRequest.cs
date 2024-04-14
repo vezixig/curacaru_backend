@@ -36,6 +36,7 @@ internal class InvoiceListRequestHandler(IDocumentRepository documentRepository)
                         InvoiceNumber: report.Invoice?.InvoiceNumber,
                         Month: report.Month,
                         Year: report.Year))
+            .OrderBy(o => o.CustomerName)
             .ToList();
     }
 }

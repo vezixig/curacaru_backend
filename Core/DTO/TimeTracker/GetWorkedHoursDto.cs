@@ -5,9 +5,13 @@ using Serializer;
 
 public class GetWorkedHoursDto
 {
+    public Guid AppointmentId { get; set; }
+
     public DateOnly Date { get; set; }
 
     public bool IsDone { get; set; }
+
+    public bool IsPlanned { get; set; }
 
     [JsonConverter(typeof(TimeOnlySerializer))]
     public TimeOnly TimeEnd { get; set; }

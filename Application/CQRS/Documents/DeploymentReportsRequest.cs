@@ -65,6 +65,7 @@ internal class DeploymentReportsRequestHandler(
                     o.Customer.FullNameReverse,
                     string.Join(", ", o.Employees.Select(p => p.FullName).Distinct()),
                     string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName).Distinct())))
+            .OrderBy(o => o.CustomerName)
             .ToList();
     }
 }
