@@ -47,7 +47,7 @@ Die Abtretungserklärung ist keine Vollmacht und bezieht sich ausschließlich au
         AddLine("Name", company.Name);
         AddLine(
             "Adresse",
-            $"{(!string.IsNullOrEmpty(company.OwnerName) ? $"{company.OwnerName} · " : "")}{company.Street} · {company.ZipCode} · {company.ZipCity?.City}");
+            $"{(!string.IsNullOrEmpty(company.OwnerName) ? $"{company.OwnerName} · " : "")}{company.Street} · {company.ZipCode} {company.ZipCity?.City}");
         AddLine("Angebots-ID", company.ServiceId);
         AddLine("Datum der Anerkennung", company.RecognitionDate.ToString("dd.MM.yyyy"));
         AddLine("IK-Nummer", company.InstitutionCode);
