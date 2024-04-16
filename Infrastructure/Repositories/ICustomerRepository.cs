@@ -24,8 +24,13 @@ public interface ICustomerRepository
     /// <param name="companyId">The company id.</param>
     /// <param name="customerId">The employee id.</param>
     /// <param name="employeeId">An optional employee id to check access.</param>
+    /// <param name="asTracking">True to track the entity.</param>
     /// <returns>A customer if found, otherwise null.</returns>
-    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId, Guid? employeeId = null);
+    public Task<Customer?> GetCustomerAsync(
+        Guid companyId,
+        Guid customerId,
+        Guid? employeeId = null,
+        bool asTracking = false);
 
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>

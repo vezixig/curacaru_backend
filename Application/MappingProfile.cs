@@ -75,7 +75,7 @@ internal class MappingProfile : Profile
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 
         CreateMap<Customer, GetCustomerBudgetDto>()
-            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.FirstName} {o.LastName}"))
+            .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.LastName}, {o.FirstName}"))
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 
         CreateMap<AddCustomerDto, Customer>();

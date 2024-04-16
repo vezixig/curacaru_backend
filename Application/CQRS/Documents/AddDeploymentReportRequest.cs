@@ -45,7 +45,7 @@ internal class AddDeploymentReportRequestHandler(
         if (!appointments.Exists(o => o.EmployeeId == user!.Id || o.EmployeeReplacementId == user.Id))
             throw new ForbiddenException("Du darfst keine Berichte für diesen Kunden erstellen.");
 
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Report.CustomerId)
+        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Report.CustomerId, null, true)
                        ?? throw new BadRequestException("Kunde existiert nicht.");
 
         var deploymentReport = new DeploymentReport

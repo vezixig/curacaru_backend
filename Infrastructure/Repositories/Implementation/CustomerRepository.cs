@@ -29,13 +29,21 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
     public Task<List<Customer>> GetAllCustomersAsync()
         => dataContext.Customers.ToListAsync();
 
-    public Task<Customer?> GetCustomerAsync(Guid companyId, Guid customerId, Guid? employeeId = null)
-        => dataContext.Customers
-            .Include(o => o.AssociatedEmployee)
+    public Task<Customer?> GetCustomerAsync(
+        Guid companyId,
+        Guid customerId,
+        Guid? employeeId = null,
+        bool asTracking = false)
+    {
+        var query = dataContext.Customers.AsQueryable();
+        if (asTracking) query = query.AsTracking();
+
+        return query.Include(o => o.AssociatedEmployee)
             .Include(o => o.ZipCity)
             .Include(o => o.Insurance)
             .ThenInclude(o => o!.ZipCity)
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
+    }
 
     public Task<List<Customer>> GetCustomersAsync(
         Guid companyId,
