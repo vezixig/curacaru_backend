@@ -7,7 +7,7 @@ using Infrastructure.Repositories;
 using MediatR;
 
 /// <summary>Request to get a list of appointments.</summary>
-public class AppointmentsRequest(
+public class AppointmentListRequest(
     Guid companyId,
     string authId,
     DateOnly? from,
@@ -35,9 +35,9 @@ public class AppointmentsRequest(
 }
 
 public class AppointmentsRequestHandler(IAppointmentRepository appointmentRepository, IEmployeeRepository employeeRepository, IMapper mapper)
-    : IRequestHandler<AppointmentsRequest, List<GetAppointmentListEntryDto>>
+    : IRequestHandler<AppointmentListRequest, List<GetAppointmentListEntryDto>>
 {
-    public async Task<List<GetAppointmentListEntryDto>> Handle(AppointmentsRequest request, CancellationToken cancellationToken)
+    public async Task<List<GetAppointmentListEntryDto>> Handle(AppointmentListRequest request, CancellationToken cancellationToken)
     {
         var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         var employeeId = !user!.IsManager && request.EmployeeId != user.Id ? user.Id : request.EmployeeId;

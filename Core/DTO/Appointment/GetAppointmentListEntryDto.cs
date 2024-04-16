@@ -33,6 +33,9 @@ public class GetAppointmentListEntryDto
     /// <inheritdoc cref="Appointment.Id" />
     public Guid Id { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether the day of the appointment is the birthday of the customer.</summary>
+    public bool IsBirthday { get; set; }
+
     /// <inheritdoc cref="Appointment.IsDone" />
     public bool IsDone { get; set; }
 
