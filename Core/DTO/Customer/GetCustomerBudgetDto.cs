@@ -6,7 +6,7 @@ using Entities;
 public class GetCustomerBudgetDto
 {
     /// <inheritdoc cref="Customer.AssociatedEmployeeId" />
-    public Guid AssociatedEmployeeId { get; set; }
+    public Guid? AssociatedEmployeeId { get; set; }
 
     /// <inheritdoc cref="Budget.PreventiveCareAmount" />
     public decimal CareBenefitAmount { get; set; }

@@ -50,9 +50,13 @@ public class UpdateCustomerRequestHandler(
         }
 
         mapper.Map(request.CustomerData, customer);
-        customer.AssociatedEmployee = new Employee { Id = request.CustomerData.AssociatedEmployeeId!.Value };
+        if (request.CustomerData.AssociatedEmployeeId.HasValue)
+            customer.AssociatedEmployee = new() { Id = request.CustomerData.AssociatedEmployeeId!.Value };
+        else
+            customer.AssociatedEmployee = null;
+
         customer.Insurance = request.CustomerData.InsuranceId.HasValue ? new Insurance { Id = request.CustomerData.InsuranceId.Value } : null;
-        customer.ZipCity = new ZipCity { ZipCode = request.CustomerData.ZipCode! };
+        customer.ZipCity = new() { ZipCode = request.CustomerData.ZipCode! };
 
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try

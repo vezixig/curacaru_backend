@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Customer;
 
 using AutoMapper;
-using Core.DTO;
 using Core.DTO.Customer;
 using Core.Entities;
 using Infrastructure.Repositories;

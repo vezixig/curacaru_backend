@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ExceptionHandlerMiddleware>();
 builder.Services.AddSingleton<CompanyMiddleware>();
+builder.Services.AddSingleton<SlowLoaderMiddleware>();
 
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -74,6 +75,7 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseCors("local");
+        //app.UseMiddleware<SlowLoaderMiddleware>();
     }
 
     app.UseHttpsRedirection();

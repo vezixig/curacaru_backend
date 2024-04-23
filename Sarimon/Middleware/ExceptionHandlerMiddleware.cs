@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 /// <summary>Middleware to handle exceptions.</summary>
-public class ExceptionHandlerMiddleware : IMiddleware
+public class ExceptionHandlerMiddleware(ILogger<ExceptionHandlerMiddleware> logger) : IMiddleware
 {
     /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -38,6 +38,7 @@ public class ExceptionHandlerMiddleware : IMiddleware
             }
             else
             {
+                logger.LogError(ex, ex.Message);
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "text";
                 await context.Response.WriteAsync(ex.Message);
@@ -45,6 +46,7 @@ public class ExceptionHandlerMiddleware : IMiddleware
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, ex.Message);
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "text";
             await context.Response.WriteAsync(ex.Message);
