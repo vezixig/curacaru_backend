@@ -2,11 +2,15 @@
 
 using System.ComponentModel.DataAnnotations;
 
+/// <summary>An employee of a company.</summary>
 public class Employee
 {
+    /// <summary>Gets or sets the authentication id received from Auth0.</summary>
     [Required]
+    [Length(30, 30)]
     public string AuthId { get; set; } = "";
 
+    /// <summary>Gets or sets the company id.</summary>
     public Guid? CompanyId { get; set; }
 
     public string Email { get; set; } = "";

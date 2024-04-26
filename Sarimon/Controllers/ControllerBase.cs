@@ -3,11 +3,21 @@
 using System.Security.Authentication;
 using System.Security.Claims;
 using Core;
+using Core.Models;
 
 public class ControllerBase : Microsoft.AspNetCore.Mvc.ControllerBase
 {
     /// <summary>Gets the auth id.</summary>
     public string AuthId => User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+    /// <summary>Gets the employee user.</summary>
+    public User AuthUser
+        => new()
+        {
+            EmployeeId = UserId,
+            CompanyId = CompanyId,
+            IsManager = IsManager
+        };
 
     /// <summary>Gets the company id or null if user is not associated with a company.</summary>
     public Guid CompanyId

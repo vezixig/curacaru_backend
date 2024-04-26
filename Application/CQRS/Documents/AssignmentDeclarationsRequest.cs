@@ -1,43 +1,37 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
 using Core.DTO.AssignmentDeclaration;
-using Core.Entities;
 using Core.Enums;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
 public class AssignmentDeclarationsRequest(
-    Guid companyId,
-    string authId,
+    User user,
     int year,
     Guid? employeeId,
     Guid? customerId) : IRequest<List<GetAssignmentDeclarationListEntryDto>>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public Guid? CustomerId { get; } = customerId;
 
     public Guid? EmployeeId { get; } = employeeId;
+
+    public User User { get; } = user;
 
     public int Year { get; } = year;
 }
 
 internal class AssignmentDeclarationsRequestHandler(
     ICustomerRepository customerRepository,
-    IEmployeeRepository employeeRepository,
     IDocumentRepository documentRepository) : IRequestHandler<AssignmentDeclarationsRequest, List<GetAssignmentDeclarationListEntryDto>>
 {
     public async Task<List<GetAssignmentDeclarationListEntryDto>> Handle(AssignmentDeclarationsRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-
-        var customers = await GetCustomersAsync(request, user);
+        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, request.User.EmployeeId, request.CustomerId);
+        customers = customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
 
         var assignmentDeclarations =
-            await documentRepository.GetAssignmentDeclarationsAsync(request.CompanyId, request.Year, request.CustomerId, request.EmployeeId);
+            await documentRepository.GetAssignmentDeclarationsAsync(request.User.CompanyId, request.Year, request.CustomerId, request.EmployeeId);
 
         var result = customers.Select(
                 o =>
@@ -56,13 +50,5 @@ internal class AssignmentDeclarationsRequestHandler(
             .ToList();
 
         return result;
-    }
-
-    private async Task<List<Customer>> GetCustomersAsync(AssignmentDeclarationsRequest request, Employee? user)
-    {
-        var employeeId = request.EmployeeId ?? (user!.IsManager ? null : user.Id);
-        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.CompanyId, employeeId, request.CustomerId);
-
-        return customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
     }
 }

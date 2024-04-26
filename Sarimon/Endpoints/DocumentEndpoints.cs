@@ -69,7 +69,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                     Guid customerId,
                     int year) =>
                 {
-                    var document = await mediator.Send(new AssignmentDeclarationRequest(GetCompanyId(principal), GetAuthId(principal), customerId, year));
+                    var document = await mediator.Send(new AssignmentDeclarationRequest(GetAuthUser(principal), customerId, year));
                     return Results.File(document, "application/pdf");
                 })
             .RequireAuthorization(Policy.Company)
@@ -91,7 +91,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         [FromRoute] int year,
                         [FromQuery] Guid? employeeId,
                         [FromQuery] Guid? customerId)
-                    => await mediator.Send(new AssignmentDeclarationsRequest(GetCompanyId(principal), GetAuthId(principal), year, employeeId, customerId)))
+                    => await mediator.Send(new AssignmentDeclarationsRequest(GetAuthUser(principal), year, employeeId, customerId)))
             .RequireAuthorization(Policy.Company)
             .Produces<List<GetAssignmentDeclarationListEntryDto>>()
             .WithOpenApi(
@@ -114,7 +114,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         Guid customerId,
                         int clearanceType) =>
                     await mediator.Send(
-                        new DeploymentReportRequest(GetCompanyId(principal), GetAuthId(principal), customerId, year, month, (ClearanceType)clearanceType)))
+                        new DeploymentReportRequest(GetAuthUser(principal), customerId, year, month, (ClearanceType)clearanceType)))
             .RequireAuthorization(Policy.Company)
             .WithOpenApi(
                 generatedOperation =>
@@ -137,7 +137,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                     int month) =>
                 {
                     var document = await mediator.Send(
-                        new DeploymentReportDocumentRequest(GetCompanyId(principal), GetAuthId(principal), customerId, (ClearanceType)clearanceType, year, month));
+                        new DeploymentReportDocumentRequest(GetAuthUser(principal), customerId, (ClearanceType)clearanceType, year, month));
                     return Results.File(document, "application/pdf");
                 })
             .RequireAuthorization(Policy.Company)
@@ -161,7 +161,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         [FromQuery] Guid? customerId,
                         [FromQuery] Guid? employeeId) =>
                     await mediator.Send(
-                        new DeploymentReportsRequest(GetCompanyId(principal), GetAuthId(principal), year, month, customerId, employeeId)
+                        new DeploymentReportsRequest(GetAuthUser(principal), year, month, customerId, employeeId)
                     ))
             .RequireAuthorization(Policy.Company)
             .WithOpenApi(
@@ -180,7 +180,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         IMediator mediator,
                         ClaimsPrincipal principal,
                         AddAssignmentDeclarationDto data) =>
-                    await mediator.Send(new AddAssignmentDeclarationRequest(GetCompanyId(principal), GetAuthId(principal), data)))
+                    await mediator.Send(new AddAssignmentDeclarationRequest(GetAuthUser(principal), data)))
             .RequireAuthorization(Policy.Company)
             .WithOpenApi(
                 generatedOperation =>
@@ -199,7 +199,7 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         ClaimsPrincipal principal,
                         AddDeploymentReportDto data) =>
                     await mediator.Send(
-                        new AddDeploymentReportRequest(GetCompanyId(principal), GetAuthId(principal), data)))
+                        new AddDeploymentReportRequest(GetAuthUser(principal), data)))
             .RequireAuthorization(Policy.Company)
             .WithOpenApi(
                 generatedOperation =>

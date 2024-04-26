@@ -1,7 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Employee;
 
 using Core.Entities;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using MediatR;
 
 /// <summary>Query for getting all employees of the company the user is in.</summary>

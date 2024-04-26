@@ -1,38 +1,35 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.TimeTracking;
 
 using Core.DTO.TimeTracker;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
 public class WorkingHoursRequest(
-    Guid companyId,
+    User user,
     Guid employeeId,
-    string authId,
     int month,
     int year) : IRequest<List<GetWorkedHoursDto>>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public Guid EmployeeId { get; } = employeeId;
 
     public int Month { get; } = month;
 
+    public User User { get; } = user;
+
     public int Year { get; } = year;
 }
 
-internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepository, IEmployeeRepository employeeRepository)
+internal class WorkingHoursRequestHandler(IAppointmentRepository appointmentRepository)
     : IRequestHandler<WorkingHoursRequest, List<GetWorkedHoursDto>>
 {
     public async Task<List<GetWorkedHoursDto>> Handle(WorkingHoursRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (!user!.IsManager && user!.Id != request.EmployeeId) throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
+        if (!request.User.IsManager && request.User.EmployeeId != request.EmployeeId)
+            throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten abrufen");
 
         var workingHours = await appointmentRepository.GetAppointmentsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             new DateOnly(request.Year, request.Month, 1),
             new DateOnly(request.Year, request.Month, 1).AddMonths(1).AddDays(-1),
             request.EmployeeId,

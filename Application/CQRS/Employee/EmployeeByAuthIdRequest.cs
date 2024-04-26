@@ -2,7 +2,7 @@
 
 using Core.DTO.Employee;
 using Core.Enums;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using MediatR;
 
 /// <summary>Initializes a new instance of the <see cref="EmployeeByAuthIdRequest" /> class.</summary>
@@ -22,7 +22,7 @@ public class EmployeeByAuthIdRequestHandler(ICompanyRepository companyRepository
 
         var company = employee.CompanyId == null ? null : await companyRepository.GetCompanyByIdAsync(employee.CompanyId.Value);
 
-        return new GetUserEmployeeDto
+        return new()
         {
             CompanyId = employee.CompanyId,
             CompanyName = company?.Name ?? "",

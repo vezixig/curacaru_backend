@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 /// <summary>Controller for the company data.</summary>
 /// <param name="mediator">The mediator.</param>
+[Authorize(Policy = Policy.Company)]
 [ApiController]
 [Route("[controller]")]
 public class CompanyController(IMediator mediator) : ControllerBase
@@ -23,7 +24,6 @@ public class CompanyController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>Gets the prices of the company.</summary>
-    [Authorize(Policy = Policy.Company)]
     [HttpGet("prices")]
     public async Task<IActionResult> GetPrices()
     {

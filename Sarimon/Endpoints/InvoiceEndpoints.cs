@@ -53,7 +53,7 @@ public class InvoiceEndpoints : EndpointsBase, IEndpoints
                     ClaimsPrincipal principal,
                     AddInvoiceDto invoice) =>
                 {
-                    await mediator.Send(new AddInvoiceRequest(GetCompanyId(principal), GetUserId(principal), invoice));
+                    await mediator.Send(new AddInvoiceRequest(GetAuthUser(principal), invoice));
                     return Results.NoContent();
                 })
             .RequireAuthorization(Policy.Manager)

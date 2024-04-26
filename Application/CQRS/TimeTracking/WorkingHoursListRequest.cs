@@ -2,21 +2,18 @@
 
 using Core.DTO.TimeTracker;
 using Core.Enums;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
 public class WorkingHoursListRequest(
-    Guid companyId,
-    string authId,
+    User user,
     int year,
     int month) : IRequest<List<GetWorkingTimeReportListDto>>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public int Month { get; } = month;
+
+    public User User { get; } = user;
 
     public int Year { get; } = year;
 }
@@ -26,19 +23,22 @@ internal class WorkingHoursListRequestHandler(IWorkingTimeRepository workingTime
 {
     public async Task<List<GetWorkingTimeReportListDto>> Handle(WorkingHoursListRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         var start = new DateOnly(request.Year, request.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
 
         var workedMonths = await workingTimeRepository.GetWorkedMonthsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             start,
             end,
-            user!.IsManager ? null : user.Id);
+            request.User.IsManager ? null : request.User.EmployeeId);
 
-        var reports = await workingTimeRepository.GetWorkingTimeReportsAsync(request.CompanyId, request.Year, request.Month, user!.IsManager ? null : user.Id);
+        var reports = await workingTimeRepository.GetWorkingTimeReportsAsync(
+            request.User.CompanyId,
+            request.Year,
+            request.Month,
+            request.User.IsManager ? null : request.User.EmployeeId);
 
-        var employees = await employeeRepository.GetEmployeesAsync(request.CompanyId);
+        var employees = await employeeRepository.GetEmployeesAsync(request.User.CompanyId);
 
         workedMonths.ForEach(
             workedMonth =>

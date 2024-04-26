@@ -4,38 +4,33 @@ using Core.DTO.Invoice;
 using Core.Entities;
 using Core.Enums;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 
-public class AddInvoiceRequest(Guid companyId, Guid userId, AddInvoiceDto invoice) : IRequest
+public class AddInvoiceRequest(User user, AddInvoiceDto invoice) : IRequest
 {
-    public Guid CompanyId { get; } = companyId;
-
     public AddInvoiceDto Invoice { get; } = invoice;
 
-    public Guid UserId { get; } = userId;
+    public User User { get; } = user;
 }
 
 internal class AddInvoiceRequestHandler(
     ICompanyRepository companyRepository,
     IDocumentRepository documentRepository,
-    IEmployeeRepository employeeRepository,
     IImageService imageService,
     IInvoiceRepository invoiceRepository)
     : IRequestHandler<AddInvoiceRequest>
 {
     public async Task Handle(AddInvoiceRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.UserId);
-
-        var deploymentReport = await documentRepository.GetDeploymentReportByIdAsync(request.CompanyId, request.Invoice.DeploymentReportId)
+        var deploymentReport = await documentRepository.GetDeploymentReportByIdAsync(request.User.CompanyId, request.Invoice.DeploymentReportId)
                                ?? throw new BadRequestException("Der Einsatzbericht wurde nicht gefunden.");
 
         if (deploymentReport.Invoice is not null) throw new BadRequestException("Die Rechnung wurde bereits erfasst.");
 
-        var companyData = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
+        var companyData = await companyRepository.GetCompanyByIdAsync(request.User.CompanyId);
 
         var rideCosts = companyData!.RideCostsType switch
         {
@@ -48,7 +43,7 @@ internal class AddInvoiceRequestHandler(
 
         var invoice = new Invoice
         {
-            CompanyId = request.CompanyId,
+            CompanyId = request.User.CompanyId,
             DeploymentReport = deploymentReport,
             DeploymentReportId = deploymentReport.Id,
             HourlyRate = companyData.PricePerHour,
@@ -57,8 +52,8 @@ internal class AddInvoiceRequestHandler(
             RideCosts = companyData.RideCosts,
             RideCostsType = companyData.RideCostsType,
             Signature = imageService.ReduceImage(request.Invoice.Signature),
-            SignedEmployee = user!,
-            SignedEmployeeId = request.UserId,
+            SignedEmployee = new() { Id = request.User.EmployeeId },
+            SignedEmployeeId = request.User.EmployeeId,
             TotalRideCosts = rideCosts,
             WorkedHours = (decimal)deploymentReport.Appointments.Sum(o => (o.TimeEnd - o.TimeStart).TotalHours)
         };

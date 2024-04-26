@@ -1,29 +1,29 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Employee;
 
 using Core.Entities;
-using Infrastructure.repositories;
+using Core.Models;
+using Infrastructure.Repositories;
 using MediatR;
 
 /// <summary>Request for an employee by id.</summary>
-/// <param name="companyId">The id of user's company.</param>
+/// <param name="user">The authorized user.</param>
 /// <param name="employeeId">The requested employee id.</param>
-public class EmployeeByIdRequest(Guid companyId, string authId, string employeeId) : IRequest<Employee?>
+public class EmployeeByIdRequest(User user, string employeeId) : IRequest<Employee?>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
+    /// <summary>Gets the employee id.</summary>
     public Guid EmployeeId { get; } = Guid.Parse(employeeId);
+
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
 internal class EmployeeByIdRequestHandler(IEmployeeRepository employeeRepository) : IRequestHandler<EmployeeByIdRequest, Employee?>
 {
     public async Task<Employee?> Handle(EmployeeByIdRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.Id != request.EmployeeId && !user.IsManager) throw new UnauthorizedAccessException("Du darfst nur dich selber ansehen");
+        if (request.User.EmployeeId != request.EmployeeId && !request.User.IsManager) throw new UnauthorizedAccessException("Du darfst nur dich selber ansehen");
 
-        var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.EmployeeId);
+        var employee = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.EmployeeId);
         return employee;
     }
 }

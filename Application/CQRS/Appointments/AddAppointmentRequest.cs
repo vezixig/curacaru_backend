@@ -6,19 +6,21 @@ using Core.Entities;
 using Core.Enums;
 using Core.Exceptions;
 using Core.Models;
-using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 using Services;
 
-public class AddAppointmentRequest(Guid companyId, string authId, AddAppointmentDto appointment) : IRequest<GetAppointmentDto>
+/// <summary>Request to add a new appointment.</summary>
+/// <param name="user">The authorized user.</param>
+/// <param name="appointment">Appointment data.</param>
+public class AddAppointmentRequest(User user, AddAppointmentDto appointment) : IRequest<GetAppointmentDto>
 {
+    /// <summary>Gets the appointment data.</summary>
     public AddAppointmentDto Appointment { get; } = appointment;
 
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
 internal class AddAppointmentRequestHandler(
@@ -35,14 +37,13 @@ internal class AddAppointmentRequestHandler(
 {
     public async Task<GetAppointmentDto> Handle(AddAppointmentRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-
         var appointment = mapper.Map<Appointment>(request.Appointment);
-        appointment.CompanyId = request.CompanyId;
+        appointment.CompanyId = request.User.CompanyId;
 
         // Auth
-        if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen für andere Mitarbeiter Termine anlegen.");
-        if (appointment.EmployeeReplacementId.HasValue && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen Vertretungen einsetzen.");
+        if (request.User.EmployeeId != appointment.EmployeeId && !request.User.IsManager)
+            throw new ForbiddenException("Nur Manager dürfen für andere Mitarbeiter Termine anlegen.");
+        if (appointment.EmployeeReplacementId.HasValue && !request.User.IsManager) throw new ForbiddenException("Nur Manager dürfen Vertretungen einsetzen.");
 
         // Date
         if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Now.Month, 1))
@@ -50,22 +51,22 @@ internal class AddAppointmentRequestHandler(
         appointment.IsPlanned = appointment.Date > dateTimeService.EndOfMonth;
 
         // customer
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
+        var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.Appointment.CustomerId)
                        ?? throw new BadRequestException("Kunde nicht gefunden.");
 
-        if (user.Id != customer.AssociatedEmployeeId && !user.IsManager)
+        if (request.User.EmployeeId != customer.AssociatedEmployeeId && !request.User.IsManager)
             throw new ForbiddenException("Nur Manager dürfen Termine für nicht selbst betreute Kunden anlegen.");
         appointment.Customer = new() { Id = customer.Id };
 
         // employee
-        var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
+        var employee = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.Appointment.EmployeeId)
                        ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
         appointment.Employee = new() { Id = employee.Id };
 
         // employee replacement
         if (appointment.EmployeeReplacementId.HasValue)
         {
-            var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId!.Value)
+            var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.Appointment.EmployeeReplacementId!.Value)
                                       ?? throw new NotFoundException("Vertretung nicht gefunden.");
             appointment.EmployeeReplacement = new() { Id = employeeReplacement.Id };
         }
@@ -73,7 +74,7 @@ internal class AddAppointmentRequestHandler(
         // overlapping
         var isOverlapping = await mediator.Send(
             new IsBlockingAppointmentRequest(
-                request.CompanyId,
+                request.User.CompanyId,
                 request.Appointment.EmployeeReplacementId ?? request.Appointment.EmployeeId,
                 request.Appointment.Date,
                 request.Appointment.TimeStart,

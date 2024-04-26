@@ -1,7 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Employee;
 
 using Core.DTO.Employee;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using MediatR;
 
 public class UpdateProfileRequest(string authId, UpdateProfileDto profile) : IRequest

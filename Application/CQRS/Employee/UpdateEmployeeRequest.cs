@@ -3,26 +3,30 @@
 using Core.DTO;
 using Core.Entities;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
+using Infrastructure.Repositories;
 using MediatR;
 
-public class UpdateEmployeeRequest(Guid companyId, Guid userId, UpdateEmployeeDto employee) : IRequest<Employee>
+/// <summary>Request to update an employee.</summary>
+/// <param name="user">The authorized user.</param>
+/// <param name="employee">The modified employee.</param>
+public class UpdateEmployeeRequest(User user, UpdateEmployeeDto employee) : IRequest<Employee>
 {
-    public Guid CompanyId { get; } = companyId;
-
+    /// <summary>Gets the modified employee.</summary>
     public UpdateEmployeeDto Employee { get; } = employee;
 
-    public Guid UserId { get; } = userId;
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
 internal class UpdateEmployeeRequestHandler(IEmployeeRepository employeeRepository) : IRequestHandler<UpdateEmployeeRequest, Employee>
 {
     public async Task<Employee> Handle(UpdateEmployeeRequest request, CancellationToken cancellationToken)
     {
-        var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Employee.Id)
+        var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.Employee.Id)
                               ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
-        if (currentEmployee.Id == request.UserId) throw new NotFoundException("Du darfst deine eigene Rolle nicht ändern.");
+        if (currentEmployee.Id == request.User.EmployeeId) throw new NotFoundException("Du darfst deine eigene Rolle nicht ändern.");
 
         currentEmployee.Email = request.Employee.Email;
         currentEmployee.FirstName = request.Employee.FirstName;

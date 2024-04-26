@@ -2,21 +2,30 @@
 
 using AutoMapper;
 using Core.DTO.Customer;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
-public class CustomerRequest(Guid companyId, Guid employeeId) : IRequest<GetCustomerDto?>
+/// <summary>Request for a customer.</summary>
+/// <param name="user">The authorized user.</param>
+/// <param name="customerId">The customer id.</param>
+public class CustomerRequest(User user, Guid customerId) : IRequest<GetCustomerDto?>
 {
-    public Guid CompanyId { get; } = companyId;
+    /// <summary>Gets the customer id.</summary>
+    public Guid CustomerId { get; } = customerId;
 
-    public Guid EmployeeId { get; } = employeeId;
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
 internal class CustomerRequestHandler(ICustomerRepository customerRepository, IMapper mapper) : IRequestHandler<CustomerRequest, GetCustomerDto?>
 {
     public async Task<GetCustomerDto?> Handle(CustomerRequest request, CancellationToken cancellationToken)
     {
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.EmployeeId);
+        var customer = await customerRepository.GetCustomerAsync(
+            request.User.CompanyId,
+            request.CustomerId,
+            request.User.IsManager ? null : request.User.EmployeeId);
         return mapper.Map<GetCustomerDto>(customer);
     }
 }

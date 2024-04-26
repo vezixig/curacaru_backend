@@ -17,7 +17,7 @@ public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
                     ClaimsPrincipal principal,
                     Guid employeeId,
                     int month,
-                    int year) => await mediator.Send(new WorkingHoursRequest(GetCompanyId(principal), employeeId, GetAuthId(principal), month, year)))
+                    int year) => await mediator.Send(new WorkingHoursRequest(GetAuthUser(principal), employeeId, month, year)))
             .RequireAuthorization(Policy.Company);
 
         app.MapGet(
@@ -27,7 +27,7 @@ public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
                     ClaimsPrincipal principal,
                     Guid employeeId,
                     int year,
-                    int month) => await mediator.Send(new WorkingHoursReportRequest(GetCompanyId(principal), GetAuthId(principal), employeeId, month, year)))
+                    int month) => await mediator.Send(new WorkingHoursReportRequest(GetAuthUser(principal), employeeId, month, year)))
             .RequireAuthorization(Policy.Company);
 
         app.MapGet(
@@ -39,7 +39,7 @@ public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
                     int year,
                     int month) =>
                 {
-                    var report = await mediator.Send(new WorkingHoursReportPrintRequest(GetCompanyId(principal), GetAuthId(principal), employeeId, month, year));
+                    var report = await mediator.Send(new WorkingHoursReportPrintRequest(GetAuthUser(principal), employeeId, month, year));
                     return Results.File(report, "application/pdf");
                 })
             .RequireAuthorization(Policy.Company);
@@ -50,7 +50,7 @@ public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
                     IMediator mediator,
                     ClaimsPrincipal principal,
                     int month,
-                    int year) => await mediator.Send(new WorkingHoursListRequest(GetCompanyId(principal), GetAuthId(principal), year, month)))
+                    int year) => await mediator.Send(new WorkingHoursListRequest(GetAuthUser(principal), year, month)))
             .RequireAuthorization(Policy.Company);
 
         app.MapPost(
@@ -59,7 +59,7 @@ public class TimeTrackerEndpoints : EndpointsBase, IEndpoints
                         IMediator mediator,
                         ClaimsPrincipal principal,
                         AddWorkingTimeReportSignatureDto dto)
-                    => await mediator.Send(new AddWorkingTimeSignatureRequest(GetCompanyId(principal), GetAuthId(principal), dto)))
+                    => await mediator.Send(new AddWorkingTimeSignatureRequest(GetAuthUser(principal), dto)))
             .RequireAuthorization(Policy.Company);
 
         app.MapDelete(

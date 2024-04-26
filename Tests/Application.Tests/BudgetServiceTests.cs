@@ -5,7 +5,6 @@ using Curacaru.Backend.Application.Services;
 using Curacaru.Backend.Application.Services.Implementations;
 using Curacaru.Backend.Core.Entities;
 using Curacaru.Backend.Core.Enums;
-using Curacaru.Backend.Infrastructure.repositories;
 using Curacaru.Backend.Infrastructure.Repositories;
 using FluentAssertions;
 using NSubstitute;

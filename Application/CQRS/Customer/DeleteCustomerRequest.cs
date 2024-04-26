@@ -1,7 +1,6 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Customer;
 
 using Core.Exceptions;
-using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
 

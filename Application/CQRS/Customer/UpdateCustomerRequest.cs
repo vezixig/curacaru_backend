@@ -4,18 +4,16 @@ using AutoMapper;
 using Core.DTO.Customer;
 using Core.Entities;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 
-public class UpdateCustomerRequest(UpdateCustomerDto customerData, Guid companyId, string authId) : IRequest<GetCustomerDto>
+public class UpdateCustomerRequest(User user, UpdateCustomerDto customerData) : IRequest<GetCustomerDto>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public UpdateCustomerDto CustomerData { get; } = customerData;
+
+    public User User { get; } = user;
 }
 
 public class UpdateCustomerRequestHandler(
@@ -28,17 +26,17 @@ public class UpdateCustomerRequestHandler(
 {
     public async Task<GetCustomerDto> Handle(UpdateCustomerRequest request, CancellationToken cancellationToken)
     {
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.CustomerData.Id)
+        var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.CustomerData.Id)
                        ?? throw new BadRequestException("Kunde nicht gefunden.");
 
-        if (customer.CompanyId != request.CompanyId) throw new ForbiddenException("Sie dürfen diesen Kunden nicht bearbeiten.");
+        if (customer.CompanyId != request.User.CompanyId) throw new ForbiddenException("Sie dürfen diesen Kunden nicht bearbeiten.");
 
         if (request.CustomerData.AssociatedEmployeeId.HasValue)
-            _ = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.CustomerData.AssociatedEmployeeId.Value)
+            _ = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.CustomerData.AssociatedEmployeeId.Value)
                 ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
 
         // Remove clearance amounts from budgets if not allowed
-        var budget = await budgetRepository.GetCurrentBudgetAsync(request.CompanyId, request.CustomerData.Id);
+        var budget = await budgetRepository.GetCurrentBudgetAsync(request.User.CompanyId, request.CustomerData.Id);
 
         if (budget is not null)
         {

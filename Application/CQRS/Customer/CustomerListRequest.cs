@@ -2,25 +2,24 @@
 
 using AutoMapper;
 using Core.DTO.Customer;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
-public class CustomerListRequest(Guid companyId, string authId) : IRequest<List<GetCustomerListEntryDto>>
+/// <summary>Request for the customer list.</summary>
+/// <param name="user">The authorized user.</param>
+public class CustomerListRequest(User user) : IRequest<List<GetCustomerListEntryDto>>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
-public class CustomerListRequestHandler(ICustomerRepository customerRepository, IEmployeeRepository employeeRepository, IMapper mapper)
+public class CustomerListRequestHandler(ICustomerRepository customerRepository, IMapper mapper)
     : IRequestHandler<CustomerListRequest, List<GetCustomerListEntryDto>>
 {
     public async Task<List<GetCustomerListEntryDto>> Handle(CustomerListRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-
-        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.CompanyId, user!.IsManager ? null : user.Id);
+        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, request.User.IsManager ? null : request.User.EmployeeId);
         return mapper.Map<List<GetCustomerListEntryDto>>(customers);
     }
 }

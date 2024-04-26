@@ -1,34 +1,30 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
 using Core.DTO.Documents;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
 public class DeploymentReportsRequest(
-    Guid companyId,
-    string authId,
+    User user,
     int year,
     int month,
     Guid? customerId,
     Guid? employeeId) : IRequest<List<GetDeploymentReportListEntryDto>>
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public Guid? CustomerId { get; } = customerId;
 
     public Guid? EmployeeId { get; } = employeeId;
 
     public int Month { get; } = month;
 
+    public User User { get; } = user;
+
     public int Year { get; } = year;
 }
 
 internal class DeploymentReportsRequestHandler(
     IAppointmentRepository appointmentRepository,
-    IEmployeeRepository employeeRepository,
     IDocumentRepository documentRepository)
     : IRequestHandler<DeploymentReportsRequest, List<GetDeploymentReportListEntryDto>>
 {
@@ -36,23 +32,23 @@ internal class DeploymentReportsRequestHandler(
     {
         if (request.Year >= DateTime.Now.Year && request.Month > DateTime.Now.Month) return [];
 
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-
         var possibleReports = await appointmentRepository.GetClearanceTypes(
-            request.CompanyId,
+            request.User.CompanyId,
             request.CustomerId,
             request.EmployeeId,
             request.Year,
             request.Month);
 
         var reports = await documentRepository.GetDeploymentReportsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             request.CustomerId,
             request.Year,
             request.Month);
 
-        if (!user!.IsManager)
-            possibleReports = possibleReports.Where(o => o.Employees.Exists(p => p.Id == user.Id) || o.ReplacementEmployee.Exists(p => p.Id == user.Id)).ToList();
+        if (!request.User.IsManager)
+            possibleReports = possibleReports.Where(
+                    o => o.Employees.Exists(p => p.Id == request.User.EmployeeId) || o.ReplacementEmployee.Exists(p => p.Id == request.User.EmployeeId))
+                .ToList();
 
         return possibleReports.Select(
                 o => new GetDeploymentReportListEntryDto(

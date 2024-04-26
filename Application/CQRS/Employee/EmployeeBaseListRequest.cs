@@ -2,7 +2,7 @@
 
 using AutoMapper;
 using Core.DTO;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using MediatR;
 
 public class EmployeeBaseListRequest(Guid companyId) : IRequest<IEnumerable<GetEmployeeBase>>

@@ -2,32 +2,27 @@
 
 using Core.Enums;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 
 /// <summary>Request for a deployment report.</summary>
-/// <param name="companyId">The company id.</param>
-/// <param name="authId">The auth id used to check if user can view customer.</param>
 /// <param name="customerId">The customer id the report is for.</param>
 public class DeploymentReportDocumentRequest(
-    Guid companyId,
-    string authId,
+    User user,
     Guid customerId,
     ClearanceType clearanceType,
     int year,
     int month) : IRequest<byte[]>
 {
-    public string AuthId { get; } = authId;
-
     public ClearanceType ClearanceType { get; } = clearanceType;
-
-    public Guid CompanyId { get; } = companyId;
 
     public Guid CustomerId { get; } = customerId;
 
     public int Month { get; } = month;
+
+    public User User { get; } = user;
 
     public int Year { get; } = year;
 }
@@ -35,16 +30,13 @@ public class DeploymentReportDocumentRequest(
 internal class DeploymentReportDocumentRequestHandler(
     ICompanyRepository companyRepository,
     IDocumentRepository documentRepository,
-    IEmployeeRepository employeeRepository,
     IReportService reportService)
     : IRequestHandler<DeploymentReportDocumentRequest, byte[]>
 {
     public async Task<byte[]> Handle(DeploymentReportDocumentRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-
         var report = await documentRepository.GetDeploymentReportsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             request.CustomerId,
             request.Year,
             request.Month,
@@ -52,10 +44,11 @@ internal class DeploymentReportDocumentRequestHandler(
             true);
         if (report.Count != 1) throw new BadRequestException("Einsatznachweis existiert nicht.");
 
-        if (!user!.IsManager && !report[0].Appointments.Exists(o => o.EmployeeId == user.Id || o.EmployeeReplacementId == user.Id))
+        if (!request.User.IsManager
+            && !report[0].Appointments.Exists(o => o.EmployeeId == request.User.EmployeeId || o.EmployeeReplacementId == request.User.EmployeeId))
             throw new ForbiddenException("Du darfst diesen Einsatznachweis nicht herunterladen.");
 
-        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
+        var company = await companyRepository.GetCompanyByIdAsync(request.User.CompanyId);
 
         var reportDocument = reportService.CreateDeploymentReport(company!, report[0]);
         return reportDocument;

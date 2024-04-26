@@ -2,26 +2,24 @@
 
 using Core.DTO.Documents;
 using Core.Enums;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
 public class DeploymentReportRequest(
-    Guid companyId,
-    string authId,
+    User user,
     Guid customerId,
     int year,
     int month,
     ClearanceType clearanceType) : IRequest<GetDeploymentReportDto?>
 {
-    public string AuthId { get; } = authId;
-
     public ClearanceType ClearanceType { get; } = clearanceType;
-
-    public Guid CompanyId { get; } = companyId;
 
     public Guid CustomerId { get; } = customerId;
 
     public int Month { get; } = month;
+
+    public User User { get; } = user;
 
     public int Year { get; } = year;
 }
@@ -35,14 +33,14 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
 
         var start = new DateOnly(request.Year, request.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
-        var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, null, request.CustomerId, request.ClearanceType);
+        var appointments = await appointmentRepository.GetAppointmentsAsync(request.User.CompanyId, start, end, null, request.CustomerId, request.ClearanceType);
 
         if (appointments.Count == 0) return null;
 
         appointments = appointments.OrderBy(o => o.Date).ThenBy(o => o.TimeStart).ToList();
 
         var deploymentReport = await documentRepository.GetDeploymentReportsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             request.CustomerId,
             request.Year,
             request.Month,

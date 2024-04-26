@@ -32,7 +32,7 @@ public class ExceptionHandlerMiddleware(ILogger<ExceptionHandlerMiddleware> logg
                 context.Response.ContentType = "text";
 
                 if (pex.SqlState == "23503")
-                    await context.Response.WriteAsync("Eintrag ist noch in Verwendung ist.");
+                    await context.Response.WriteAsync("Eintrag ist noch in Verwendung.");
                 else
                     await context.Response.WriteAsync(pex.MessageText);
             }

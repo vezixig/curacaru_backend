@@ -3,43 +3,38 @@
 using Core.DTO.TimeTracker;
 using Core.Entities;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 
 public class AddWorkingTimeSignatureRequest(
-    Guid companyId,
-    string authId,
+    User user,
     AddWorkingTimeReportSignatureDto data) : IRequest
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public AddWorkingTimeReportSignatureDto Data { get; } = data;
+
+    public User User { get; } = user;
 }
 
 internal class AddWorkingTimeSignatureRequestHandler(
     IAppointmentRepository appointmentRepository,
-    IEmployeeRepository employeeRepository,
     IImageService imageService,
     IWorkingTimeRepository workingTimeRepository)
     : IRequestHandler<AddWorkingTimeSignatureRequest>
 {
     public async Task Handle(AddWorkingTimeSignatureRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.Id != request.Data.EmployeeId && !user.IsManager)
+        if (request.User.EmployeeId != request.Data.EmployeeId && !request.User.IsManager)
             throw new UnauthorizedAccessException("Du darfst nur deine eigenen Arbeitszeiten unterschreiben");
 
         var existingReport = await workingTimeRepository.GetWorkingTimeReportsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             request.Data.Year,
             request.Data.Month,
             request.Data.EmployeeId);
 
-        if (existingReport.Any() && (!user.IsManager || existingReport[0].SignatureManagerDate is not null))
+        if (existingReport.Any() && (!request.User.IsManager || existingReport[0].SignatureManagerDate is not null))
             throw new InvalidOperationException("Du hast diesen Bericht bereits unterschrieben");
 
         if (existingReport.Count > 0)
@@ -55,8 +50,8 @@ internal class AddWorkingTimeSignatureRequestHandler(
             // /calculate working hours
             var start = new DateOnly(request.Data.Year, request.Data.Month, 1);
             var end = start.AddMonths(1).AddDays(-1);
-            var appointments = await appointmentRepository.GetAppointmentsAsync(request.CompanyId, start, end, user.Id, null);
-            appointments = appointments.Where(o => o.EmployeeReplacementId == user.Id || o.EmployeeReplacementId is null).ToList();
+            var appointments = await appointmentRepository.GetAppointmentsAsync(request.User.CompanyId, start, end, request.User.EmployeeId, null);
+            appointments = appointments.Where(o => o.EmployeeReplacementId == request.User.EmployeeId || o.EmployeeReplacementId is null).ToList();
 
             if (appointments.Count == 0) throw new BadRequestException("Es gibt keine Arbeitszeiten in diesem Monat");
             if (appointments.Exists(o => !o.IsDone)) throw new BadRequestException("Es gibt noch nicht abgeschlossene Termine in diesem Monat");
@@ -65,8 +60,8 @@ internal class AddWorkingTimeSignatureRequestHandler(
 
             var report = new WorkingTimeReport
             {
-                CompanyId = request.CompanyId,
-                EmployeeId = user.Id,
+                CompanyId = request.User.CompanyId,
+                EmployeeId = request.User.EmployeeId,
                 Month = request.Data.Month,
                 Year = request.Data.Year,
                 SignatureEmployee = imageService.ReduceImage(request.Data.Signature),

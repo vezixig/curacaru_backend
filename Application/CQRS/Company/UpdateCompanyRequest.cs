@@ -2,7 +2,7 @@
 
 using Core.DTO.Company;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using MediatR;
 
 public class UpdateCompanyRequest(Guid companyId, UpdateCompanyDto companyData) : IRequest

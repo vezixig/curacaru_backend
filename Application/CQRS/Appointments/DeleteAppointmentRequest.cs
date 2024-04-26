@@ -1,36 +1,34 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Appointments;
 
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 using Services;
 
 /// <summary>Request to delete an appointment.</summary>
-/// <param name="companyId">The company id.</param>
-/// <param name="authId">The auth id of the user.</param>
+/// <param name="user">The authorized user.</param>
 /// <param name="appointmentId">The appointment id.</param>
-public class BudgetService(Guid companyId, string authId, Guid appointmentId) : IRequest
+public class DeleteAppointmentRequest(User user, Guid appointmentId) : IRequest
 {
+    /// <summary>Gets the appointment id.</summary>
     public Guid AppointmentId { get; } = appointmentId;
 
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
 internal class DeleteAppointmentRequestHandler(
     IAppointmentRepository appointmentRepository,
     IBudgetService budgetService,
     IDatabaseService databaseService,
-    IDateTimeService dateTimeService,
-    IEmployeeRepository employeeRepository)
-    : IRequestHandler<BudgetService>
+    IDateTimeService dateTimeService)
+    : IRequestHandler<DeleteAppointmentRequest>
 {
-    public async Task Handle(BudgetService request, CancellationToken cancellationToken)
+    public async Task Handle(DeleteAppointmentRequest request, CancellationToken cancellationToken)
     {
-        var appointment = await appointmentRepository.GetAppointmentAsync(request.CompanyId, request.AppointmentId)
+        var appointment = await appointmentRepository.GetAppointmentAsync(request.User.CompanyId, request.AppointmentId)
                           ?? throw new NotFoundException("Termin nicht gefunden.");
 
         if (appointment.IsDone) throw new BadRequestException("Abgeschlossene Termine können nicht gelöscht werden.");
@@ -38,8 +36,7 @@ internal class DeleteAppointmentRequestHandler(
         if (appointment.Date < dateTimeService.BeginOfCurrentMonth && !appointment.IsPlanned)
             throw new BadRequestException("Termine vor dem aktuellen Monat können nicht gelöscht werden.");
 
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.Id != appointment.EmployeeId && !user.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
+        if (request.User.EmployeeId != appointment.EmployeeId && !request.User.IsManager) throw new ForbiddenException("Nur Manager dürfen fremde Termine löschen.");
 
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try

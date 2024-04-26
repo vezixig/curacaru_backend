@@ -1,4 +1,4 @@
-﻿namespace Curacaru.Backend.Infrastructure.repositories.implementation;
+﻿namespace Curacaru.Backend.Infrastructure.Repositories.Implementation;
 
 using Core.Attributes;
 using Core.Entities;

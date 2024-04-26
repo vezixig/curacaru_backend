@@ -31,21 +31,21 @@ public class CustomerController(ISender mediator) : ControllerBase
     [HttpGet("{customerId:guid}")]
     public async Task<IActionResult> GetCustomer([FromRoute] Guid customerId)
     {
-        var customer = await mediator.Send(new CustomerRequest(CompanyId, customerId));
+        var customer = await mediator.Send(new CustomerRequest(AuthUser, customerId));
         return customer == null ? NotFound() : Ok(customer);
     }
 
     [HttpGet("list")]
     public async Task<IActionResult> GetCustomers()
     {
-        var customers = await mediator.Send(new CustomerListRequest(CompanyId, AuthId));
+        var customers = await mediator.Send(new CustomerListRequest(AuthUser));
         return Ok(customers);
     }
 
     [HttpGet("{customerId:guid}/budget")]
     public async Task<IActionResult> GetCustomerWithBudget([FromRoute] Guid customerId)
     {
-        var customer = await mediator.Send(new CustomerWithBudgetRequest(CompanyId, AuthId, customerId));
+        var customer = await mediator.Send(new CustomerWithBudgetRequest(AuthUser, customerId));
         return Ok(customer);
     }
 
@@ -55,7 +55,7 @@ public class CustomerController(ISender mediator) : ControllerBase
         [FromQuery] int? assignmentDeclarationYear)
     {
         var customers = await mediator.Send(
-            new MinimalCustomerListRequest(CompanyId, AuthId, insuranceStatus, assignmentDeclarationYear));
+            new MinimalCustomerListRequest(AuthUser, insuranceStatus, assignmentDeclarationYear));
         return Ok(customers);
     }
 
@@ -63,7 +63,7 @@ public class CustomerController(ISender mediator) : ControllerBase
     public async Task<IActionResult> GetMinimalCustomerList()
     {
         var customers = await mediator.Send(
-            new MinimalCustomerListForDeploymentReportsRequest(CompanyId, AuthId));
+            new MinimalCustomerListForDeploymentReportsRequest(AuthUser));
         return Ok(customers);
     }
 
@@ -71,7 +71,7 @@ public class CustomerController(ISender mediator) : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateCustomer([FromBody] UpdateCustomerDto customer)
     {
-        var updatedCustomer = await mediator.Send(new UpdateCustomerRequest(customer, CompanyId, AuthId));
+        var updatedCustomer = await mediator.Send(new UpdateCustomerRequest(AuthUser, customer));
         return Ok(updatedCustomer);
     }
 }

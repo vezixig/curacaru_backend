@@ -2,7 +2,7 @@
 
 using AutoMapper;
 using Core.DTO.Company;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using MediatR;
 
 /// <summary>Request for a company by its id.</summary>

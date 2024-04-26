@@ -32,7 +32,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
     [HttpGet("{employeeId}")]
     public async Task<IActionResult> GetEmployee([FromRoute] string employeeId)
     {
-        var employee = await mediator.Send(new EmployeeByIdRequest(CompanyId, AuthId, employeeId));
+        var employee = await mediator.Send(new EmployeeByIdRequest(AuthUser, employeeId));
         return employee == null ? NotFound() : Ok(employee);
     }
 
@@ -63,7 +63,7 @@ public class EmployeeController(ISender mediator) : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateEmployee([FromBody] UpdateEmployeeDto employee)
     {
-        var updatedEmployee = await mediator.Send(new UpdateEmployeeRequest(CompanyId, UserId, employee));
+        var updatedEmployee = await mediator.Send(new UpdateEmployeeRequest(AuthUser, employee));
         return Ok(updatedEmployee);
     }
 

@@ -3,38 +3,31 @@
 using AutoMapper;
 using Core.DTO.Customer;
 using Core.Enums;
-using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
 
 /// <summary>A request to get deployments for an employee for a month.</summary>
 public class MinimalCustomerListRequest(
-    Guid companyId,
-    string authId,
+    User user,
     InsuranceStatus? insuranceStatus,
     int? assignmentDeclarationYear) : IRequest<List<GetMinimalCustomerListEntryDto>>
 {
     public int? AssignmentDeclarationYear { get; } = assignmentDeclarationYear;
 
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public InsuranceStatus? InsuranceStatus { get; } = insuranceStatus;
+
+    public User User { get; } = user;
 }
 
-internal class DeploymentsRequestHandler(ICustomerRepository customerRepository, IEmployeeRepository employeeRepository, IMapper mapper)
+internal class DeploymentsRequestHandler(ICustomerRepository customerRepository, IMapper mapper)
     : IRequestHandler<MinimalCustomerListRequest, List<GetMinimalCustomerListEntryDto>>
 {
     public async Task<List<GetMinimalCustomerListEntryDto>> Handle(MinimalCustomerListRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId)
-                   ?? throw new BadRequestException("Mitarbeiter existiert nicht.");
-
         var customers = await customerRepository.GetCustomersAsync(
-            request.CompanyId,
-            user!.IsManager ? null : user.Id,
+            request.User.CompanyId,
+            request.User.IsManager ? null : request.User.EmployeeId,
             request.InsuranceStatus,
             request.AssignmentDeclarationYear);
 

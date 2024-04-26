@@ -3,7 +3,7 @@
 using System.Security.Authentication;
 using System.Security.Claims;
 using Core;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 
 public class CompanyMiddleware : IMiddleware
 {

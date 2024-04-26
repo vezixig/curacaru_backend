@@ -2,26 +2,23 @@
 
 using Core.DTO.Documents;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Core.Models;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 using DeploymentReport = Core.Entities.DeploymentReport;
 
-public class AddDeploymentReportRequest(Guid companyId, string authId, AddDeploymentReportDto report) : IRequest
+public class AddDeploymentReportRequest(User user, AddDeploymentReportDto report) : IRequest
 {
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
-
     public AddDeploymentReportDto Report { get; } = report;
+
+    public User User { get; } = user;
 }
 
 internal class AddDeploymentReportRequestHandler(
     IAppointmentRepository appointmentRepository,
     ICustomerRepository customerRepository,
     IDocumentRepository documentRepository,
-    IEmployeeRepository employeeRepository,
     IImageService imageService) : IRequestHandler<AddDeploymentReportRequest>
 {
     public async Task Handle(AddDeploymentReportRequest request, CancellationToken cancellationToken)
@@ -29,11 +26,10 @@ internal class AddDeploymentReportRequestHandler(
         if (string.IsNullOrEmpty(request.Report.SignatureEmployee) || string.IsNullOrEmpty(request.Report.SignatureCustomer))
             throw new BadRequestException("Es fehlt eine Unterschrift.");
 
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
         var start = new DateOnly(request.Report.Year, request.Report.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
         var appointments = await appointmentRepository.GetAppointmentsAsync(
-            request.CompanyId,
+            request.User.CompanyId,
             start,
             end,
             null,
@@ -42,10 +38,10 @@ internal class AddDeploymentReportRequestHandler(
             true);
         appointments = appointments.FindAll(o => o.IsDone);
 
-        if (!appointments.Exists(o => o.EmployeeId == user!.Id || o.EmployeeReplacementId == user.Id))
+        if (!appointments.Exists(o => o.EmployeeId == request.User.EmployeeId || o.EmployeeReplacementId == request.User.EmployeeId))
             throw new ForbiddenException("Du darfst keine Berichte für diesen Kunden erstellen.");
 
-        var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Report.CustomerId, null, true)
+        var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.Report.CustomerId, null, true)
                        ?? throw new BadRequestException("Kunde existiert nicht.");
 
         var deploymentReport = new DeploymentReport
@@ -53,7 +49,7 @@ internal class AddDeploymentReportRequestHandler(
             Appointments = appointments,
             CareLevel = customer.CareLevel,
             ClearanceType = request.Report.ClearanceType,
-            CompanyId = request.CompanyId,
+            CompanyId = request.User.CompanyId,
             Customer = appointments[0].Customer,
             CustomerId = request.Report.CustomerId,
             CustomerInsuranceStatus = customer.InsuranceStatus,

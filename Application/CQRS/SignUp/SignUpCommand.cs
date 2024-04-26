@@ -3,7 +3,7 @@
 using Core.DTO;
 using Core.Entities;
 using Core.Exceptions;
-using Infrastructure.repositories;
+using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
 

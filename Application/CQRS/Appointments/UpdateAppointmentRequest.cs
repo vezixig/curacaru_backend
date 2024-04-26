@@ -6,18 +6,20 @@ using Core.Entities;
 using Core.Enums;
 using Core.Exceptions;
 using Core.Models;
-using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using MediatR;
 using Services;
 
-public class UpdateAppointmentRequest(Guid companyId, string authId, UpdateAppointmentDto appointment) : IRequest<GetAppointmentDto>
+/// <summary>Request to update an appointment.</summary>
+/// <param name="user">The authorized user.</param>
+/// <param name="appointment">The modified appointment.</param>
+public class UpdateAppointmentRequest(User user, UpdateAppointmentDto appointment) : IRequest<GetAppointmentDto>
 {
+    /// <summary>Gets the modified appointment.</summary>
     public UpdateAppointmentDto Appointment { get; } = appointment;
 
-    public string AuthId { get; } = authId;
-
-    public Guid CompanyId { get; } = companyId;
+    /// <summary>Gets the authorized user.</summary>
+    public User User { get; } = user;
 }
 
 internal class UpdateAppointmentRequestHandler(
@@ -33,7 +35,7 @@ internal class UpdateAppointmentRequestHandler(
 {
     public async Task<GetAppointmentDto> Handle(UpdateAppointmentRequest request, CancellationToken cancellationToken)
     {
-        var appointment = await repository.GetAppointmentAsync(request.CompanyId, request.Appointment.Id)
+        var appointment = await repository.GetAppointmentAsync(request.User.CompanyId, request.Appointment.Id)
                           ?? throw new NotFoundException("Termin nicht gefunden.");
 
         await Validate(request, appointment);
@@ -61,7 +63,7 @@ internal class UpdateAppointmentRequestHandler(
     private async Task HandleClearanceBudget(UpdateAppointmentRequest request, Appointment appointment)
     {
         var isPlanned = request.Appointment.Date > dateTimeService.EndOfMonth;
-        var price = await budgetService.CalculateAppointmentPriceAsync(PriceCalculationData.CreateFrom(request.Appointment, request.CompanyId));
+        var price = await budgetService.CalculateAppointmentPriceAsync(PriceCalculationData.CreateFrom(request.Appointment, request.User.CompanyId));
         if (request.Appointment.ClearanceType != appointment.ClearanceType || (!appointment.IsPlanned && isPlanned) || appointment.HasBudgetError)
         {
             // clearance type changed - refund to old budget and charge new budget
@@ -142,9 +144,7 @@ internal class UpdateAppointmentRequestHandler(
 
     private async Task Validate(UpdateAppointmentRequest request, Appointment appointment)
     {
-        var userEmployee = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-
-        if (userEmployee!.Id != appointment.EmployeeId && userEmployee.Id != appointment.EmployeeReplacementId && !userEmployee.IsManager)
+        if (request.User.EmployeeId != appointment.EmployeeId && request.User.EmployeeId != appointment.EmployeeReplacementId && !request.User.IsManager)
             throw new ForbiddenException("Nur Manager dürfen fremde Termine bearbeiten.");
 
         // Date
@@ -154,9 +154,9 @@ internal class UpdateAppointmentRequestHandler(
         // customer
         if (appointment.CustomerId != request.Appointment.CustomerId)
         {
-            if (!userEmployee.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
+            if (!request.User.IsManager) throw new ForbiddenException("Nur Manager dürfen den Kunden ändern.");
 
-            var customer = await customerRepository.GetCustomerAsync(request.CompanyId, request.Appointment.CustomerId)
+            var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.Appointment.CustomerId)
                            ?? throw new BadRequestException("Kunde nicht gefunden.");
             appointment.CustomerId = customer.Id;
         }
@@ -165,9 +165,9 @@ internal class UpdateAppointmentRequestHandler(
 
         if (appointment.EmployeeId != request.Appointment.EmployeeId)
         {
-            if (!userEmployee.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
+            if (!request.User.IsManager) throw new ForbiddenException("Nur Manager dürfen den Mitarbeiter ändern.");
 
-            var employee = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeId)
+            var employee = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.Appointment.EmployeeId)
                            ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
             appointment.EmployeeId = employee.Id;
         }
@@ -175,12 +175,12 @@ internal class UpdateAppointmentRequestHandler(
         // employee replacement
         if (appointment.EmployeeReplacementId != request.Appointment.EmployeeReplacementId)
         {
-            if (!userEmployee.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
+            if (!request.User.IsManager) throw new ForbiddenException("Nur Manager dürfen die Vertretung ändern.");
 
             if (request.Appointment.EmployeeReplacementId == null) { appointment.EmployeeReplacementId = null; }
             else
             {
-                var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.CompanyId, request.Appointment.EmployeeReplacementId.Value)
+                var employeeReplacement = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.Appointment.EmployeeReplacementId.Value)
                                           ?? throw new NotFoundException("Vertretung nicht gefunden.");
                 appointment.EmployeeReplacementId = employeeReplacement.Id;
             }
@@ -189,7 +189,7 @@ internal class UpdateAppointmentRequestHandler(
         // overlapping
         var isOverlapping = await mediator.Send(
             new IsBlockingAppointmentRequest(
-                request.CompanyId,
+                request.User.CompanyId,
                 request.Appointment.EmployeeReplacementId ?? request.Appointment.EmployeeId,
                 request.Appointment.Date,
                 request.Appointment.TimeStart,

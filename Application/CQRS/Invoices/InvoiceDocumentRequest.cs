@@ -1,6 +1,5 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Invoices;
 
-using Infrastructure.repositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using MediatR;
