@@ -39,12 +39,15 @@ public class Customer
     public bool DoClearanceSelfPayment { get; set; }
 
     /// <summary>Gets or sets the emergency contact name.</summary>
+    [MaxLength(150)]
     public string EmergencyContactName { get; set; } = "";
 
     /// <summary>Gets or sets the emergency contact phone number.</summary>
+    [MaxLength(50)]
     public string EmergencyContactPhone { get; set; } = "";
 
     /// <summary>Gets or sets the first name.</summary>
+    [MaxLength(50)]
     public string FirstName { get; set; } = "";
 
     public string FullName => $"{FirstName} {LastName}".Trim();
@@ -64,21 +67,26 @@ public class Customer
     public InsuranceStatus? InsuranceStatus { get; set; }
 
     /// <summary>Gets or sets the insured person number of the customer.</summary>
+    [MaxLength(10)]
     public string InsuredPersonNumber { get; set; } = "";
 
     /// <summary>Gets or sets the last name.</summary>
+    [MaxLength(50)]
     public string LastName { get; set; } = "";
 
     /// <summary>Gets or sets the phone number of the customer.</summary>
+    [MaxLength(50)]
     public string Phone { get; set; } = "";
 
     /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>
     public Gender Salutation { get; set; }
 
     /// <summary>Gets or sets the street of the customer's address.</summary>
+    [MaxLength(150)]
     public string Street { get; set; } = "";
 
     public ZipCity? ZipCity { get; set; }
 
+    [MaxLength(5)]
     public string? ZipCode { get; set; } = "";
 }

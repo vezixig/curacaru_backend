@@ -19,14 +19,18 @@ public class WorkingTimeReport
 
     public int Month { get; set; }
 
+    [MaxLength(15000)]
     public string SignatureEmployee { get; set; } = "";
 
+    [MaxLength(30)]
     public string SignatureEmployeeCity { get; set; } = "";
 
     public DateOnly SignatureEmployeeDate { get; set; }
 
+    [MaxLength(15000)]
     public string? SignatureManager { get; set; } = "";
 
+    [MaxLength(30)]
     public string? SignatureManagerCity { get; set; } = "";
 
     public DateOnly? SignatureManagerDate { get; set; }

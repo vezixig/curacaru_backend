@@ -26,7 +26,8 @@ internal class UpdateEmployeeRequestHandler(IEmployeeRepository employeeReposito
         var currentEmployee = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.Employee.Id)
                               ?? throw new NotFoundException("Mitarbeiter nicht gefunden.");
 
-        if (currentEmployee.Id == request.User.EmployeeId) throw new NotFoundException("Du darfst deine eigene Rolle nicht ändern.");
+        if (currentEmployee.Id == request.User.EmployeeId && currentEmployee.IsManager != request.Employee.IsManager)
+            throw new NotFoundException("Du darfst deine eigene Rolle nicht ändern.");
 
         currentEmployee.Email = request.Employee.Email;
         currentEmployee.FirstName = request.Employee.FirstName;

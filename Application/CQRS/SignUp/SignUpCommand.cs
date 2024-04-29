@@ -23,6 +23,8 @@ internal class SignUpCommandHandler(
 {
     public async Task<GetEmployeeDto> Handle(SignUpCommand request, CancellationToken cancellationToken)
     {
+        throw new BadRequestException("Derzeit läuft ein geschlossener Betatest. Es sind keine Registrierungen möglich!");
+
         if (await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId) != null) throw new BadRequestException("Employee already exists");
 
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);

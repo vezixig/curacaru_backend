@@ -61,12 +61,15 @@ public class Appointment
     public bool IsPlanned { get; set; }
 
     /// <summary>Gets or sets the notes.</summary>
+    [MaxLength(500)]
     public string Notes { get; set; } = "";
 
     /// <summary>Gets or sets the signature of the employee.</summary>
+    [MaxLength(15000)]
     public string SignatureCustomer { get; set; } = "";
 
     /// <summary>Gets or sets the signature of the customer.</summary>
+    [MaxLength(15000)]
     public string SignatureEmployee { get; set; } = "";
 
     /// <summary>Gets or sets the starting time.</summary>

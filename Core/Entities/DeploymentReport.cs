@@ -40,6 +40,7 @@ public class DeploymentReport
 
     /// <summary>Gets or sets the insurance number at the time of creation.</summary>
     /// <remarks>This is a copy to save the state.</remarks>
+    [MaxLength(10)]
     public string InsuredPersonNumber { get; set; } = "";
 
     /// <summary>Gets or sets the invoice for the report. Null if not created yet.</summary>
@@ -53,12 +54,14 @@ public class DeploymentReport
     public string SignatureCity { get; set; } = "";
 
     /// <summary>Gets or sets the signature of the customer.</summary>
+    [MaxLength(15000)]
     public string SignatureCustomer { get; set; } = "";
 
     /// <summary>Gets or sets the date of the signature.</summary>
     public DateOnly SignatureDate { get; set; }
 
     /// <summary>Gets or sets the signature of the employee.</summary>
+    [MaxLength(15000)]
     public string SignatureEmployee { get; set; } = "";
 
     /// <summary>Gets or sets the amount of worked hours.</summary>
