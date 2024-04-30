@@ -16,6 +16,6 @@ internal class EmployeeBaseListRequestHandler(IEmployeeRepository employeeReposi
     public async Task<IEnumerable<GetEmployeeBase>> Handle(EmployeeBaseListRequest request, CancellationToken cancellationToken)
     {
         var employees = await employeeRepository.GetEmployeesAsync(request.CompanyId);
-        return mapper.Map<IEnumerable<GetEmployeeBase>>(employees);
+        return mapper.Map<IEnumerable<GetEmployeeBase>>(employees.OrderBy(o => o.FullName));
     }
 }

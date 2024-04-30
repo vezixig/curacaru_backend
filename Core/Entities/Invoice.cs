@@ -39,7 +39,7 @@ public class Invoice
     public RideCostsType RideCostsType { get; set; }
 
     /// <summary>Gets or sets the signature of the employee who signed the invoice.</summary>
-    [MaxLength(15000)]
+    [MaxLength(100000)]
     public string Signature { get; set; } = "";
 
     /// <summary>Gets or sets the employee who signed the invoice.</summary>

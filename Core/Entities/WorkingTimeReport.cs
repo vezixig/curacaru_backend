@@ -19,7 +19,7 @@ public class WorkingTimeReport
 
     public int Month { get; set; }
 
-    [MaxLength(15000)]
+    [MaxLength(100000)]
     public string SignatureEmployee { get; set; } = "";
 
     [MaxLength(30)]
@@ -27,7 +27,7 @@ public class WorkingTimeReport
 
     public DateOnly SignatureEmployeeDate { get; set; }
 
-    [MaxLength(15000)]
+    [MaxLength(100000)]
     public string? SignatureManager { get; set; } = "";
 
     [MaxLength(30)]
