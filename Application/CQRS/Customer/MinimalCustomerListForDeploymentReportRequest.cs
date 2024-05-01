@@ -21,6 +21,6 @@ internal class MinimalCustomerListForDeploymentReportsRequestHandler(ICustomerRe
             request.User.CompanyId,
             request.User.IsManager ? null : request.User.EmployeeId);
 
-        return mapper.Map<List<GetMinimalCustomerListEntryDto>>(customers);
+        return mapper.Map<List<GetMinimalCustomerListEntryDto>>(customers.OrderBy(o => o.FullNameReverse));
     }
 }

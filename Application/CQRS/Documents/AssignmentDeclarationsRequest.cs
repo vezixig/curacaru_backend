@@ -32,10 +32,11 @@ internal class AssignmentDeclarationsRequestHandler(
 
         var employeeId = request.User.IsManager ? request.EmployeeId : request.User.EmployeeId;
 
-        var customers = await customerRepository.GetCustomersAsync(request.User.CompanyId, employeeId, customerId: request.CustomerId);
+        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, employeeId, request.CustomerId);
+        customers = customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
 
         var assignmentDeclarations =
-            await documentRepository.GetAssignmentDeclarationsAsync(request.User.CompanyId, request.Year, request.CustomerId, request.EmployeeId);
+            await documentRepository.GetAssignmentDeclarationsAsync(request.User.CompanyId, request.Year, request.CustomerId, employeeId);
 
         var result = customers.Select(
                 o =>
