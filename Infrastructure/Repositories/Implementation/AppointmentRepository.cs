@@ -91,7 +91,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
             .Where(
                 o => o.IsPlanned
                      && o.Date >= new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1)
-                     && o.Date < new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+                     && o.Date <= new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
             .OrderBy(o => o.Date)
             .ThenBy(o => o.TimeStart)
             .ToListAsync();
