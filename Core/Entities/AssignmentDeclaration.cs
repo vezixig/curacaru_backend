@@ -62,7 +62,7 @@ public class AssignmentDeclaration
     public string InsuredPersonNumber { get; set; } = "";
 
     /// <summary>Gets or sets the signature of the customer.</summary>
-    [MaxLength(15000)]
+    [MaxLength(100000)]
     public string Signature { get; set; } = "";
 
     /// <summary>Gets or sets the city of the signature.</summary>

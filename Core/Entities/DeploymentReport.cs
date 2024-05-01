@@ -54,14 +54,14 @@ public class DeploymentReport
     public string SignatureCity { get; set; } = "";
 
     /// <summary>Gets or sets the signature of the customer.</summary>
-    [MaxLength(15000)]
+    [MaxLength(100000)]
     public string SignatureCustomer { get; set; } = "";
 
     /// <summary>Gets or sets the date of the signature.</summary>
     public DateOnly SignatureDate { get; set; }
 
     /// <summary>Gets or sets the signature of the employee.</summary>
-    [MaxLength(15000)]
+    [MaxLength(100000)]
     public string SignatureEmployee { get; set; } = "";
 
     /// <summary>Gets or sets the amount of worked hours.</summary>

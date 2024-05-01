@@ -31,6 +31,6 @@ internal class DeploymentsRequestHandler(ICustomerRepository customerRepository,
             request.InsuranceStatus,
             request.AssignmentDeclarationYear);
 
-        return mapper.Map<List<GetMinimalCustomerListEntryDto>>(customers);
+        return mapper.Map<List<GetMinimalCustomerListEntryDto>>(customers.OrderBy(o => o.FullNameReverse));
     }
 }

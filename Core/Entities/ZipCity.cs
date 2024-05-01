@@ -7,7 +7,7 @@ public class ZipCity
 {
     /// <summary>Gets or sets the name of the city.</summary>
     [Required]
-    [MaxLength(30)]
+    [MaxLength(40)]
     public string City { get; set; } = "";
 
     /// <summary>Gets or sets the zip code of the city.</summary>

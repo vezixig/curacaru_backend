@@ -3,6 +3,7 @@ using System;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240429174121_StringLength2")]
+    partial class StringLength2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,13 +77,13 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.Property<string>("SignatureCustomer")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<string>("SignatureEmployee")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<TimeOnly>("TimeEnd")
                         .HasColumnType("time without time zone");
@@ -163,8 +166,8 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.Property<string>("Signature")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<string>("SignatureCity")
                         .IsRequired()
@@ -440,16 +443,16 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.Property<string>("SignatureCustomer")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<DateOnly>("SignatureDate")
                         .HasColumnType("date");
 
                     b.Property<string>("SignatureEmployee")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<double>("WorkedHours")
                         .HasColumnType("double precision");
@@ -584,8 +587,8 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.Property<string>("Signature")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<Guid>("SignedEmployeeId")
                         .HasColumnType("uuid");
@@ -628,8 +631,8 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.Property<string>("SignatureEmployee")
                         .IsRequired()
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<string>("SignatureEmployeeCity")
                         .IsRequired()
@@ -640,8 +643,8 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("SignatureManager")
-                        .HasMaxLength(100000)
-                        .HasColumnType("character varying(100000)");
+                        .HasMaxLength(15000)
+                        .HasColumnType("character varying(15000)");
 
                     b.Property<string>("SignatureManagerCity")
                         .HasMaxLength(30)
