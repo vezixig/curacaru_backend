@@ -1,7 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
 using Core.DTO.AssignmentDeclaration;
-using Core.Enums;
+using Core.Exceptions;
 using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
@@ -27,8 +27,12 @@ internal class AssignmentDeclarationsRequestHandler(
 {
     public async Task<List<GetAssignmentDeclarationListEntryDto>> Handle(AssignmentDeclarationsRequest request, CancellationToken cancellationToken)
     {
-        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, request.User.EmployeeId, request.CustomerId);
-        customers = customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
+        if (!request.User.IsManager && request.EmployeeId.HasValue && request.EmployeeId != request.User.EmployeeId)
+            throw new BadRequestException("Du darfst nur deine eigenen Kunden sehen.");
+
+        var employeeId = request.User.IsManager ? request.EmployeeId : request.User.EmployeeId;
+
+        var customers = await customerRepository.GetCustomersAsync(request.User.CompanyId, employeeId, customerId: request.CustomerId);
 
         var assignmentDeclarations =
             await documentRepository.GetAssignmentDeclarationsAsync(request.User.CompanyId, request.Year, request.CustomerId, request.EmployeeId);

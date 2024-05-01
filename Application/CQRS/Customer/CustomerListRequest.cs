@@ -19,7 +19,7 @@ public class CustomerListRequestHandler(ICustomerRepository customerRepository, 
 {
     public async Task<List<GetCustomerListEntryDto>> Handle(CustomerListRequest request, CancellationToken cancellationToken)
     {
-        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, request.User.IsManager ? null : request.User.EmployeeId);
+        var customers = await customerRepository.GetCustomersAsync(request.User.CompanyId, request.User.IsManager ? null : request.User.EmployeeId);
         return mapper.Map<List<GetCustomerListEntryDto>>(customers);
     }
 }

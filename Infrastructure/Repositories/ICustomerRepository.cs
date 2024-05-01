@@ -18,6 +18,7 @@ public interface ICustomerRepository
 
     /// <summary>Gets all customers.</summary>
     /// <returns>A list of customers.</returns>
+    /// <remarks>Is used in the service.</remarks>
     public Task<List<Customer>> GetAllCustomersAsync();
 
     /// <summary>Gets a customer.</summary>
@@ -40,12 +41,14 @@ public interface ICustomerRepository
     ///     An optional filter to remove customers that already have an assignment
     ///     declaration for the provided year.
     /// </param>
+    /// <param name="customerId">If set only the customer with the id is returned.</param>
     /// <returns>A list of customers.</returns>
     public Task<List<Customer>> GetCustomersAsync(
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
-        int? requestAssignmentDeclarationYear = null);
+        int? requestAssignmentDeclarationYear = null,
+        Guid? customerId = null);
 
     /// <summary>
     ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or
@@ -54,13 +57,6 @@ public interface ICustomerRepository
     Task<List<Customer>> GetCustomersForDeploymentReportsAsync(
         Guid companyId,
         Guid? employeeId);
-
-    /// <summary>Gets all customers of a company that are assigned to a specific employee.</summary>
-    /// <param name="companyId">The company id.</param>
-    /// <param name="customerId">If set only the customer with the id is returned.</param>
-    /// <param name="employeeId">Can be null for managers to return all customers.</param>
-    /// <returns>A list of customers.</returns>
-    public Task<List<Customer>> GetCustomersForResponsibleEmployee(Guid companyId, Guid? employeeId, Guid? customerId = null);
 
     /// <summary>Updates a customer.</summary>
     /// <param name="customer">The modified customer.</param>

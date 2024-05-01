@@ -49,7 +49,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
-        int? requestAssignmentDeclarationYear = null)
+        int? requestAssignmentDeclarationYear = null,
+        Guid? customerId = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -57,6 +58,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .Where(c => c.CompanyId == companyId);
 
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
+
+        if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
 
@@ -81,21 +84,6 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
                          appointment => appointment.EmployeeId == employeeId || appointment.EmployeeReplacementId == employeeId));
 
         return result.ToListAsync();
-    }
-
-    public Task<List<Customer>> GetCustomersForResponsibleEmployee(Guid companyId, Guid? employeeId, Guid? customerId = null)
-    {
-        var result = dataContext.Customers
-            .Include(o => o.AssociatedEmployee)
-            .Include(o => o.ZipCity)
-            .Where(c => c.CompanyId == companyId);
-
-        if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
-        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId);
-
-        return result
-            .OrderBy(c => c.LastName)
-            .ToListAsync();
     }
 
     public Task<Customer> UpdateCustomerAsync(Customer customer)
