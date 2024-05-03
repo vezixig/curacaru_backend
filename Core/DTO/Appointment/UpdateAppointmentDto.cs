@@ -6,7 +6,7 @@ using Enums;
 public class UpdateAppointmentDto
 {
     /// <inheritdoc cref="Appointment.ClearanceType" />
-    public ClearanceType ClearanceType { get; set; }
+    public ClearanceType? ClearanceType { get; set; }
 
     /// <inheritdoc cref="Appointment.CustomerId" />
     public Guid CustomerId { get; set; }

@@ -151,6 +151,11 @@ internal class UpdateAppointmentRequestHandler(
         if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Now.Month, 1))
             throw new BadRequestException("Termine können nicht vor dem aktuellen Monat liegen.");
 
+        // Clearance type
+        if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Today.Month, 1).AddMonths(1)
+            && request.Appointment.ClearanceType is null)
+            throw new BadRequestException("Für diesen Termin muss eine Abrechnungsoption gewählt werden.");
+
         // customer
         if (appointment.CustomerId != request.Appointment.CustomerId)
         {

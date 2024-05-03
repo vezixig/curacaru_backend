@@ -69,7 +69,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         var query = dataContext.Appointments.Include(o => o.Customer)
             .Include(o => o.Employee)
             .Include(o => o.EmployeeReplacement)
-            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month);
+            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month && o.ClearanceType != null);
 
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
@@ -81,7 +81,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
                     Customer = o.First().Customer,
                     Employees = o.Select(p => p.Employee).ToList(),
                     ReplacementEmployee = o.Where(p => p.EmployeeReplacement != null).Select(p => p.EmployeeReplacement!).ToList(),
-                    ClearanceType = o.Key.ClearanceType
+                    ClearanceType = o.Key.ClearanceType!.Value
                 })
             .ToListAsync();
     }

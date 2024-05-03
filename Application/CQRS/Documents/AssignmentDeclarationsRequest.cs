@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
 using Core.DTO.AssignmentDeclaration;
+using Core.Enums;
 using Core.Exceptions;
 using Core.Models;
 using Infrastructure.Repositories;
@@ -32,7 +33,7 @@ internal class AssignmentDeclarationsRequestHandler(
 
         var employeeId = request.User.IsManager ? request.EmployeeId : request.User.EmployeeId;
 
-        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, employeeId, request.CustomerId);
+        var customers = await customerRepository.GetCustomersAsync(request.User.CompanyId, employeeId, customerId: request.CustomerId);
         customers = customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
 
         var assignmentDeclarations =
