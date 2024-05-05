@@ -33,10 +33,15 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
             .ToListAsync();
 
     public Task<List<Insurance>> SearchInsurancesByNameAsync(Guid companyId, string name)
-        => dataContext.Insurances
-            .Where(o => (o.CompanyId == null || o.CompanyId == companyId) && o.Name.ToLower().Contains(name.ToLower()))
+    {
+        name = name.ToLower();
+        return dataContext.Insurances
+            .Where(
+                o => (o.CompanyId == null || o.CompanyId == companyId)
+                     && (o.Name.ToLower().Contains(name) || o.InstitutionCode.ToLower().Contains(name)))
             .Take(5)
             .ToListAsync();
+    }
 
     public async Task<Insurance> UpdateInsuranceAsync(Insurance insurance)
     {
