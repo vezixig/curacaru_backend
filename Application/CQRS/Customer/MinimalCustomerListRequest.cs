@@ -29,7 +29,8 @@ internal class DeploymentsRequestHandler(ICustomerRepository customerRepository,
             request.User.CompanyId,
             request.User.IsManager ? null : request.User.EmployeeId,
             request.InsuranceStatus,
-            request.AssignmentDeclarationYear);
+            request.AssignmentDeclarationYear,
+            status: CustomerStatus.Customer);
 
         return mapper.Map<List<GetMinimalCustomerListEntryDto>>(customers.OrderBy(o => o.FullNameReverse));
     }

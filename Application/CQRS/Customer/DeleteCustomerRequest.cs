@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Customer;
 
+using Core.Enums;
 using Core.Exceptions;
 using Infrastructure.Repositories;
 using MediatR;
@@ -21,6 +22,7 @@ internal class DeleteCustomerRequestHandler(ICustomerRepository customerReposito
         var customer = await customerRepository.GetCustomerAsync(user.CompanyId.Value, request.CustomerId)
                        ?? throw new NotFoundException("Kunde nicht gefunden.");
 
-        await customerRepository.DeleteCustomerAsync(customer);
+        customer.Status = CustomerStatus.Former;
+        await customerRepository.UpdateCustomerAsync(customer);
     }
 }

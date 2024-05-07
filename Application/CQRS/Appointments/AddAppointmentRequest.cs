@@ -59,6 +59,8 @@ internal class AddAppointmentRequestHandler(
         var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.Appointment.CustomerId)
                        ?? throw new BadRequestException("Kunde nicht gefunden.");
 
+        if (customer.Status != CustomerStatus.Customer) throw new BadRequestException("Kunde ist nicht aktiv.");
+
         if (request.User.EmployeeId != customer.AssociatedEmployeeId && !request.User.IsManager)
             throw new ForbiddenException("Nur Manager dürfen Termine für nicht selbst betreute Kunden anlegen.");
         appointment.Customer = new() { Id = customer.Id };

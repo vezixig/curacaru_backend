@@ -42,13 +42,15 @@ public interface ICustomerRepository
     ///     declaration for the provided year.
     /// </param>
     /// <param name="customerId">If set only the customer with the id is returned.</param>
+    /// <param name="status">An optional filter for the customer status.</param>
     /// <returns>A list of customers.</returns>
     public Task<List<Customer>> GetCustomersAsync(
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
         int? requestAssignmentDeclarationYear = null,
-        Guid? customerId = null);
+        Guid? customerId = null,
+        CustomerStatus? status = null);
 
     /// <summary>
     ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or

@@ -50,7 +50,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
         int? requestAssignmentDeclarationYear = null,
-        Guid? customerId = null)
+        Guid? customerId = null,
+        CustomerStatus? status = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -60,6 +61,8 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
 
         if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
+
+        if (status.HasValue) result = result.Where(c => c.Status == null || c.Status == status);
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
 
@@ -75,7 +78,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         Guid companyId,
         Guid? employeeId)
     {
-        var result = dataContext.Customers.Where(o => o.CompanyId == companyId);
+        var result = dataContext.Customers.Where(o => o.CompanyId == companyId && o.Status == CustomerStatus.Customer);
 
         if (employeeId.HasValue)
             result = result.Where(
