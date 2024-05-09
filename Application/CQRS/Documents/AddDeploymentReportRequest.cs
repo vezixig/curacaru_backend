@@ -34,8 +34,8 @@ internal class AddDeploymentReportRequestHandler(
             end,
             null,
             request.Report.CustomerId,
-            request.Report.ClearanceType,
-            true);
+            clearanceType: request.Report.ClearanceType,
+            asTracking: true);
         appointments = appointments.FindAll(o => o.IsDone);
 
         if (!appointments.Exists(o => o.EmployeeId == request.User.EmployeeId || o.EmployeeReplacementId == request.User.EmployeeId))

@@ -29,12 +29,33 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
     public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId)
         => dataContext.Appointments.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
 
+    public Task<int> GetAppointmentCountAsync(
+        Guid companyId,
+        DateOnly? from,
+        DateOnly? to,
+        Guid? employeeId,
+        Guid? customerId,
+        ClearanceType? clearanceType = null)
+    {
+        var query = dataContext.Appointments.Where(o => o.CompanyId == companyId);
+
+        if (from.HasValue) query = query.Where(o => o.Date >= from.Value);
+        if (to.HasValue) query = query.Where(o => o.Date <= to.Value);
+        if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
+        if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
+
+        return query.CountAsync();
+    }
+
     public Task<List<Appointment>> GetAppointmentsAsync(
         Guid companyId,
         DateOnly? from,
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        int? page = null,
+        int? pageSize = null,
         ClearanceType? clearanceType = null,
         bool asTracking = false)
 
@@ -48,6 +69,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
 
         if (asTracking) query = query.AsTracking();
 
+        // optional filters
         if (from.HasValue) query = query.Where(o => o.Date >= from.Value);
         if (to.HasValue) query = query.Where(o => o.Date <= to.Value);
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
@@ -55,6 +77,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
 
         query = query.OrderBy(o => o.Date).ThenBy(o => o.TimeStart);
+
+        // paging
+        if (page.HasValue && pageSize.HasValue) query = query.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
         return query.ToListAsync();
     }
