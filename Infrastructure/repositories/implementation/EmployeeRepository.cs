@@ -37,8 +37,16 @@ internal class EmployeeRepository(DataContext dataContext, IMemoryCache memoryCa
     public Task<Employee?> GetEmployeeByIdAsync(Guid companyId, Guid employeeId)
         => dataContext.Employees.FirstOrDefaultAsync(e => e.Id == employeeId && e.CompanyId == companyId);
 
-    public Task<List<Employee>> GetEmployeesAsync(Guid companyId)
-        => dataContext.Employees.Where(e => e.CompanyId == companyId).ToListAsync();
+    public Task<List<Employee>> GetEmployeesAsync(Guid companyId, int? page = null, int? pageSize = null)
+    {
+        var result = dataContext.Employees.Where(e => e.CompanyId == companyId);
+        if (page is not null && pageSize is not null) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+
+        return result.OrderBy(o => o.LastName).ThenBy(o => o.FirstName).ToListAsync();
+    }
+
+    public Task<int> GetEmployeesCountAsync(Guid companyId)
+        => dataContext.Employees.CountAsync(e => e.CompanyId == companyId);
 
     public async Task<Employee> UpdateEmployeeAsync(Employee currentEmployee)
     {
