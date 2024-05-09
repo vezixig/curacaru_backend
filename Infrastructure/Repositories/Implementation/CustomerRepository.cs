@@ -45,13 +45,22 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
     }
 
+    public Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId = null)
+    {
+        var result = dataContext.Customers.Where(c => c.CompanyId == companyId);
+        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
+        return result.CountAsync();
+    }
+
     public Task<List<Customer>> GetCustomersAsync(
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
         int? requestAssignmentDeclarationYear = null,
         Guid? customerId = null,
-        CustomerStatus? status = null)
+        CustomerStatus? status = null,
+        int? page = null,
+        int? pageSize = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -68,6 +77,10 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
+
+        result = result.OrderBy(c => c.LastName);
+
+        if (page.HasValue && pageSize.HasValue) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
         return result
             .OrderBy(c => c.LastName)

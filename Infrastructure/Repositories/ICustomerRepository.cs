@@ -33,6 +33,12 @@ public interface ICustomerRepository
         Guid? employeeId = null,
         bool asTracking = false);
 
+    /// <summary>Gets the count of customers.</summary>
+    /// <param name="companyId">The company id.</param>
+    /// <param name="employeeId">An optional employee id to check access.</param>
+    /// <returns>The count of customers.</returns>
+    Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId = null);
+
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>
     /// <param name="employeeId">An optional employee id to check access.</param>
@@ -50,7 +56,9 @@ public interface ICustomerRepository
         InsuranceStatus? insuranceStatus = null,
         int? requestAssignmentDeclarationYear = null,
         Guid? customerId = null,
-        CustomerStatus? status = null);
+        CustomerStatus? status = null,
+        int? page = null,
+        int? pageSize = null);
 
     /// <summary>
     ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or
