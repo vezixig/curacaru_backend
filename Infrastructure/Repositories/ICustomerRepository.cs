@@ -29,8 +29,8 @@ public interface ICustomerRepository
     /// <returns>A customer if found, otherwise null.</returns>
     public Task<Customer?> GetCustomerAsync(
         Guid companyId,
-        Guid customerId,
-        Guid? employeeId = null,
+        Guid employeeId,
+        Guid? customerId = null,
         bool asTracking = false);
 
     /// <summary>Gets the count of customers.</summary>

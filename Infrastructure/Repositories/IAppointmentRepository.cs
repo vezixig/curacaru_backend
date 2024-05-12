@@ -69,7 +69,16 @@ public interface IAppointmentRepository
         Guid? customerId,
         Guid? employeeId,
         int year,
-        int month);
+        int month,
+        int page,
+        int pageSize);
+
+    Task<int> GetClearanceTypesCount(
+        Guid userCompanyId,
+        Guid? requestCustomerId,
+        Guid? requestEmployeeId,
+        int requestYear,
+        int requestMonth);
 
     /// <summary>Gets all planned appointments of the current month.</summary>
     /// <returns>A list of appointments.</returns>

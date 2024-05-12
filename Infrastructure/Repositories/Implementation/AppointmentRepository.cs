@@ -89,6 +89,37 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         Guid? customerId,
         Guid? employeeId,
         int year,
+        int month,
+        int page,
+        int pageSize)
+    {
+        var query = dataContext.Appointments.Include(o => o.Customer)
+            .Include(o => o.Employee)
+            .Include(o => o.EmployeeReplacement)
+            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month && o.ClearanceType != null);
+
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
+        if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
+
+        return query.GroupBy(o => new { o.CustomerId, o.ClearanceType })
+            .Select(
+                o => new AppointmentClearance
+                {
+                    Customer = o.First().Customer,
+                    Employees = o.Select(p => p.Employee).ToList(),
+                    ReplacementEmployee = o.Where(p => p.EmployeeReplacement != null).Select(p => p.EmployeeReplacement!).ToList(),
+                    ClearanceType = o.Key.ClearanceType!.Value
+                })
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public Task<int> GetClearanceTypesCount(
+        Guid companyId,
+        Guid? customerId,
+        Guid? employeeId,
+        int year,
         int month)
     {
         var query = dataContext.Appointments.Include(o => o.Customer)
@@ -108,7 +139,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
                     ReplacementEmployee = o.Where(p => p.EmployeeReplacement != null).Select(p => p.EmployeeReplacement!).ToList(),
                     ClearanceType = o.Key.ClearanceType!.Value
                 })
-            .ToListAsync();
+            .CountAsync();
     }
 
     public Task<List<Appointment>> GetPlannedAppointmentsOfCurrentMonthAsync()

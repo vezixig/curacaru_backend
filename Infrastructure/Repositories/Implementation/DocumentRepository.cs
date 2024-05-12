@@ -63,6 +63,20 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         return query.ToListAsync();
     }
 
+    public Task<int> GetAssignmentDeclarationsCountAsync(
+        Guid companyId,
+        int year,
+        Guid? customerId,
+        Guid? employeeId)
+    {
+        var query = dataContext.AssignmentDeclarations
+            .Where(o => o.CompanyId == companyId && o.Year == year);
+
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId);
+        if (employeeId.HasValue) query = query.Where(o => o.Customer.AssociatedEmployeeId == employeeId);
+        return query.CountAsync();
+    }
+
     public Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId)
         => dataContext.DeploymentReports.AsTracking().Include(o => o.Appointments).FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == reportId);
 

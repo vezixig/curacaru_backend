@@ -36,7 +36,7 @@ public class CustomerController(ISender mediator) : ControllerBase
     }
 
     [HttpGet("list")]
-    public async Task<IActionResult> GetCustomers([FromQuery] int page, [FromQuery] int pageSize, [FromQuery] Guid? employeeId)
+    public async Task<IActionResult> GetCustomers([FromQuery] int page, [FromQuery] Guid? employeeId, [FromQuery] int pageSize = 20)
     {
         var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId));
         return Ok(customers);

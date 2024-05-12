@@ -90,8 +90,10 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         ClaimsPrincipal principal,
                         [FromRoute] int year,
                         [FromQuery] Guid? employeeId,
-                        [FromQuery] Guid? customerId)
-                    => await mediator.Send(new AssignmentDeclarationsRequest(GetAuthUser(principal), year, employeeId, customerId)))
+                        [FromQuery] Guid? customerId,
+                        [FromQuery] int page,
+                        [FromQuery] int pageSize = 20)
+                    => await mediator.Send(new AssignmentDeclarationsRequest(GetAuthUser(principal), year, employeeId, customerId, page, pageSize)))
             .RequireAuthorization(Policy.Company)
             .Produces<List<GetAssignmentDeclarationListEntryDto>>()
             .WithOpenApi(
@@ -159,9 +161,11 @@ public class DocumentEndpoints : EndpointsBase, IEndpoints
                         [FromRoute] int year,
                         [FromRoute] int month,
                         [FromQuery] Guid? customerId,
-                        [FromQuery] Guid? employeeId) =>
+                        [FromQuery] Guid? employeeId,
+                        [FromQuery] int page,
+                        [FromQuery] int pageSize = 20) =>
                     await mediator.Send(
-                        new DeploymentReportsRequest(GetAuthUser(principal), year, month, customerId, employeeId)
+                        new DeploymentReportsRequest(GetAuthUser(principal), year, month, customerId, employeeId, page, pageSize)
                     ))
             .RequireAuthorization(Policy.Company)
             .WithOpenApi(
