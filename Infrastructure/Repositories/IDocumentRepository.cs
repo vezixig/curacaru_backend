@@ -72,6 +72,13 @@ public interface IDocumentRepository
     /// <returns>The deployment report or null if none is found.</returns>
     Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId);
 
+    /// <summary>Gets the number of deployment reports for the given filters.</summary>
+    Task<int> GetDeploymentReportCountAsync(
+        Guid companyId,
+        Guid? customerId,
+        int year,
+        int month);
+
     /// <summary>Checks if a deployment report for the given year and month already exists.</summary>
     Task<Guid?> GetDeploymentReportId(
         Guid companyId,
@@ -87,5 +94,7 @@ public interface IDocumentRepository
         int year,
         int month,
         ClearanceType? clearanceType = null,
-        bool includeAppointments = false);
+        bool includeAppointments = false,
+        int? page = null,
+        int? pageSize = null);
 }

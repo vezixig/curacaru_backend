@@ -5,6 +5,7 @@ using Application.CQRS.Invoices;
 using Core.DTO.Invoice;
 using Core.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 public class InvoiceEndpoints : EndpointsBase, IEndpoints
 {
@@ -17,7 +18,9 @@ public class InvoiceEndpoints : EndpointsBase, IEndpoints
                     ClaimsPrincipal principal,
                     int year,
                     int month,
-                    Guid? customerId) => await mediator.Send(new InvoiceListRequest(GetCompanyId(principal), year, month, customerId)))
+                    Guid? customerId,
+                    [FromQuery] int page,
+                    [FromQuery] int pageSize = 20) => await mediator.Send(new InvoiceListRequest(GetCompanyId(principal), year, month, customerId, page, pageSize)))
             .RequireAuthorization(Policy.Manager);
 
         app.MapGet(

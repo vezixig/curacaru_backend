@@ -80,6 +80,17 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
     public Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId)
         => dataContext.DeploymentReports.AsTracking().Include(o => o.Appointments).FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == reportId);
 
+    public Task<int> GetDeploymentReportCountAsync(
+        Guid companyId,
+        Guid? customerId,
+        int year,
+        int month)
+    {
+        var query = dataContext.DeploymentReports.Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId);
+        return query.CountAsync();
+    }
+
     public async Task<Guid?> GetDeploymentReportId(
         Guid companyId,
         Guid customerId,
@@ -95,7 +106,9 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
         int year,
         int month,
         ClearanceType? clearanceType = null,
-        bool includeAppointments = false)
+        bool includeAppointments = false,
+        int? page = null,
+        int? pageSize = null)
     {
         var query = dataContext.DeploymentReports.Where(o => o.CompanyId == companyId && o.Year == year && o.Month == month);
 
@@ -116,6 +129,8 @@ internal class DocumentRepository(DataContext dataContext) : IDocumentRepository
             query = query.Include(o => o.Customer)
                 .Include(o => o.Invoice)
                 .ThenInclude(o => o.SignedEmployee);
+
+        if (page.HasValue && pageSize.HasValue) query = query.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
         return query.ToListAsync();
     }
