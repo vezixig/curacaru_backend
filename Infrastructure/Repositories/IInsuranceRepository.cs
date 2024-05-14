@@ -20,10 +20,15 @@ public interface IInsuranceRepository
     /// <returns>The insurance or null if not found.</returns>
     public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId);
 
+    /// <summary>Gets the count of insurances for a company.</summary>
+    /// <param name="companyId">The company id.</param>
+    /// <returns>The count of insurances.</returns>
+    Task<int> GetInsuranceCountAsync(Guid companyId);
+
     /// <summary>Gets all insurances of a company.</summary>
     /// <param name="companyId">The company id.</param>
     /// <returns>A list of insurances.</returns>
-    public Task<List<Insurance>> GetInsurancesAsync(Guid companyId);
+    public Task<List<Insurance>> GetInsurancesAsync(Guid companyId, int page, int pageSize);
 
     /// <summary>Performs a search for insurances by name.</summary>
     /// <param name="companyId">The company id.</param>

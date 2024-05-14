@@ -24,12 +24,21 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
         => dataContext.Insurances
             .FirstOrDefaultAsync(o => (o.CompanyId == null || o.CompanyId == companyId) && o.Id == insuranceId);
 
-    public Task<List<Insurance>> GetInsurancesAsync(Guid companyId)
+    public Task<int> GetInsuranceCountAsync(Guid companyId)
+        => dataContext.Insurances
+            .Where(o => o.CompanyId == null || o.CompanyId == companyId)
+            .OrderBy(o => o.CompanyId)
+            .ThenBy(o => o.Name)
+            .CountAsync();
+
+    public Task<List<Insurance>> GetInsurancesAsync(Guid companyId, int page, int pageSize)
         => dataContext.Insurances
             .Where(o => o.CompanyId == null || o.CompanyId == companyId)
             .Include(o => o.ZipCity)
             .OrderBy(o => o.CompanyId)
             .ThenBy(o => o.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
     public Task<List<Insurance>> SearchInsurancesByNameAsync(Guid companyId, string name)
