@@ -60,10 +60,11 @@ public class AppointmentController(ISender mediator) : ControllerBase
         [FromQuery] DateOnly? to,
         [FromQuery] Guid? employeeId,
         [FromQuery] Guid? customerId,
+        [FromQuery] bool? onlyOpen,
         [FromQuery] int page,
         [FromQuery] int pageSize = 20)
     {
-        var appointments = await mediator.Send(new AppointmentListRequest(AuthUser, from, to, page, pageSize, employeeId, customerId));
+        var appointments = await mediator.Send(new AppointmentListRequest(AuthUser, from, to, page, pageSize, employeeId, customerId, onlyOpen));
         return Ok(appointments);
     }
 

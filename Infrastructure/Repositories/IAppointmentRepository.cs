@@ -29,6 +29,7 @@ public interface IAppointmentRepository
     /// <param name="to">The end date of the appointments.</param>
     /// <param name="employeeId">The id of the employee associated with appointments.</param>
     /// <param name="customerId">The id of the appointment's customer.</param>
+    /// <param name="onlyOpen">An optional filter to only count open appointments.</param>
     /// <param name="clearanceType">An optional filter for the clearance type.</param>
     Task<int> GetAppointmentCountAsync(
         Guid companyId,
@@ -36,6 +37,7 @@ public interface IAppointmentRepository
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        bool? onlyOpen = null,
         ClearanceType? clearanceType = null);
 
     /// <summary>Gets appointments matching the provided filters.</summary>
@@ -44,6 +46,7 @@ public interface IAppointmentRepository
     /// <param name="to">The end date of the appointments.</param>
     /// <param name="employeeId">The id of the employee associated with appointments.</param>
     /// <param name="customerId">The id of the appointment's customer.</param>
+    /// <param name="onlyOpen">An optional filter to only return open appointments.</param>
     /// <param name="clearanceType">An optional filter for the clearance type.</param>
     /// <param name="asTracking">Indicates whether to track the appointments.</param>
     Task<List<Appointment>> GetAppointmentsAsync(
@@ -52,6 +55,7 @@ public interface IAppointmentRepository
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        bool? onlyOpen = null,
         int? page = null,
         int? pageSize = null,
         ClearanceType? clearanceType = null,

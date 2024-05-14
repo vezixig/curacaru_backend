@@ -35,6 +35,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        bool? onlyOpen = null,
         ClearanceType? clearanceType = null)
     {
         var query = dataContext.Appointments.Where(o => o.CompanyId == companyId);
@@ -44,6 +45,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
         if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
+        if (onlyOpen == true) query = query.Where(o => !o.IsDone);
 
         return query.CountAsync();
     }
@@ -54,6 +56,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        bool? onlyOpen = null,
         int? page = null,
         int? pageSize = null,
         ClearanceType? clearanceType = null,
@@ -75,6 +78,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
         if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
+        if (onlyOpen == true) query = query.Where(o => !o.IsDone);
 
         query = query.OrderBy(o => o.Date).ThenBy(o => o.TimeStart);
 
