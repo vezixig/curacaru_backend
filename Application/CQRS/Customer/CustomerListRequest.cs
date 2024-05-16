@@ -3,6 +3,7 @@
 using AutoMapper;
 using Core.DTO;
 using Core.DTO.Customer;
+using Core.Enums;
 using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
@@ -13,9 +14,13 @@ public class CustomerListRequest(
     User user,
     int page,
     int pageSize,
-    Guid? employeeId) : IRequest<PageDto<GetCustomerListEntryDto>>
+    Guid? employeeId,
+    bool onlyActive) : IRequest<PageDto<GetCustomerListEntryDto>>
 {
     public Guid? EmployeeId { get; } = employeeId;
+
+    /// <summary>Gets a value indicating whether to only return active customers.</summary>
+    public bool OnlyActive { get; set; } = onlyActive;
 
     public int Page { get; } = page;
 
@@ -32,12 +37,16 @@ public class CustomerListRequestHandler(ICustomerRepository customerRepository, 
     {
         var customerCount = await customerRepository.GetCustomerCountAsync(
             request.User.CompanyId,
-            request.User.IsManager ? request.EmployeeId : request.User.EmployeeId);
+            request.User.IsManager ? request.EmployeeId : request.User.EmployeeId,
+            request.OnlyActive);
+
         var customers = await customerRepository.GetCustomersAsync(
             request.User.CompanyId,
             request.User.IsManager ? request.EmployeeId : request.User.EmployeeId,
+            status: request.OnlyActive ? CustomerStatus.Customer : null,
             page: request.Page,
             pageSize: request.PageSize);
+
         var pageCount = (int)Math.Ceiling((decimal)customerCount / request.PageSize);
         return new(mapper.Map<List<GetCustomerListEntryDto>>(customers), request.Page, pageCount);
     }

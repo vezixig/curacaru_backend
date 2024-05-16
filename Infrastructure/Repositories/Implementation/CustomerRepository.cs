@@ -45,10 +45,11 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
     }
 
-    public Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId = null)
+    public Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, bool onlyActive)
     {
         var result = dataContext.Customers.Where(c => c.CompanyId == companyId);
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
+        if (onlyActive) result = result.Where(c => c.Status == CustomerStatus.Customer);
         return result.CountAsync();
     }
 

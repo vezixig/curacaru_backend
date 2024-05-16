@@ -44,6 +44,7 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
     public Task<List<Insurance>> SearchInsurancesByNameAsync(Guid companyId, string name)
         => dataContext.Insurances
             .Where(o => (o.CompanyId == null || o.CompanyId == companyId) && o.Name.ToLower().Contains(name.ToLower()))
+            .Take(10)
             .ToListAsync();
 
     public async Task<Insurance> UpdateInsuranceAsync(Insurance insurance)

@@ -3,6 +3,7 @@
 using AutoMapper;
 using Core.DTO;
 using Core.DTO.Budget;
+using Core.Enums;
 using Infrastructure.Repositories;
 using MediatR;
 
@@ -29,10 +30,10 @@ internal class GetBudgetListRequestHandler(
         var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
 
         // get missing customers
-        var customers = await customerRepository.GetCustomersAsync(request.CompanyId);
+        var customers = await customerRepository.GetCustomersAsync(request.CompanyId, status: CustomerStatus.Customer);
         customers.RemoveAll(customer => budgets.Exists(budget => budget.CustomerId == customer.Id));
 
-        var result = mapper.Map<List<GetBudgetListEntryDto>>(budgets);
+        var result = mapper.Map<List<GetBudgetListEntryDto>>(budgets.Where(o => o.Customer.Status == CustomerStatus.Customer));
         result.AddRange(customers.Select(o => new GetBudgetListEntryDto { CustomerId = o.Id, CustomerName = $"{o.LastName}, {o.FirstName}".Trim() }));
         var pricePerHour = company!.PricePerHour == 0 ? 1 : company.PricePerHour;
         result.ForEach(o => o.RemainingHours = o.TotalAmount / pricePerHour);

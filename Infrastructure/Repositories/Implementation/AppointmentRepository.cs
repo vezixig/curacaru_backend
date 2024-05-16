@@ -26,6 +26,12 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return dataContext.SaveChangesAsync();
     }
 
+    public Task DeleteAppointmentsAsync(List<Appointment> appointments)
+    {
+        dataContext.Appointments.RemoveRange(appointments);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId)
         => dataContext.Appointments.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
 

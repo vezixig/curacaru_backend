@@ -2,27 +2,60 @@
 
 using Core.Enums;
 using Core.Exceptions;
+using Core.Models;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using MediatR;
 
-public class DeleteCustomerRequest(string authId, Guid customerId) : IRequest
+/// <summary>Request to delete a customer.</summary>
+/// <param name="authId">The auth id of the user.</param>
+/// <param name="customerId">The id of the customer to delete.</param>
+/// <param name="deleteOpenAppointments">A value indicating whether all open appointments should also be deleted.</param>
+public class DeleteCustomerRequest(User user, Guid customerId, bool deleteOpenAppointments) : IRequest
 {
-    public string AuthId { get; } = authId;
-
     public Guid CustomerId { get; } = customerId;
+
+    public bool DeleteOpenAppointments { get; } = deleteOpenAppointments;
+
+    public User User { get; } = user;
 }
 
-internal class DeleteCustomerRequestHandler(ICustomerRepository customerRepository, IEmployeeRepository employeeRepository) : IRequestHandler<DeleteCustomerRequest>
+internal class DeleteCustomerRequestHandler(
+    IAppointmentRepository appointmentRepository,
+    ICustomerRepository customerRepository,
+    IDatabaseService databaseService,
+    IEmployeeRepository employeeRepository) : IRequestHandler<DeleteCustomerRequest>
 {
     public async Task Handle(DeleteCustomerRequest request, CancellationToken cancellationToken)
     {
-        var user = await employeeRepository.GetEmployeeByAuthIdAsync(request.AuthId);
-        if (user!.CompanyId == null) throw new ForbiddenException("Benutzer gehört zu keinem Unternehmen.");
-
-        var customer = await customerRepository.GetCustomerAsync(user.CompanyId.Value, request.CustomerId)
+        var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.CustomerId)
                        ?? throw new NotFoundException("Kunde nicht gefunden.");
 
-        customer.Status = CustomerStatus.Former;
-        await customerRepository.UpdateCustomerAsync(customer);
+        var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            customer.Status = CustomerStatus.Former;
+            await customerRepository.UpdateCustomerAsync(customer);
+
+            if (request.DeleteOpenAppointments)
+            {
+                var appointments = await appointmentRepository.GetAppointmentsAsync(
+                    request.User.CompanyId,
+                    customerId: request.CustomerId,
+                    employeeId: null,
+                    from: null,
+                    to: null,
+                    onlyOpen: true,
+                    asTracking: true);
+                await appointmentRepository.DeleteAppointmentsAsync(appointments);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
     }
 }

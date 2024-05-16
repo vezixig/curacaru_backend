@@ -29,15 +29,16 @@ public interface ICustomerRepository
     /// <returns>A customer if found, otherwise null.</returns>
     public Task<Customer?> GetCustomerAsync(
         Guid companyId,
-        Guid employeeId,
-        Guid? customerId = null,
+        Guid customerId,
+        Guid? employeeId = null,
         bool asTracking = false);
 
     /// <summary>Gets the count of customers.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="employeeId">An optional employee id to check access.</param>
+    /// <param name="onlyActive">True to only count active customers.</param>
     /// <returns>The count of customers.</returns>
-    Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId = null);
+    Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, bool onlyActive);
 
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>

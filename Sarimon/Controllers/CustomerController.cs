@@ -22,9 +22,9 @@ public class CustomerController(ISender mediator) : ControllerBase
 
     [Authorize(Policy = Policy.Manager)]
     [HttpDelete("{customerId:guid}")]
-    public async Task<IActionResult> DeleteCustomer([FromRoute] Guid customerId)
+    public async Task<IActionResult> DeleteCustomer([FromRoute] Guid customerId, [FromQuery] bool deleteOpenAppointments)
     {
-        await mediator.Send(new DeleteCustomerRequest(AuthId, customerId));
+        await mediator.Send(new DeleteCustomerRequest(AuthUser, customerId, deleteOpenAppointments));
         return NoContent();
     }
 
@@ -36,9 +36,13 @@ public class CustomerController(ISender mediator) : ControllerBase
     }
 
     [HttpGet("list")]
-    public async Task<IActionResult> GetCustomers([FromQuery] int page, [FromQuery] Guid? employeeId, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetCustomers(
+        [FromQuery] int page,
+        [FromQuery] bool onlyActive,
+        [FromQuery] Guid? employeeId,
+        [FromQuery] int pageSize = 20)
     {
-        var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId));
+        var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId, onlyActive));
         return Ok(customers);
     }
 

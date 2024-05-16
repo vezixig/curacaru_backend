@@ -17,6 +17,11 @@ public interface IAppointmentRepository
     /// <returns>An awaitable task.</returns>
     Task DeleteAppointmentAsync(Appointment appointment);
 
+    /// <summary>Deletes a list of appointments.</summary>
+    /// <param name="appointments">The appointments to delete.</param>
+    /// <returns>An awaitable task object.</returns>
+    Task DeleteAppointmentsAsync(List<Appointment> appointments);
+
     /// <summary>Gets an appointment by id.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="appointmentId">The appointment id.</param>

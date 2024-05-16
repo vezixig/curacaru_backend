@@ -17,7 +17,7 @@ public class BudgetsController(IMediator mediator) : ControllerBase
 {
     /// <summary>Gets the list of budgets for the company</summary>
     [HttpGet("list")]
-    public async Task<IActionResult> GetBudgets([FromQuery] int page, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetBudgetsList([FromQuery] int page, [FromQuery] int pageSize = 20)
     {
         var budgetList = await mediator.Send(new GetBudgetListRequest(CompanyId, page, pageSize));
         return Ok(budgetList);
