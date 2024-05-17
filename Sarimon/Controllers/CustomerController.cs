@@ -22,9 +22,9 @@ public class CustomerController(ISender mediator) : ControllerBase
 
     [Authorize(Policy = Policy.Manager)]
     [HttpDelete("{customerId:guid}")]
-    public async Task<IActionResult> DeleteCustomer([FromRoute] Guid customerId, [FromQuery] bool deleteOpenAppointments)
+    public async Task<IActionResult> DeleteCustomer([FromRoute] Guid customerId, [FromQuery] bool deleteOpenAppointments, [FromQuery] bool deleteBudgets)
     {
-        await mediator.Send(new DeleteCustomerRequest(AuthUser, customerId, deleteOpenAppointments));
+        await mediator.Send(new DeleteCustomerRequest(AuthUser, customerId, deleteOpenAppointments, deleteBudgets));
         return NoContent();
     }
 
