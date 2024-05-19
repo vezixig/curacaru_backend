@@ -94,7 +94,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return query.ToListAsync();
     }
 
-    public Task<List<AppointmentClearance>> GetClearanceTypes(
+    public async Task<List<AppointmentClearance>> GetClearanceTypes(
         Guid companyId,
         Guid? customerId,
         Guid? employeeId,
@@ -111,7 +111,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
 
-        return query.GroupBy(o => new { o.CustomerId, o.ClearanceType })
+        var result = await query
+            .GroupBy(o => new { o.CustomerId, o.Customer.LastName, o.ClearanceType })
+            .OrderBy(o => o.Key.LastName)
             .Select(
                 o => new AppointmentClearance
                 {
@@ -123,6 +125,8 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
+
+        return result;
     }
 
     public Task<int> GetClearanceTypesCount(

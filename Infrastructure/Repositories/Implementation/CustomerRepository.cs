@@ -27,7 +27,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
     }
 
     public Task<List<Customer>> GetAllCustomersAsync()
-        => dataContext.Customers.ToListAsync();
+        => dataContext.Customers.Where(o => o.Status == CustomerStatus.Customer).ToListAsync();
 
     public Task<Customer?> GetCustomerAsync(
         Guid companyId,
@@ -49,7 +49,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
     {
         var result = dataContext.Customers.Where(c => c.CompanyId == companyId);
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
-        if (onlyActive) result = result.Where(c => c.Status == CustomerStatus.Customer);
+        result = onlyActive ? result.Where(c => c.Status == CustomerStatus.Customer) : result.Where(c => c.Status != CustomerStatus.Customer);
         return result.CountAsync();
     }
 
@@ -60,6 +60,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         int? requestAssignmentDeclarationYear = null,
         Guid? customerId = null,
         CustomerStatus? status = null,
+        bool? onlyActive = null,
         int? page = null,
         int? pageSize = null)
     {
@@ -75,6 +76,9 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (status.HasValue) result = result.Where(c => c.Status == null || c.Status == status);
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
+
+        if (onlyActive.HasValue)
+            result = onlyActive.Value ? result.Where(c => c.Status == CustomerStatus.Customer) : result.Where(c => c.Status != CustomerStatus.Customer);
 
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));

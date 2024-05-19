@@ -44,8 +44,8 @@ internal class AssignmentDeclarationsRequestHandler(
             request.User.CompanyId,
             employeeId,
             customerId: request.CustomerId,
-            status: CustomerStatus.Customer);
-        customers = customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
+            status: CustomerStatus.Customer,
+            insuranceStatus: InsuranceStatus.Statutory);
 
         var assignmentDeclarations =
             await documentRepository.GetAssignmentDeclarationsAsync(

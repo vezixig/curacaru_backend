@@ -3,7 +3,6 @@
 using AutoMapper;
 using Core.DTO;
 using Core.DTO.Customer;
-using Core.Enums;
 using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
@@ -43,7 +42,7 @@ public class CustomerListRequestHandler(ICustomerRepository customerRepository, 
         var customers = await customerRepository.GetCustomersAsync(
             request.User.CompanyId,
             request.User.IsManager ? request.EmployeeId : request.User.EmployeeId,
-            status: request.OnlyActive ? CustomerStatus.Customer : null,
+            onlyActive: request.OnlyActive,
             page: request.Page,
             pageSize: request.PageSize);
 

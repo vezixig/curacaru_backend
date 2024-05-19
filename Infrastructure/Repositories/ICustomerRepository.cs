@@ -58,6 +58,7 @@ public interface ICustomerRepository
         int? requestAssignmentDeclarationYear = null,
         Guid? customerId = null,
         CustomerStatus? status = null,
+        bool? onlyActive = null,
         int? page = null,
         int? pageSize = null);
 

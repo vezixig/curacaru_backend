@@ -38,17 +38,18 @@ internal class DeploymentReportsRequestHandler(
     public async Task<PageDto<GetDeploymentReportListEntryDto>> Handle(DeploymentReportsRequest request, CancellationToken cancellationToken)
     {
         if (request.Year >= DateTime.Now.Year && request.Month > DateTime.Now.Month) return new([], 1, request.PageSize);
+        var employeeId = request.User.IsManager ? request.EmployeeId : request.User.EmployeeId;
 
         var reportCount = await appointmentRepository.GetClearanceTypesCount(
             request.User.CompanyId,
             request.CustomerId,
-            request.EmployeeId,
+            employeeId,
             request.Year,
             request.Month);
         var possibleReports = await appointmentRepository.GetClearanceTypes(
             request.User.CompanyId,
             request.CustomerId,
-            request.EmployeeId,
+            employeeId,
             request.Year,
             request.Month,
             request.Page,
@@ -77,7 +78,6 @@ internal class DeploymentReportsRequestHandler(
                         o.Customer.FullNameReverse,
                         string.Join(", ", o.Employees.Select(p => p.FullName).Distinct()),
                         string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName).Distinct())))
-                .OrderBy(o => o.CustomerName)
                 .ToList(),
             request.Page,
             (int)Math.Ceiling((decimal)reportCount / request.PageSize));
