@@ -39,10 +39,10 @@ internal class EmployeeRepository(DataContext dataContext, IMemoryCache memoryCa
 
     public Task<List<Employee>> GetEmployeesAsync(Guid companyId, int? page = null, int? pageSize = null)
     {
-        var result = dataContext.Employees.Where(e => e.CompanyId == companyId);
+        var result = dataContext.Employees.OrderBy(o => o.FirstName).ThenBy(o => o.LastName).Where(e => e.CompanyId == companyId);
         if (page is not null && pageSize is not null) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
-        return result.OrderBy(o => o.LastName).ThenBy(o => o.FirstName).ToListAsync();
+        return result.ToListAsync();
     }
 
     public Task<int> GetEmployeesCountAsync(Guid companyId)
