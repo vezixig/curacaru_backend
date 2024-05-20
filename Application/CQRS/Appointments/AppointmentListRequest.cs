@@ -1,6 +1,7 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Appointments;
 
 using AutoMapper;
+using Core.DTO;
 using Core.DTO.Appointment;
 using Core.Models;
 using Infrastructure.Repositories;
@@ -11,8 +12,11 @@ public class AppointmentListRequest(
     User user,
     DateOnly? from,
     DateOnly? to,
+    int page,
+    int pageSize,
     Guid? employeeId,
-    Guid? customerId) : IRequest<List<GetAppointmentListEntryDto>>
+    Guid? customerId,
+    bool? onlyOpen) : IRequest<PageDto<GetAppointmentListEntryDto>>
 {
     /// <summary>Gets the id of the customer.</summary>
     public Guid? CustomerId { get; } = customerId;
@@ -23,6 +27,12 @@ public class AppointmentListRequest(
     /// <summary>Gets the date to start returning appointments for.</summary>
     public DateOnly? From { get; } = from;
 
+    public bool? OnlyOpen { get; } = onlyOpen;
+
+    public int Page { get; } = page;
+
+    public int PageSize { get; } = pageSize;
+
     /// <summary>Gets the date to stop returning appointments for.</summary>
     public DateOnly? To { get; } = to;
 
@@ -30,13 +40,31 @@ public class AppointmentListRequest(
 }
 
 public class AppointmentsRequestHandler(IAppointmentRepository appointmentRepository, IMapper mapper)
-    : IRequestHandler<AppointmentListRequest, List<GetAppointmentListEntryDto>>
+    : IRequestHandler<AppointmentListRequest, PageDto<GetAppointmentListEntryDto>>
 {
-    public async Task<List<GetAppointmentListEntryDto>> Handle(AppointmentListRequest request, CancellationToken cancellationToken)
+    public async Task<PageDto<GetAppointmentListEntryDto>> Handle(AppointmentListRequest request, CancellationToken cancellationToken)
     {
         var employeeId = !request.User.IsManager && request.EmployeeId != request.User.EmployeeId ? request.User.EmployeeId : request.EmployeeId;
 
-        var appointments = await appointmentRepository.GetAppointmentsAsync(request.User.CompanyId, request.From, request.To, employeeId, request.CustomerId);
-        return mapper.Map<List<GetAppointmentListEntryDto>>(appointments);
+        double appointmentCount = await appointmentRepository.GetAppointmentCountAsync(
+            request.User.CompanyId,
+            request.From,
+            request.To,
+            employeeId,
+            request.CustomerId,
+            request.OnlyOpen);
+
+        var appointments = await appointmentRepository.GetAppointmentsAsync(
+            request.User.CompanyId,
+            request.From,
+            request.To,
+            employeeId,
+            request.CustomerId,
+            request.OnlyOpen,
+            request.Page,
+            request.PageSize);
+
+        var pageCount = (int)Math.Ceiling(appointmentCount / request.PageSize);
+        return new(mapper.Map<List<GetAppointmentListEntryDto>>(appointments), request.Page, pageCount);
     }
 }

@@ -37,46 +37,39 @@ public class Worker(
                 continue;
             }
 
-            switch (appointment.ClearanceType)
+            // check if any budget can take the costs - the order is important
+            if (appointment.Costs <= budget.ReliefAmountLastYear + budget.ReliefAmount)
             {
-                case ClearanceType.SelfPayment:
-                    if (budget.SelfPayAmount < appointment.Costs)
-                        appointment.HasBudgetError = true;
-                    else
-                        budget.SelfPayAmount -= appointment.Costs;
-                    break;
-                case ClearanceType.CareBenefit:
-                    if (budget.CareBenefitAmount < appointment.Costs)
-                        appointment.HasBudgetError = true;
-                    else
-                        budget.CareBenefitAmount -= appointment.Costs;
-                    break;
-                case ClearanceType.PreventiveCare:
-                    if (budget.PreventiveCareAmount < appointment.Costs)
-                        appointment.HasBudgetError = true;
-                    else
-                        budget.PreventiveCareAmount -= appointment.Costs;
-                    break;
-                case ClearanceType.ReliefAmount:
-                    if (budget.ReliefAmount + budget.ReliefAmountLastYear < appointment.Costs)
-                    {
-                        appointment.HasBudgetError = true;
-                        break;
-                    }
+                budget.ReliefAmountLastYear -= appointment.Costs;
+                appointment.CostsLastYearBudget = appointment.Costs;
+                appointment.Costs = 0;
 
-                    budget.ReliefAmountLastYear -= appointment.Costs;
-                    appointment.CostsLastYearBudget = appointment.Costs;
+                if (budget.ReliefAmountLastYear < 0)
+                {
+                    budget.ReliefAmount += budget.ReliefAmountLastYear;
+                    appointment.CostsLastYearBudget += budget.ReliefAmountLastYear;
+                    appointment.Costs += budget.ReliefAmountLastYear * -1;
+                    budget.ReliefAmountLastYear = 0;
+                }
 
-                    if (budget.ReliefAmountLastYear < 0)
-                    {
-                        budget.ReliefAmount += budget.ReliefAmountLastYear;
-                        appointment.CostsLastYearBudget += budget.ReliefAmountLastYear;
-                        appointment.Costs += budget.ReliefAmountLastYear * -1;
-                        budget.ReliefAmountLastYear = 0;
-                    }
-
-                    break;
+                appointment.ClearanceType = ClearanceType.ReliefAmount;
             }
+            else if (appointment.Costs <= budget.CareBenefitAmount)
+            {
+                budget.CareBenefitAmount -= appointment.Costs;
+                appointment.ClearanceType = ClearanceType.CareBenefit;
+            }
+            else if (appointment.Costs <= budget.PreventiveCareAmount)
+            {
+                budget.PreventiveCareAmount -= appointment.Costs;
+                appointment.ClearanceType = ClearanceType.PreventiveCare;
+            }
+            else if (appointment.Costs <= budget.SelfPayAmount)
+            {
+                budget.SelfPayAmount -= appointment.Costs;
+                appointment.ClearanceType = ClearanceType.SelfPayment;
+            }
+            else { appointment.HasBudgetError = true; }
 
             var transaction = await databaseService.BeginTransactionAsync(CancellationToken.None);
             try

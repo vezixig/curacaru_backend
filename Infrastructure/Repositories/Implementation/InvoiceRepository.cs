@@ -22,17 +22,6 @@ internal class InvoiceRepository(DataContext dataContext) : IInvoiceRepository
         return dataContext.SaveChangesAsync();
     }
 
-    public Task<Invoice?> GetInvoiceAsync(Guid companyId, Guid invoiceId)
-        => dataContext.Invoices
-            .Include(o => o.DeploymentReport)
-            .ThenInclude(o => o.Customer)
-            .ThenInclude(o => o.ZipCity)
-            .Include(o => o.DeploymentReport)
-            .ThenInclude(o => o.Insurance)
-            .ThenInclude(o => o.ZipCity)
-            .Include(o => o.SignedEmployee)
-            .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == invoiceId);
-
     public async Task<string> GetNextInvoiceNumberAsync(Guid companyId)
     {
         var invoiceNumbers = await dataContext.Invoices
@@ -47,4 +36,16 @@ internal class InvoiceRepository(DataContext dataContext) : IInvoiceRepository
             ? DateTime.Today.Year + "-" + (int.Parse(invoiceNumbers.Last()[5..]) + 1).ToString("D4") // don't use [-1] instead of last(), will throw exception
             : DateTime.Today.Year + "-0001";
     }
+
+    public Task<Invoice?> GetInvoiceAsync(Guid companyId, Guid invoiceId)
+        => dataContext.Invoices
+            .AsTracking()
+            .Include(o => o.DeploymentReport)
+            .ThenInclude(o => o.Customer)
+            .ThenInclude(o => o.ZipCity)
+            .Include(o => o.DeploymentReport)
+            .ThenInclude(o => o.Insurance)
+            .ThenInclude(o => o.ZipCity)
+            .Include(o => o.SignedEmployee)
+            .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == invoiceId);
 }

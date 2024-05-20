@@ -19,6 +19,15 @@ public interface IWorkingTimeRepository
         Guid requestCompanyId,
         DateOnly start,
         DateOnly end,
+        Guid? userId,
+        int page,
+        int pageSize);
+
+    /// <summary>Gets the count of working employees in the month.</summary>
+    Task<int> GetWorkedMonthsCountAsync(
+        Guid requestCompanyId,
+        DateOnly start,
+        DateOnly end,
         Guid? userId);
 
     /// <summary>Gets a working time report by its id.</summary>

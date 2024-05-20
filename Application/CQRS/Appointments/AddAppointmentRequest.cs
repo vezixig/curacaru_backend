@@ -50,9 +50,16 @@ internal class AddAppointmentRequestHandler(
             throw new BadRequestException("Termine können nicht vor dem aktuellen Monat liegen.");
         appointment.IsPlanned = appointment.Date > dateTimeService.EndOfMonth;
 
+        // Clearance type
+        if (request.Appointment.Date < new DateOnly(dateTimeService.Today.Year, dateTimeService.Today.Month, 1).AddMonths(1)
+            && request.Appointment.ClearanceType is null)
+            throw new BadRequestException("Für diesen Termin muss eine Abrechnungsoption gewählt werden.");
+
         // customer
         var customer = await customerRepository.GetCustomerAsync(request.User.CompanyId, request.Appointment.CustomerId)
                        ?? throw new BadRequestException("Kunde nicht gefunden.");
+
+        if (customer.Status != CustomerStatus.Customer) throw new BadRequestException("Kunde ist nicht aktiv.");
 
         if (request.User.EmployeeId != customer.AssociatedEmployeeId && !request.User.IsManager)
             throw new ForbiddenException("Nur Manager dürfen Termine für nicht selbst betreute Kunden anlegen.");

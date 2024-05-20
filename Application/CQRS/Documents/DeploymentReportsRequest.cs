@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
+using Core.DTO;
 using Core.DTO.Documents;
 using Core.Models;
 using Infrastructure.Repositories;
@@ -10,13 +11,19 @@ public class DeploymentReportsRequest(
     int year,
     int month,
     Guid? customerId,
-    Guid? employeeId) : IRequest<List<GetDeploymentReportListEntryDto>>
+    Guid? employeeId,
+    int page,
+    int pageSize) : IRequest<PageDto<GetDeploymentReportListEntryDto>>
 {
     public Guid? CustomerId { get; } = customerId;
 
     public Guid? EmployeeId { get; } = employeeId;
 
     public int Month { get; } = month;
+
+    public int Page { get; } = page;
+
+    public int PageSize { get; } = pageSize;
 
     public User User { get; } = user;
 
@@ -26,18 +33,27 @@ public class DeploymentReportsRequest(
 internal class DeploymentReportsRequestHandler(
     IAppointmentRepository appointmentRepository,
     IDocumentRepository documentRepository)
-    : IRequestHandler<DeploymentReportsRequest, List<GetDeploymentReportListEntryDto>>
+    : IRequestHandler<DeploymentReportsRequest, PageDto<GetDeploymentReportListEntryDto>>
 {
-    public async Task<List<GetDeploymentReportListEntryDto>> Handle(DeploymentReportsRequest request, CancellationToken cancellationToken)
+    public async Task<PageDto<GetDeploymentReportListEntryDto>> Handle(DeploymentReportsRequest request, CancellationToken cancellationToken)
     {
-        if (request.Year >= DateTime.Now.Year && request.Month > DateTime.Now.Month) return [];
+        if (request.Year >= DateTime.Now.Year && request.Month > DateTime.Now.Month) return new([], 1, request.PageSize);
+        var employeeId = request.User.IsManager ? request.EmployeeId : request.User.EmployeeId;
 
+        var reportCount = await appointmentRepository.GetClearanceTypesCount(
+            request.User.CompanyId,
+            request.CustomerId,
+            employeeId,
+            request.Year,
+            request.Month);
         var possibleReports = await appointmentRepository.GetClearanceTypes(
             request.User.CompanyId,
             request.CustomerId,
-            request.EmployeeId,
+            employeeId,
             request.Year,
-            request.Month);
+            request.Month,
+            request.Page,
+            request.PageSize);
 
         var reports = await documentRepository.GetDeploymentReportsAsync(
             request.User.CompanyId,
@@ -50,18 +66,20 @@ internal class DeploymentReportsRequestHandler(
                     o => o.Employees.Exists(p => p.Id == request.User.EmployeeId) || o.ReplacementEmployee.Exists(p => p.Id == request.User.EmployeeId))
                 .ToList();
 
-        return possibleReports.Select(
-                o => new GetDeploymentReportListEntryDto(
-                    reports.Exists(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType),
-                    reports.Find(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType)?.Id,
-                    o.ClearanceType,
-                    o.Customer.Id,
-                    request.Month,
-                    request.Year,
-                    o.Customer.FullNameReverse,
-                    string.Join(", ", o.Employees.Select(p => p.FullName).Distinct()),
-                    string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName).Distinct())))
-            .OrderBy(o => o.CustomerName)
-            .ToList();
+        return new(
+            possibleReports.Select(
+                    o => new GetDeploymentReportListEntryDto(
+                        reports.Exists(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType),
+                        reports.Find(r => r.CustomerId == o.Customer.Id && r.ClearanceType == o.ClearanceType)?.Id,
+                        o.ClearanceType,
+                        o.Customer.Id,
+                        request.Month,
+                        request.Year,
+                        o.Customer.FullNameReverse,
+                        string.Join(", ", o.Employees.Select(p => p.FullName).Distinct()),
+                        string.Join(", ", o.ReplacementEmployee.Select(p => p.FullName).Distinct())))
+                .ToList(),
+            request.Page,
+            (int)Math.Ceiling((decimal)reportCount / request.PageSize));
     }
 }

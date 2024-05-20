@@ -27,7 +27,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
     }
 
     public Task<List<Customer>> GetAllCustomersAsync()
-        => dataContext.Customers.ToListAsync();
+        => dataContext.Customers.Where(o => o.Status == CustomerStatus.Customer).ToListAsync();
 
     public Task<Customer?> GetCustomerAsync(
         Guid companyId,
@@ -45,11 +45,24 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
     }
 
+    public Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, bool onlyActive)
+    {
+        var result = dataContext.Customers.Where(c => c.CompanyId == companyId);
+        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
+        result = onlyActive ? result.Where(c => c.Status == CustomerStatus.Customer) : result.Where(c => c.Status != CustomerStatus.Customer);
+        return result.CountAsync();
+    }
+
     public Task<List<Customer>> GetCustomersAsync(
         Guid companyId,
         Guid? employeeId = null,
         InsuranceStatus? insuranceStatus = null,
-        int? requestAssignmentDeclarationYear = null)
+        int? requestAssignmentDeclarationYear = null,
+        Guid? customerId = null,
+        CustomerStatus? status = null,
+        bool? onlyActive = null,
+        int? page = null,
+        int? pageSize = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
@@ -58,10 +71,21 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
 
+        if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
+
+        if (status.HasValue) result = result.Where(c => c.Status == null || c.Status == status);
+
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
+
+        if (onlyActive.HasValue)
+            result = onlyActive.Value ? result.Where(c => c.Status == CustomerStatus.Customer) : result.Where(c => c.Status != CustomerStatus.Customer);
 
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
+
+        result = result.OrderBy(c => c.LastName);
+
+        if (page.HasValue && pageSize.HasValue) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
         return result
             .OrderBy(c => c.LastName)
@@ -72,7 +96,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         Guid companyId,
         Guid? employeeId)
     {
-        var result = dataContext.Customers.Where(o => o.CompanyId == companyId);
+        var result = dataContext.Customers.Where(o => o.CompanyId == companyId && o.Status == CustomerStatus.Customer);
 
         if (employeeId.HasValue)
             result = result.Where(
@@ -81,21 +105,6 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
                          appointment => appointment.EmployeeId == employeeId || appointment.EmployeeReplacementId == employeeId));
 
         return result.ToListAsync();
-    }
-
-    public Task<List<Customer>> GetCustomersForResponsibleEmployee(Guid companyId, Guid? employeeId, Guid? customerId = null)
-    {
-        var result = dataContext.Customers
-            .Include(o => o.AssociatedEmployee)
-            .Include(o => o.ZipCity)
-            .Where(c => c.CompanyId == companyId);
-
-        if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
-        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId);
-
-        return result
-            .OrderBy(c => c.LastName)
-            .ToListAsync();
     }
 
     public Task<Customer> UpdateCustomerAsync(Customer customer)

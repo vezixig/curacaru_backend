@@ -1,5 +1,6 @@
 ﻿namespace Curacaru.Backend.Application.CQRS.Documents;
 
+using Core.DTO;
 using Core.DTO.AssignmentDeclaration;
 using Core.Enums;
 using Core.Exceptions;
@@ -11,11 +12,17 @@ public class AssignmentDeclarationsRequest(
     User user,
     int year,
     Guid? employeeId,
-    Guid? customerId) : IRequest<List<GetAssignmentDeclarationListEntryDto>>
+    Guid? customerId,
+    int page,
+    int pageSize) : IRequest<PageDto<GetAssignmentDeclarationListEntryDto>>
 {
     public Guid? CustomerId { get; } = customerId;
 
     public Guid? EmployeeId { get; } = employeeId;
+
+    public int Page { get; } = page;
+
+    public int PageSize { get; } = pageSize;
 
     public User User { get; } = user;
 
@@ -24,20 +31,28 @@ public class AssignmentDeclarationsRequest(
 
 internal class AssignmentDeclarationsRequestHandler(
     ICustomerRepository customerRepository,
-    IDocumentRepository documentRepository) : IRequestHandler<AssignmentDeclarationsRequest, List<GetAssignmentDeclarationListEntryDto>>
+    IDocumentRepository documentRepository) : IRequestHandler<AssignmentDeclarationsRequest, PageDto<GetAssignmentDeclarationListEntryDto>>
 {
-    public async Task<List<GetAssignmentDeclarationListEntryDto>> Handle(AssignmentDeclarationsRequest request, CancellationToken cancellationToken)
+    public async Task<PageDto<GetAssignmentDeclarationListEntryDto>> Handle(AssignmentDeclarationsRequest request, CancellationToken cancellationToken)
     {
         if (!request.User.IsManager && request.EmployeeId.HasValue && request.EmployeeId != request.User.EmployeeId)
             throw new BadRequestException("Du darfst nur deine eigenen Kunden sehen.");
 
         var employeeId = request.User.IsManager ? request.EmployeeId : request.User.EmployeeId;
 
-        var customers = await customerRepository.GetCustomersForResponsibleEmployee(request.User.CompanyId, employeeId, request.CustomerId);
-        customers = customers.Where(o => o.InsuranceStatus == InsuranceStatus.Statutory).ToList();
+        var customers = await customerRepository.GetCustomersAsync(
+            request.User.CompanyId,
+            employeeId,
+            customerId: request.CustomerId,
+            status: CustomerStatus.Customer,
+            insuranceStatus: InsuranceStatus.Statutory);
 
         var assignmentDeclarations =
-            await documentRepository.GetAssignmentDeclarationsAsync(request.User.CompanyId, request.Year, request.CustomerId, employeeId);
+            await documentRepository.GetAssignmentDeclarationsAsync(
+                request.User.CompanyId,
+                request.Year,
+                request.CustomerId,
+                employeeId);
 
         var result = customers.Select(
                 o =>
@@ -55,6 +70,12 @@ internal class AssignmentDeclarationsRequestHandler(
             .OrderBy(o => o.CustomerName)
             .ToList();
 
-        return result;
+        return new(
+            result
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList(),
+            request.Page,
+            (int)Math.Ceiling((decimal)result.Count / request.PageSize));
     }
 }

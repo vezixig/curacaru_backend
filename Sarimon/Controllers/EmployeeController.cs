@@ -53,9 +53,9 @@ public class EmployeeController(ISender mediator) : ControllerBase
 
     [Authorize(Policy = Policy.Company)]
     [HttpGet("list")]
-    public async Task<IActionResult> GetEmployees()
+    public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var employees = await mediator.Send(new EmployeeListRequest(CompanyId));
+        var employees = await mediator.Send(new EmployeeListRequest(CompanyId, page, pageSize));
         return Ok(employees);
     }
 

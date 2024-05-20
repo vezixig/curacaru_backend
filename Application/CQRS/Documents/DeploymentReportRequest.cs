@@ -33,7 +33,13 @@ internal class DeploymentReportRequestHandler(IAppointmentRepository appointment
 
         var start = new DateOnly(request.Year, request.Month, 1);
         var end = start.AddMonths(1).AddDays(-1);
-        var appointments = await appointmentRepository.GetAppointmentsAsync(request.User.CompanyId, start, end, null, request.CustomerId, request.ClearanceType);
+        var appointments = await appointmentRepository.GetAppointmentsAsync(
+            request.User.CompanyId,
+            start,
+            end,
+            null,
+            request.CustomerId,
+            clearanceType: request.ClearanceType);
 
         if (appointments.Count == 0) return null;
 

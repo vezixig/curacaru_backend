@@ -24,19 +24,41 @@ internal class WorkingTimeReportRepository(DataContext dataContext) : IWorkingTi
         Guid requestCompanyId,
         DateOnly start,
         DateOnly end,
-        Guid? userId)
+        Guid? userId,
+        int page,
+        int pageSize)
         => dataContext.Appointments
             .Where(
                 o => o.CompanyId == requestCompanyId && o.Date >= start && o.Date <= end && (userId == null || (o.EmployeeReplacementId ?? o.EmployeeId) == userId))
-            .GroupBy(o => new { EmployeeId = o.EmployeeReplacementId ?? o.EmployeeId, o.Date.Year, o.Date.Month })
+            .GroupBy(
+                o => new
+                {
+                    EmployeeId = o.EmployeeReplacementId ?? o.EmployeeId,
+                    EmployeeName = o.EmployeeReplacement != null ? o.EmployeeReplacement.FirstName : o.Employee.FirstName, o.Date.Year, o.Date.Month
+                })
             .Select(
                 o => new GetWorkingTimeReportListDto
                 {
                     EmployeeId = o.First().EmployeeReplacementId ?? o.First().EmployeeId,
                     Year = o.Key.Year,
-                    Month = o.Key.Month
+                    Month = o.Key.Month,
+                    EmployeeName = o.Key.EmployeeName
                 })
+            .OrderBy(o => o.EmployeeName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+
+    public Task<int> GetWorkedMonthsCountAsync(
+        Guid requestCompanyId,
+        DateOnly start,
+        DateOnly end,
+        Guid? userId)
+        => dataContext.Appointments
+            .Where(
+                o => o.CompanyId == requestCompanyId && o.Date >= start && o.Date <= end && (userId == null || (o.EmployeeReplacementId ?? o.EmployeeId) == userId))
+            .GroupBy(o => new { EmployeeId = o.EmployeeReplacementId ?? o.EmployeeId, o.Date.Year, o.Date.Month })
+            .CountAsync();
 
     public Task<WorkingTimeReport?> GetWorkingTimeReportByIdAsync(Guid companyId, Guid reportId)
         => dataContext.WorkingTimeReports.FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == reportId);

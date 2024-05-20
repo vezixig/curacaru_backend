@@ -54,11 +54,30 @@ public interface IDocumentRepository
         Guid? customerId,
         Guid? employeeId);
 
+    /// <summary>Gets the count of assignment declarations for the provided filters.</summary>
+    /// ///
+    /// <param name="companyId">The company id.</param>
+    /// <param name="year">The year of the assignment declarations.</param>
+    /// <param name="customerId">Optional the id of the customer to filter by.</param>
+    /// <param name="employeeId">Optional the id of the employee to filter by.</param>
+    Task<int> GetAssignmentDeclarationsCountAsync(
+        Guid companyId,
+        int year,
+        Guid? customerId,
+        Guid? employeeId);
+
     /// <summary>Gets a deployment report by its id.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="reportId">The id of the deployment report.</param>
     /// <returns>The deployment report or null if none is found.</returns>
     Task<DeploymentReport?> GetDeploymentReportByIdAsync(Guid companyId, Guid reportId);
+
+    /// <summary>Gets the number of deployment reports for the given filters.</summary>
+    Task<int> GetDeploymentReportCountAsync(
+        Guid companyId,
+        Guid? customerId,
+        int year,
+        int month);
 
     /// <summary>Checks if a deployment report for the given year and month already exists.</summary>
     Task<Guid?> GetDeploymentReportId(
@@ -75,5 +94,7 @@ public interface IDocumentRepository
         int year,
         int month,
         ClearanceType? clearanceType = null,
-        bool includeAppointments = false);
+        bool includeAppointments = false,
+        int? page = null,
+        int? pageSize = null);
 }

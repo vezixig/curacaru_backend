@@ -2,6 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Entities;
+using Enums;
 
 /// <summary>DTO to return a list of customers with only basic information.</summary>
 public class GetCustomerListEntryDto
@@ -27,6 +28,9 @@ public class GetCustomerListEntryDto
 
     /// <inheritdoc cref="Customer.Phone" />
     public string Phone { get; set; } = "";
+
+    /// <inheritdoc cref="Customer.Status" />
+    public CustomerStatus? Status { get; set; }
 
     /// <inheritdoc cref="Customer.Street" />
     public string Street { get; set; } = "";

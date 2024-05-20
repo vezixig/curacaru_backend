@@ -26,8 +26,35 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         return dataContext.SaveChangesAsync();
     }
 
+    public Task DeleteAppointmentsAsync(List<Appointment> appointments)
+    {
+        dataContext.Appointments.RemoveRange(appointments);
+        return dataContext.SaveChangesAsync();
+    }
+
     public Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId)
         => dataContext.Appointments.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == appointmentId && o.CompanyId == companyId);
+
+    public Task<int> GetAppointmentCountAsync(
+        Guid companyId,
+        DateOnly? from,
+        DateOnly? to,
+        Guid? employeeId,
+        Guid? customerId,
+        bool? onlyOpen = null,
+        ClearanceType? clearanceType = null)
+    {
+        var query = dataContext.Appointments.Where(o => o.CompanyId == companyId);
+
+        if (from.HasValue) query = query.Where(o => o.Date >= from.Value);
+        if (to.HasValue) query = query.Where(o => o.Date <= to.Value);
+        if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
+        if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
+        if (onlyOpen == true) query = query.Where(o => !o.IsDone);
+
+        return query.CountAsync();
+    }
 
     public Task<List<Appointment>> GetAppointmentsAsync(
         Guid companyId,
@@ -35,6 +62,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        bool? onlyOpen = null,
+        int? page = null,
+        int? pageSize = null,
         ClearanceType? clearanceType = null,
         bool asTracking = false)
 
@@ -48,18 +78,58 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
 
         if (asTracking) query = query.AsTracking();
 
+        // optional filters
         if (from.HasValue) query = query.Where(o => o.Date >= from.Value);
         if (to.HasValue) query = query.Where(o => o.Date <= to.Value);
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
         if (clearanceType.HasValue) query = query.Where(o => o.ClearanceType == clearanceType.Value);
+        if (onlyOpen == true) query = query.Where(o => !o.IsDone);
 
         query = query.OrderBy(o => o.Date).ThenBy(o => o.TimeStart);
+
+        // paging
+        if (page.HasValue && pageSize.HasValue) query = query.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
         return query.ToListAsync();
     }
 
-    public Task<List<AppointmentClearance>> GetClearanceTypes(
+    public async Task<List<AppointmentClearance>> GetClearanceTypes(
+        Guid companyId,
+        Guid? customerId,
+        Guid? employeeId,
+        int year,
+        int month,
+        int page,
+        int pageSize)
+    {
+        var query = dataContext.Appointments.Include(o => o.Customer)
+            .Include(o => o.Employee)
+            .Include(o => o.EmployeeReplacement)
+            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month && o.ClearanceType != null);
+
+        if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
+        if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
+
+        var result = await query
+            .GroupBy(o => new { o.CustomerId, o.Customer.LastName, o.ClearanceType })
+            .OrderBy(o => o.Key.LastName)
+            .Select(
+                o => new AppointmentClearance
+                {
+                    Customer = o.First().Customer,
+                    Employees = o.Select(p => p.Employee).ToList(),
+                    ReplacementEmployee = o.Where(p => p.EmployeeReplacement != null).Select(p => p.EmployeeReplacement!).ToList(),
+                    ClearanceType = o.Key.ClearanceType!.Value
+                })
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return result;
+    }
+
+    public Task<int> GetClearanceTypesCount(
         Guid companyId,
         Guid? customerId,
         Guid? employeeId,
@@ -69,7 +139,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
         var query = dataContext.Appointments.Include(o => o.Customer)
             .Include(o => o.Employee)
             .Include(o => o.EmployeeReplacement)
-            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month);
+            .Where(o => o.CompanyId == companyId && o.Date.Year == year && o.Date.Month == month && o.ClearanceType != null);
 
         if (customerId.HasValue) query = query.Where(o => o.CustomerId == customerId.Value);
         if (employeeId.HasValue) query = query.Where(o => o.EmployeeId == employeeId.Value || o.EmployeeReplacementId == employeeId.Value);
@@ -81,9 +151,9 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
                     Customer = o.First().Customer,
                     Employees = o.Select(p => p.Employee).ToList(),
                     ReplacementEmployee = o.Where(p => p.EmployeeReplacement != null).Select(p => p.EmployeeReplacement!).ToList(),
-                    ClearanceType = o.Key.ClearanceType
+                    ClearanceType = o.Key.ClearanceType!.Value
                 })
-            .ToListAsync();
+            .CountAsync();
     }
 
     public Task<List<Appointment>> GetPlannedAppointmentsOfCurrentMonthAsync()
@@ -91,7 +161,7 @@ internal class AppointmentRepository(DataContext dataContext) : IAppointmentRepo
             .Where(
                 o => o.IsPlanned
                      && o.Date >= new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1)
-                     && o.Date < new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+                     && o.Date <= new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
             .OrderBy(o => o.Date)
             .ThenBy(o => o.TimeStart)
             .ToListAsync();

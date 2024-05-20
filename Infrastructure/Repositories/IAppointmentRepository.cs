@@ -17,11 +17,33 @@ public interface IAppointmentRepository
     /// <returns>An awaitable task.</returns>
     Task DeleteAppointmentAsync(Appointment appointment);
 
+    /// <summary>Deletes a list of appointments.</summary>
+    /// <param name="appointments">The appointments to delete.</param>
+    /// <returns>An awaitable task object.</returns>
+    Task DeleteAppointmentsAsync(List<Appointment> appointments);
+
     /// <summary>Gets an appointment by id.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="appointmentId">The appointment id.</param>
     /// <returns>An appointment or null if none is found.</returns>
     Task<Appointment?> GetAppointmentAsync(Guid companyId, Guid appointmentId);
+
+    /// <summary>Gets the count of appointments for the provided filters.</summary>
+    /// <param name="companyId">The id of the company.</param>
+    /// <param name="from">The start date of the appointments.</param>
+    /// <param name="to">The end date of the appointments.</param>
+    /// <param name="employeeId">The id of the employee associated with appointments.</param>
+    /// <param name="customerId">The id of the appointment's customer.</param>
+    /// <param name="onlyOpen">An optional filter to only count open appointments.</param>
+    /// <param name="clearanceType">An optional filter for the clearance type.</param>
+    Task<int> GetAppointmentCountAsync(
+        Guid companyId,
+        DateOnly? from,
+        DateOnly? to,
+        Guid? employeeId,
+        Guid? customerId,
+        bool? onlyOpen = null,
+        ClearanceType? clearanceType = null);
 
     /// <summary>Gets appointments matching the provided filters.</summary>
     /// <param name="companyId">The id of the company.</param>
@@ -29,6 +51,7 @@ public interface IAppointmentRepository
     /// <param name="to">The end date of the appointments.</param>
     /// <param name="employeeId">The id of the employee associated with appointments.</param>
     /// <param name="customerId">The id of the appointment's customer.</param>
+    /// <param name="onlyOpen">An optional filter to only return open appointments.</param>
     /// <param name="clearanceType">An optional filter for the clearance type.</param>
     /// <param name="asTracking">Indicates whether to track the appointments.</param>
     Task<List<Appointment>> GetAppointmentsAsync(
@@ -37,6 +60,9 @@ public interface IAppointmentRepository
         DateOnly? to,
         Guid? employeeId,
         Guid? customerId,
+        bool? onlyOpen = null,
+        int? page = null,
+        int? pageSize = null,
         ClearanceType? clearanceType = null,
         bool asTracking = false);
 
@@ -52,7 +78,16 @@ public interface IAppointmentRepository
         Guid? customerId,
         Guid? employeeId,
         int year,
-        int month);
+        int month,
+        int page,
+        int pageSize);
+
+    Task<int> GetClearanceTypesCount(
+        Guid userCompanyId,
+        Guid? requestCustomerId,
+        Guid? requestEmployeeId,
+        int requestYear,
+        int requestMonth);
 
     /// <summary>Gets all planned appointments of the current month.</summary>
     /// <returns>A list of appointments.</returns>

@@ -7,7 +7,7 @@ using Enums;
 public class Appointment
 {
     /// <summary>Gets or sets the type of the clearance.</summary>
-    public ClearanceType ClearanceType { get; set; }
+    public ClearanceType? ClearanceType { get; set; }
 
     /// <summary>Gets or sets the id of the company.</summary>
     [Required]

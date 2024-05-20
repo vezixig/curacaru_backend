@@ -81,6 +81,9 @@ public class Customer
     /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>
     public Gender Salutation { get; set; }
 
+    /// <summary>Gets or sets the status of the customer.</summary>
+    public CustomerStatus? Status { get; set; }
+
     /// <summary>Gets or sets the street of the customer's address.</summary>
     [MaxLength(150)]
     public string Street { get; set; } = "";

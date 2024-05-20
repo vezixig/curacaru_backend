@@ -32,8 +32,14 @@ public interface IEmployeeRepository
 
     /// <summary>Gets all employees of a company.</summary>
     /// <param name="companyId">The company id to get the employees for.</param>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The number of items per page.</param>
     /// <returns>A list of employees.</returns>
-    public Task<List<Employee>> GetEmployeesAsync(Guid companyId);
+    public Task<List<Employee>> GetEmployeesAsync(Guid companyId, int? page = null, int? pageSize = null);
+
+    /// <summary>Gets the number of employees of a company.</summary>
+    /// <param name="companyId">The company id to get the employee count for.</param>
+    public Task<int> GetEmployeesCountAsync(Guid companyId);
 
     /// <summary>Updates an employee.</summary>
     /// <param name="currentEmployee">The modified employee.</param>
