@@ -78,6 +78,9 @@ public class Customer
     [MaxLength(50)]
     public string Phone { get; set; } = "";
 
+    /// <summary>Gets or sets the products assigned to the customer.</summary>
+    public List<Product> Products { get; set; } = [];
+
     /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>
     public Gender Salutation { get; set; }
 

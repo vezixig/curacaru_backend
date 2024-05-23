@@ -18,6 +18,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of companies.</summary>
     public DbSet<Company> Companies { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of contact forms.</summary>
+    public DbSet<ContactForm> ContactForms { get; set; } = null!;
+
     /// <summary>Gets or sets the set of customers.</summary>
     public DbSet<Customer> Customers { get; set; } = null!;
 
@@ -32,6 +35,9 @@ internal class DataContext : DbContext
 
     /// <summary>Gets or sets the set of invoices.</summary>
     public DbSet<Invoice> Invoices { get; set; } = null!;
+
+    /// <summary>Gets or sets the set of products.</summary>
+    public DbSet<Product> Products { get; set; } = null!;
 
     /// <summary>Gets or sets the set of working time reports.</summary>
     public DbSet<WorkingTimeReport> WorkingTimeReports { get; set; } = null!;
@@ -82,6 +88,7 @@ internal class DataContext : DbContext
         AssignmentDeclaration.RegisterEntity(modelBuilder);
         DeploymentReport.RegisterEntity(modelBuilder);
         Invoice.RegisterEntity(modelBuilder);
+        ContactForm.RegisterEntity(modelBuilder);
 
         modelBuilder.Entity<Budget>()
             .HasOne<Company>()
@@ -109,6 +116,10 @@ internal class DataContext : DbContext
             .HasForeignKey(o => o.CompanyId);
 
         modelBuilder.Entity<Customer>()
+            .HasMany(o => o.Products)
+            .WithMany();
+
+        modelBuilder.Entity<Customer>()
             .HasOne(o => o.Insurance)
             .WithMany()
             .HasForeignKey(o => o.InsuranceId);
@@ -132,6 +143,9 @@ internal class DataContext : DbContext
             .HasOne(o => o.ZipCity)
             .WithMany()
             .HasForeignKey(o => o.ZipCode);
+
+        modelBuilder.Entity<Product>()
+            .HasKey(o => o.Id);
 
         modelBuilder.Entity<WorkingTimeReport>()
             .HasOne(o => o.Employee)

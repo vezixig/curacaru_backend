@@ -5,6 +5,7 @@ using Core.DTO;
 using Core.DTO.Appointment;
 using Core.DTO.Budget;
 using Core.DTO.Company;
+using Core.DTO.ContactForm;
 using Core.DTO.Customer;
 using Core.DTO.Insurance;
 using Core.DTO.TimeTracker;
@@ -80,5 +81,11 @@ internal class MappingProfile : Profile
 
         CreateMap<AddCustomerDto, Customer>();
         CreateMap<UpdateCustomerDto, Customer>();
+
+        CreateMap<AddContactInfoDto, Customer>()
+            .ForMember(dest => dest.Products, opt => opt.Ignore())
+            .ForMember(dest => dest.EmergencyContactName, src => src.MapFrom(o => o.Contact))
+            .ForMember(dest => dest.EmergencyContactPhone, src => src.MapFrom(o => o.Contact == null ? null : o.Phone))
+            .ForMember(dest => dest.Phone, src => src.MapFrom(o => o.Contact == null ? o.Phone : null));
     }
 }
