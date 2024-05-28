@@ -8,4 +8,7 @@ public interface IProductRepository
     /// <param name="productIds">The product ids.</param>
     /// <returns>A list of products.</returns>
     public Task<List<Product>> GetProducts(List<int> productIds);
+
+    /// <summary>Gets a list of all products.</summary>
+    public Task<List<Product>> GetProducts();
 }

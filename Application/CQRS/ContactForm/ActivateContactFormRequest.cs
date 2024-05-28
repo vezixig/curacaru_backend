@@ -17,6 +17,7 @@ internal class ActivateContactFormRequestHandler(IContactFormRepository contactF
             {
                 CompanyId = request.User.CompanyId,
                 Color = "255,127,2",
-                FontSize = 12
+                FontSize = 12,
+                IsRounded = true
             });
 }

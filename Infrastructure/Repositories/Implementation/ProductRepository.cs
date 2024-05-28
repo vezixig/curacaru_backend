@@ -9,4 +9,7 @@ internal class ProductRepository(DataContext dataContext) : IProductRepository
 {
     public Task<List<Product>> GetProducts(List<int> productIds)
         => dataContext.Products.Where(product => productIds.Contains(product.Id)).AsTracking().ToListAsync();
+
+    public Task<List<Product>> GetProducts()
+        => dataContext.Products.OrderBy(o => o.Id).ToListAsync();
 }

@@ -16,6 +16,6 @@ internal class IsIdValidRequestHandler(IContactFormRepository contactFormReposit
     {
         var result = await contactFormRepository.GetContactForm(request.Id)
                      ?? throw new NotFoundException("Kein Formular mit dieser ID gefunden.");
-        return new(result.Color, result.FontSize, result.Id);
+        return new(result.Color, result.FontSize, result.Id, result.IsRounded);
     }
 }

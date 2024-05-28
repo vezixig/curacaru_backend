@@ -16,6 +16,9 @@ public class GetCustomerListEntryDto
     /// <summary>Gets or sets the city of the customer.</summary>
     public string City { get; set; } = "";
 
+    /// <inheritdoc cref="Customer.CreatedAt" />
+    public DateTime CreatedAt { get; set; }
+
     /// <inheritdoc cref="Customer.FirstName" />
     public string FirstName { get; set; } = "";
 

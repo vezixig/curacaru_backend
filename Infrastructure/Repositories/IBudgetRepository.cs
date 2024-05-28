@@ -15,7 +15,7 @@ public interface IBudgetRepository
     Task<List<Budget>> GetBudgetListAsync(Guid companyId);
 
     /// <summary>Gets the current budget for a customer.</summary>
-    Task<Budget?> GetCurrentBudgetAsync(Guid companyId, Guid customerId);
+    Task<Budget?> GetCurrentBudgetAsync(Guid companyId, Guid customerId, bool asTracking = false);
 
     /// <summary>Updates a budget of a customer.</summary>
     Task UpdateBudgetAsync(Budget budget);

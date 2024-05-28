@@ -14,6 +14,8 @@ public class ContactForm
 
     public Guid Id { get; set; }
 
+    public bool IsRounded { get; set; }
+
     public static void RegisterEntity(ModelBuilder modelBuilder)
     {
         // primary key

@@ -18,7 +18,7 @@ public interface IInsuranceRepository
     /// <param name="companyId">The company id.</param>
     /// <param name="insuranceId">The insurance id.</param>
     /// <returns>The insurance or null if not found.</returns>
-    public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId);
+    public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId, bool asTracking = false);
 
     /// <summary>Gets the count of insurances for a company.</summary>
     /// <param name="companyId">The company id.</param>

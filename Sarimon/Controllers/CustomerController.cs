@@ -24,7 +24,15 @@ public class CustomerController(ISender mediator) : ControllerBase
     [HttpDelete("{customerId:guid}")]
     public async Task<IActionResult> DeleteCustomer([FromRoute] Guid customerId, [FromQuery] bool deleteOpenAppointments, [FromQuery] bool deleteBudgets)
     {
-        await mediator.Send(new DeleteCustomerRequest(AuthUser, customerId, deleteOpenAppointments, deleteBudgets));
+        await mediator.Send(new SetCustomerInactiveRequest(AuthUser, customerId, deleteOpenAppointments, deleteBudgets));
+        return NoContent();
+    }
+
+    [Authorize(Policy = Policy.Manager)]
+    [HttpDelete("{customerId:guid}/prospect")]
+    public async Task<IActionResult> DeleteProspectCustomer([FromRoute] Guid customerId)
+    {
+        await mediator.Send(new DeleteCustomerRequest(AuthUser, customerId));
         return NoContent();
     }
 
@@ -38,11 +46,11 @@ public class CustomerController(ISender mediator) : ControllerBase
     [HttpGet("list")]
     public async Task<IActionResult> GetCustomers(
         [FromQuery] int page,
-        [FromQuery] bool onlyActive,
+        [FromQuery] CustomerStatus status,
         [FromQuery] Guid? employeeId,
         [FromQuery] int pageSize = 20)
     {
-        var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId, onlyActive));
+        var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId, status));
         return Ok(customers);
     }
 

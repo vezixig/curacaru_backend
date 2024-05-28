@@ -39,17 +39,17 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (asTracking) query = query.AsTracking();
 
         return query.Include(o => o.AssociatedEmployee)
-            .Include(o => o.ZipCity)
             .Include(o => o.Insurance)
             .ThenInclude(o => o!.ZipCity)
+            .Include(o => o.Products)
+            .Include(o => o.ZipCity)
             .FirstOrDefaultAsync(o => o.CompanyId == companyId && o.Id == customerId && (!employeeId.HasValue || o.AssociatedEmployeeId == employeeId));
     }
 
-    public Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, bool onlyActive)
+    public Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, CustomerStatus status)
     {
-        var result = dataContext.Customers.Where(c => c.CompanyId == companyId);
-        if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
-        result = onlyActive ? result.Where(c => c.Status == CustomerStatus.Customer) : result.Where(c => c.Status != CustomerStatus.Customer);
+        var result = dataContext.Customers.Where(o => o.CompanyId == companyId && o.Status == status);
+        if (employeeId.HasValue) result = result.Where(o => o.AssociatedEmployeeId == employeeId.Value);
         return result.CountAsync();
     }
 
@@ -60,7 +60,6 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         int? requestAssignmentDeclarationYear = null,
         Guid? customerId = null,
         CustomerStatus? status = null,
-        bool? onlyActive = null,
         int? page = null,
         int? pageSize = null)
     {
@@ -76,9 +75,6 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (status.HasValue) result = result.Where(c => c.Status == null || c.Status == status);
 
         if (insuranceStatus.HasValue) result = result.Where(c => c.InsuranceStatus == insuranceStatus.Value);
-
-        if (onlyActive.HasValue)
-            result = onlyActive.Value ? result.Where(c => c.Status == CustomerStatus.Customer) : result.Where(c => c.Status != CustomerStatus.Customer);
 
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
@@ -107,14 +103,15 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         return result.ToListAsync();
     }
 
-    public Task<Customer> UpdateCustomerAsync(Customer customer)
+    public async Task<Customer> UpdateCustomerAsync(Customer customer)
     {
-        if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee!);
-        if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance!);
-        if (customer.ZipCity != null) dataContext.Attach(customer.ZipCity);
+        //   if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee!);
+        //    if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance!);
+        // if (customer.ZipCity != null) dataContext.Attach(customer.ZipCity);
 
         var result = dataContext.Customers.Update(customer);
-        return dataContext.SaveChangesAsync().ContinueWith(_ => result.Entity);
+        await dataContext.SaveChangesAsync();
+        return result.Entity;
     }
 }
 #pragma warning restore S6603

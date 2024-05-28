@@ -23,6 +23,9 @@ public class Customer
     [Required]
     public Guid CompanyId { get; set; }
 
+    /// <summary>Gets or sets the date and time when the customer was created.</summary>
+    public DateTime CreatedAt { get; set; } = DateTime.Now.ToUniversalTime();
+
     /// <summary>Gets or sets a value indicating whether clearance can be done through care benefit in kind.</summary>
     /// <see href="https://www.bundesgesundheitsministerium.de/pflegedienst-und-pflegesachleistungen" />
     public bool DoClearanceCareBenefit { get; set; }

@@ -22,6 +22,7 @@ internal class UpdateContactFormRequestHandler(IContactFormRepository contactFor
 
         contactForm.Color = request.Data.Color;
         contactForm.FontSize = request.Data.FontSize;
+        contactForm.IsRounded = request.Data.IsRounded;
 
         await contactFormRepository.UpdateContactFormAsync(contactForm);
     }

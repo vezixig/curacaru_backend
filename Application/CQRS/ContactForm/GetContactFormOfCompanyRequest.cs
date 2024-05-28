@@ -16,6 +16,6 @@ internal class GetContactFormOfCompanyRequestHandler(IContactFormRepository cont
     public async Task<GetContactFormDto?> Handle(GetContactFormOfCompanyRequest request, CancellationToken cancellationToken)
     {
         var contactForm = await contactFormRepository.GetContactFormOfCompany(request.User.CompanyId);
-        return contactForm is null ? null : new(contactForm.Color, contactForm.FontSize, contactForm.Id);
+        return contactForm is null ? null : new(contactForm.Color, contactForm.FontSize, contactForm.Id, contactForm.IsRounded);
     }
 }
