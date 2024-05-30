@@ -48,9 +48,10 @@ public class CustomerController(ISender mediator) : ControllerBase
         [FromQuery] int page,
         [FromQuery] CustomerStatus status,
         [FromQuery] Guid? employeeId,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? orderBy = null)
     {
-        var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId, status));
+        var customers = await mediator.Send(new CustomerListRequest(AuthUser, page, pageSize, employeeId, status, orderBy == "date"));
         return Ok(customers);
     }
 

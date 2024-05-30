@@ -86,8 +86,8 @@ internal class MappingProfile : Profile
 
         CreateMap<AddContactInfoDto, Customer>()
             .ForMember(dest => dest.Products, opt => opt.Ignore())
-            .ForMember(dest => dest.EmergencyContactName, src => src.MapFrom(o => o.Contact))
-            .ForMember(dest => dest.EmergencyContactPhone, src => src.MapFrom(o => o.Contact == null ? null : o.Phone))
-            .ForMember(dest => dest.Phone, src => src.MapFrom(o => o.Contact == null ? o.Phone : null));
+            .ForMember(dest => dest.EmergencyContactName, src => src.MapFrom(o => o.Contact ?? ""))
+            .ForMember(dest => dest.EmergencyContactPhone, src => src.MapFrom(o => o.Contact == null ? "" : o.Phone))
+            .ForMember(dest => dest.Phone, src => src.MapFrom(o => o.Contact == null ? o.Phone : ""));
     }
 }

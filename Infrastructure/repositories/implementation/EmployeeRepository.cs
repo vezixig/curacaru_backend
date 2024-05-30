@@ -34,8 +34,12 @@ internal class EmployeeRepository(DataContext dataContext, IMemoryCache memoryCa
         return dbEmployee;
     }
 
-    public Task<Employee?> GetEmployeeByIdAsync(Guid companyId, Guid employeeId)
-        => dataContext.Employees.FirstOrDefaultAsync(e => e.Id == employeeId && e.CompanyId == companyId);
+    public Task<Employee?> GetEmployeeByIdAsync(Guid companyId, Guid employeeId, bool asTracking = false)
+    {
+        var result = dataContext.Employees.AsQueryable();
+        if (asTracking) result = result.AsTracking();
+        return result.FirstOrDefaultAsync(e => e.Id == employeeId && e.CompanyId == companyId);
+    }
 
     public Task<List<Employee>> GetEmployeesAsync(Guid companyId, int? page = null, int? pageSize = null)
     {

@@ -61,13 +61,15 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         Guid? customerId = null,
         CustomerStatus? status = null,
         int? page = null,
-        int? pageSize = null)
+        int? pageSize = null,
+        bool? orderByDate = null)
     {
         var result = dataContext.Customers
             .Include(o => o.AssociatedEmployee)
             .Include(o => o.ZipCity)
             .Where(c => c.CompanyId == companyId);
 
+        // Filter
         if (employeeId.HasValue) result = result.Where(c => c.AssociatedEmployeeId == employeeId.Value);
 
         if (customerId.HasValue) result = result.Where(c => c.Id == customerId);
@@ -79,13 +81,16 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
 
-        result = result.OrderBy(c => c.LastName);
+        // Ordering
+        if (orderByDate.HasValue && orderByDate.Value)
+            result = result.OrderByDescending(o => o.CreatedAt);
+        else
+            result = result.OrderBy(c => c.LastName);
 
+        // Paging
         if (page.HasValue && pageSize.HasValue) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
-        return result
-            .OrderBy(c => c.LastName)
-            .ToListAsync();
+        return result.ToListAsync();
     }
 
     public Task<List<Customer>> GetCustomersForDeploymentReportsAsync(
@@ -105,10 +110,6 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
 
     public async Task<Customer> UpdateCustomerAsync(Customer customer)
     {
-        //   if (customer.AssociatedEmployeeId.HasValue) dataContext.Attach(customer.AssociatedEmployee!);
-        //    if (customer.InsuranceId.HasValue) dataContext.Attach(customer.Insurance!);
-        // if (customer.ZipCity != null) dataContext.Attach(customer.ZipCity);
-
         var result = dataContext.Customers.Update(customer);
         await dataContext.SaveChangesAsync();
         return result.Entity;

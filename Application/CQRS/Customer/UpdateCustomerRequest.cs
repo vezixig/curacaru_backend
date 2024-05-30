@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Core.DTO.Customer;
+using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
 using Infrastructure.Repositories;
@@ -33,10 +34,6 @@ public class UpdateCustomerRequestHandler(
 
         if (customer.CompanyId != request.User.CompanyId) throw new ForbiddenException("Sie dürfen diesen Kunden nicht bearbeiten.");
 
-        if (request.CustomerData.AssociatedEmployeeId.HasValue)
-            _ = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.CustomerData.AssociatedEmployeeId.Value)
-                ?? throw new BadRequestException("Bearbeitenden Mitarbeiter nicht gefunden.");
-
         // validate products
         var products = await productRepository.GetProducts(request.CustomerData.Products);
         if (products.Count != request.CustomerData.Products.Count) throw new BadRequestException("Ein oder mehrere Produkte wurden nicht gefunden.");
@@ -56,8 +53,18 @@ public class UpdateCustomerRequestHandler(
             : null;
         customer.Insurance = insurance;
 
+        // validate employee
+        Employee? associatedEmployee = null;
+        if (request.CustomerData.AssociatedEmployeeId.HasValue)
+        {
+            associatedEmployee = await employeeRepository.GetEmployeeByIdAsync(request.User.CompanyId, request.CustomerData.AssociatedEmployeeId.Value, true);
+            if (associatedEmployee is null) throw new BadRequestException("Mitarbeiter nicht gefunden.");
+        }
+
+        customer.AssociatedEmployee = associatedEmployee;
+
         // Remove clearance amounts from budgets if not allowed
-        var budget = await budgetRepository.GetCurrentBudgetAsync(request.User.CompanyId, request.CustomerData.Id);
+        var budget = await budgetRepository.GetCurrentBudgetAsync(request.User.CompanyId, request.CustomerData.Id, true);
 
         if (budget is not null)
         {
@@ -71,10 +78,6 @@ public class UpdateCustomerRequestHandler(
         }
 
         mapper.Map(request.CustomerData, customer);
-        if (request.CustomerData.AssociatedEmployeeId.HasValue)
-            customer.AssociatedEmployee = new() { Id = request.CustomerData.AssociatedEmployeeId!.Value };
-        else
-            customer.AssociatedEmployee = null;
 
         var transaction = await databaseService.BeginTransactionAsync(cancellationToken);
         try

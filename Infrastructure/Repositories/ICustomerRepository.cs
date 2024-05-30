@@ -59,7 +59,8 @@ public interface ICustomerRepository
         Guid? customerId = null,
         CustomerStatus? status = null,
         int? page = null,
-        int? pageSize = null);
+        int? pageSize = null,
+        bool? orderByDate = null);
 
     /// <summary>
     ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or

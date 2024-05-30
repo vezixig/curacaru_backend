@@ -15,9 +15,12 @@ public class CustomerListRequest(
     int page,
     int pageSize,
     Guid? employeeId,
-    CustomerStatus status) : IRequest<PageDto<GetCustomerListEntryDto>>
+    CustomerStatus status,
+    bool orderByDate) : IRequest<PageDto<GetCustomerListEntryDto>>
 {
     public Guid? EmployeeId { get; } = employeeId;
+
+    public bool OrderByDate { get; } = orderByDate;
 
     public int Page { get; } = page;
 
@@ -44,7 +47,8 @@ public class CustomerListRequestHandler(ICustomerRepository customerRepository, 
             request.User.IsManager ? request.EmployeeId : request.User.EmployeeId,
             status: request.Status,
             page: request.Page,
-            pageSize: request.PageSize);
+            pageSize: request.PageSize,
+            orderByDate: request.OrderByDate);
 
         var pageCount = (int)Math.Ceiling((decimal)customerCount / request.PageSize);
         return new(mapper.Map<List<GetCustomerListEntryDto>>(customers), request.Page, pageCount);
