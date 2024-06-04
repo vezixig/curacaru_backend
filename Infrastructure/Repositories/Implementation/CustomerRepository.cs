@@ -83,13 +83,11 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (requestAssignmentDeclarationYear.HasValue)
             result = result.Include(o => o.AssignmentDeclarations).Where(c => c.AssignmentDeclarations.All(a => a.Year != requestAssignmentDeclarationYear));
 
-        result = result.OrderBy(c => c.LastName);
+        result = result.OrderBy(c => c.LastName).ThenBy(o => o.FirstName).ThenBy(o => o.Id);
 
         if (page.HasValue && pageSize.HasValue) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
-        return result
-            .OrderBy(c => c.LastName)
-            .ToListAsync();
+        return result.ToListAsync();
     }
 
     public Task<List<Customer>> GetCustomersForDeploymentReportsAsync(
