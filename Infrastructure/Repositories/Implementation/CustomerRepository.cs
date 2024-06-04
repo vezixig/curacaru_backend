@@ -85,7 +85,7 @@ internal class CustomerRepository(DataContext dataContext) : ICustomerRepository
         if (orderByDate.HasValue && orderByDate.Value)
             result = result.OrderByDescending(o => o.CreatedAt);
         else
-            result = result.OrderBy(c => c.LastName);
+            result = result.OrderBy(c => c.LastName).ThenBy(o => o.FirstName).ThenBy(o => o.Id);
 
         // Paging
         if (page.HasValue && pageSize.HasValue) result = result.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
