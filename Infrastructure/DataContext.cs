@@ -33,6 +33,12 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of invoices.</summary>
     public DbSet<Invoice> Invoices { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of products.</summary>
+    public DbSet<Product> Products { get; set; } = null!;
+
+    /// <summary>Gets or sets the set of subscriptions.</summary>
+    public DbSet<Subscription> Subscriptions { get; set; } = null!;
+
     /// <summary>Gets or sets the set of working time reports.</summary>
     public DbSet<WorkingTimeReport> WorkingTimeReports { get; set; } = null!;
 
@@ -132,6 +138,14 @@ internal class DataContext : DbContext
             .HasOne(o => o.ZipCity)
             .WithMany()
             .HasForeignKey(o => o.ZipCode);
+
+        modelBuilder.Entity<Product>()
+            .HasKey(o => o.Id);
+
+        modelBuilder.Entity<Subscription>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(o => o.CompanyId);
 
         modelBuilder.Entity<WorkingTimeReport>()
             .HasOne(o => o.Employee)

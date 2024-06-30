@@ -7,6 +7,7 @@ using Core.DTO.Budget;
 using Core.DTO.Company;
 using Core.DTO.Customer;
 using Core.DTO.Insurance;
+using Core.DTO.Payment;
 using Core.DTO.TimeTracker;
 using Core.Entities;
 
@@ -33,6 +34,9 @@ internal class MappingProfile : Profile
             .ForMember(o => o.Name, src => src.MapFrom(o => (o.FirstName + " " + o.LastName).Trim()));
 
         CreateMap<WorkingTimeReport, GetWorkingTimeReportDto>();
+
+        CreateMap<Subscription, GetSubscriptionDto>()
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => !src.IsCanceled && (src.PeriodEnd == null || src.PeriodEnd >= DateTime.Today)));
     }
 
     private void CreateAppointmentMappings()

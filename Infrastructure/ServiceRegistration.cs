@@ -24,5 +24,6 @@ public static class ServiceRegistration
         services.AddScoped<IImageService, ImageService>();
         services.AddScoped<IMapService, MapService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddSingleton<IStripeService, StripeService>();
     }
 }

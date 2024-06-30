@@ -3,6 +3,7 @@ using System;
 using Curacaru.Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Curacaru.Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240630113847_Subscription")]
+    partial class Subscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,6 +313,34 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("Curacaru.Backend.Core.Entities.ContactForm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FontSize")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsRounded")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId")
+                        .IsUnique();
+
+                    b.ToTable("ContactForms");
+                });
+
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -327,6 +358,9 @@ namespace Curacaru.Backend.Infrastructure.Migrations
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("DoClearanceCareBenefit")
                         .HasColumnType("boolean");
@@ -744,6 +778,21 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.ToTable("ZipCities");
                 });
 
+            modelBuilder.Entity("CustomerProduct", b =>
+                {
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CustomerId", "ProductsId");
+
+                    b.HasIndex("ProductsId");
+
+                    b.ToTable("CustomerProduct");
+                });
+
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Appointment", b =>
                 {
                     b.HasOne("Curacaru.Backend.Core.Entities.Company", null)
@@ -842,6 +891,15 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                         .HasForeignKey("ZipCode");
 
                     b.Navigation("ZipCity");
+                });
+
+            modelBuilder.Entity("Curacaru.Backend.Core.Entities.ContactForm", b =>
+                {
+                    b.HasOne("Curacaru.Backend.Core.Entities.Company", null)
+                        .WithOne()
+                        .HasForeignKey("Curacaru.Backend.Core.Entities.ContactForm", "CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Customer", b =>
@@ -969,6 +1027,21 @@ namespace Curacaru.Backend.Infrastructure.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("CustomerProduct", b =>
+                {
+                    b.HasOne("Curacaru.Backend.Core.Entities.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Curacaru.Backend.Core.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Curacaru.Backend.Core.Entities.Customer", b =>
