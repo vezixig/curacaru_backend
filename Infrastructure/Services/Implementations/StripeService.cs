@@ -6,6 +6,8 @@ using Stripe.Checkout;
 
 internal class StripeService : IStripeService
 {
+    private const string TaxRateId = "txr_1PXbvdIk8tH2HUNWLLHziTm7";
+
     private readonly StripeClient _client = new(Environment.GetEnvironmentVariable("STRIPE_API_KEY"));
 
     private readonly SessionService _service;
@@ -41,7 +43,15 @@ internal class StripeService : IStripeService
             [
                 new()
                 {
-                    Items = [new() { Price = priceId, Quantity = 1 }]
+                    Items =
+                    [
+                        new()
+                        {
+                            Price = priceId,
+                            Quantity = 1,
+                            TaxRates = [TaxRateId]
+                        }
+                    ]
                 }
             ]
         };
@@ -87,10 +97,10 @@ internal class StripeService : IStripeService
                 new()
                 {
                     Price = priceId,
-                    Quantity = 1
+                    Quantity = 1,
+                    TaxRates = [TaxRateId]
                 }
             ]
-            // AutomaticTax = new SessionAutomaticTaxOptions { Enabled = true },
         };
 
         if (trialPeriodDays > 0) options.SubscriptionData = new() { TrialPeriodDays = trialPeriodDays };
@@ -132,7 +142,8 @@ internal class StripeService : IStripeService
                     new()
                     {
                         Id = subscription.Items.First().Id,
-                        Price = priceId
+                        Price = priceId,
+                        TaxRates = [TaxRateId]
                     }
                 ]
             }
