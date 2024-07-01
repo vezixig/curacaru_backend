@@ -36,9 +36,9 @@ public interface ICustomerRepository
     /// <summary>Gets the count of customers.</summary>
     /// <param name="companyId">The company id.</param>
     /// <param name="employeeId">An optional employee id to check access.</param>
-    /// <param name="onlyActive">True to only count active customers.</param>
+    /// <param name="status">The status to filter customers by.</param>
     /// <returns>The count of customers.</returns>
-    Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, bool onlyActive);
+    Task<int> GetCustomerCountAsync(Guid companyId, Guid? employeeId, CustomerStatus status);
 
     /// <summary>Gets all customers of a company.</summary>
     /// <param name="companyId">The company identifier.</param>
@@ -58,9 +58,9 @@ public interface ICustomerRepository
         int? requestAssignmentDeclarationYear = null,
         Guid? customerId = null,
         CustomerStatus? status = null,
-        bool? onlyActive = null,
         int? page = null,
-        int? pageSize = null);
+        int? pageSize = null,
+        bool? orderByDate = null);
 
     /// <summary>
     ///     Gets all customers of a company that are assigned to a specific employee or have a replacement appointment or

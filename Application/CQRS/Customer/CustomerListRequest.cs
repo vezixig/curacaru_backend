@@ -3,6 +3,7 @@
 using AutoMapper;
 using Core.DTO;
 using Core.DTO.Customer;
+using Core.Enums;
 using Core.Models;
 using Infrastructure.Repositories;
 using MediatR;
@@ -14,16 +15,18 @@ public class CustomerListRequest(
     int page,
     int pageSize,
     Guid? employeeId,
-    bool onlyActive) : IRequest<PageDto<GetCustomerListEntryDto>>
+    CustomerStatus status,
+    bool orderByDate) : IRequest<PageDto<GetCustomerListEntryDto>>
 {
     public Guid? EmployeeId { get; } = employeeId;
 
-    /// <summary>Gets a value indicating whether to only return active customers.</summary>
-    public bool OnlyActive { get; set; } = onlyActive;
+    public bool OrderByDate { get; } = orderByDate;
 
     public int Page { get; } = page;
 
     public int PageSize { get; } = pageSize;
+
+    public CustomerStatus Status { get; } = status;
 
     /// <summary>Gets the authorized user.</summary>
     public User User { get; } = user;
@@ -37,14 +40,15 @@ public class CustomerListRequestHandler(ICustomerRepository customerRepository, 
         var customerCount = await customerRepository.GetCustomerCountAsync(
             request.User.CompanyId,
             request.User.IsManager ? request.EmployeeId : request.User.EmployeeId,
-            request.OnlyActive);
+            request.Status);
 
         var customers = await customerRepository.GetCustomersAsync(
             request.User.CompanyId,
             request.User.IsManager ? request.EmployeeId : request.User.EmployeeId,
-            onlyActive: request.OnlyActive,
+            status: request.Status,
             page: request.Page,
-            pageSize: request.PageSize);
+            pageSize: request.PageSize,
+            orderByDate: request.OrderByDate);
 
         var pageCount = (int)Math.Ceiling((decimal)customerCount / request.PageSize);
         return new(mapper.Map<List<GetCustomerListEntryDto>>(customers), request.Page, pageCount);

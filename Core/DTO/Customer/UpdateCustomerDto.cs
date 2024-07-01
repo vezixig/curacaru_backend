@@ -41,6 +41,9 @@ public class UpdateCustomerDto
 
     public string Phone { get; set; } = "";
 
+    /// <summary>Gets or sets the ids of the products the customer is interested in.</summary>
+    public List<int> Products { get; set; } = [];
+
     /// <inheritdoc cref="Customer.Salutation" />
     public Gender Salutation { get; set; }
 

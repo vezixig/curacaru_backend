@@ -18,6 +18,9 @@ internal class DataContext : DbContext
     /// <summary>Gets or sets the set of companies.</summary>
     public DbSet<Company> Companies { get; set; } = null!;
 
+    /// <summary>Gets or sets the set of contact forms.</summary>
+    public DbSet<ContactForm> ContactForms { get; set; } = null!;
+
     /// <summary>Gets or sets the set of customers.</summary>
     public DbSet<Customer> Customers { get; set; } = null!;
 
@@ -88,6 +91,7 @@ internal class DataContext : DbContext
         AssignmentDeclaration.RegisterEntity(modelBuilder);
         DeploymentReport.RegisterEntity(modelBuilder);
         Invoice.RegisterEntity(modelBuilder);
+        ContactForm.RegisterEntity(modelBuilder);
 
         modelBuilder.Entity<Budget>()
             .HasOne<Company>()
@@ -113,6 +117,10 @@ internal class DataContext : DbContext
             .HasOne<Company>()
             .WithMany()
             .HasForeignKey(o => o.CompanyId);
+
+        modelBuilder.Entity<Customer>()
+            .HasMany(o => o.Products)
+            .WithMany();
 
         modelBuilder.Entity<Customer>()
             .HasOne(o => o.Insurance)

@@ -20,9 +20,12 @@ internal class InsuranceRepository(DataContext dataContext) : IInsuranceReposito
         return dataContext.SaveChangesAsync();
     }
 
-    public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId)
-        => dataContext.Insurances
-            .FirstOrDefaultAsync(o => (o.CompanyId == null || o.CompanyId == companyId) && o.Id == insuranceId);
+    public Task<Insurance?> GetInsuranceAsync(Guid companyId, Guid insuranceId, bool asTracking = false)
+    {
+        var result = dataContext.Insurances.AsQueryable();
+        if (asTracking) result = result.AsTracking();
+        return result.FirstOrDefaultAsync(o => (o.CompanyId == null || o.CompanyId == companyId) && o.Id == insuranceId);
+    }
 
     public Task<int> GetInsuranceCountAsync(Guid companyId)
         => dataContext.Insurances

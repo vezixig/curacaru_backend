@@ -23,6 +23,9 @@ public class Customer
     [Required]
     public Guid CompanyId { get; set; }
 
+    /// <summary>Gets or sets the date and time when the customer was created.</summary>
+    public DateTime CreatedAt { get; set; } = DateTime.Now.ToUniversalTime();
+
     /// <summary>Gets or sets a value indicating whether clearance can be done through care benefit in kind.</summary>
     /// <see href="https://www.bundesgesundheitsministerium.de/pflegedienst-und-pflegesachleistungen" />
     public bool DoClearanceCareBenefit { get; set; }
@@ -77,6 +80,9 @@ public class Customer
     /// <summary>Gets or sets the phone number of the customer.</summary>
     [MaxLength(50)]
     public string Phone { get; set; } = "";
+
+    /// <summary>Gets or sets the products assigned to the customer.</summary>
+    public List<Product> Products { get; set; } = [];
 
     /// <summary>Gets or sets the salutation of the customer based on the gender.</summary>
     public Gender Salutation { get; set; }

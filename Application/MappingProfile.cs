@@ -5,6 +5,7 @@ using Core.DTO;
 using Core.DTO.Appointment;
 using Core.DTO.Budget;
 using Core.DTO.Company;
+using Core.DTO.ContactForm;
 using Core.DTO.Customer;
 using Core.DTO.Insurance;
 using Core.DTO.Payment;
@@ -71,8 +72,9 @@ internal class MappingProfile : Profile
             .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.ZipCode : ""));
 
         CreateMap<Customer, GetCustomerDto>()
-            .ForMember(o => o.City, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.City : ""))
-            .ForMember(o => o.ZipCode, src => src.MapFrom(o => o.ZipCity != null ? o.ZipCity.ZipCode : ""));
+            .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.ZipCity != null ? src.ZipCity.City : ""))
+            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.Select(o => o.Id).ToList()))
+            .ForMember(dest => dest.ZipCode, opt => opt.MapFrom(src => src.ZipCity != null ? src.ZipCity.ZipCode : ""));
 
         CreateMap<Customer, GetMinimalCustomerListEntryDto>()
             .ForMember(o => o.CustomerName, src => src.MapFrom(o => $"{o.LastName}, {o.FirstName}"))
@@ -83,6 +85,13 @@ internal class MappingProfile : Profile
             .ForMember(o => o.CustomerId, src => src.MapFrom(o => o.Id));
 
         CreateMap<AddCustomerDto, Customer>();
-        CreateMap<UpdateCustomerDto, Customer>();
+        CreateMap<UpdateCustomerDto, Customer>()
+            .ForMember(dest => dest.Products, opt => opt.Ignore());
+
+        CreateMap<AddContactInfoDto, Customer>()
+            .ForMember(dest => dest.Products, opt => opt.Ignore())
+            .ForMember(dest => dest.EmergencyContactName, src => src.MapFrom(o => o.Contact ?? ""))
+            .ForMember(dest => dest.EmergencyContactPhone, src => src.MapFrom(o => o.Contact == null ? "" : o.Phone))
+            .ForMember(dest => dest.Phone, src => src.MapFrom(o => o.Contact == null ? o.Phone : ""));
     }
 }
